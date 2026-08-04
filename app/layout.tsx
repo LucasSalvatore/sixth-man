@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Instrument_Sans, Newsreader, Spline_Sans_Mono } from "next/font/google";
+import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 /**
- * Display: Newsreader — an editorial serif with moderate stroke contrast, so
- * its thins survive on near-black. Words only.
+ * Three faces, one job each.
+ *
+ * Display — Fraunces. A high-contrast old-style serif with a genuinely
+ * characterful axis (it carries optical-size and soft/wonk detailing), so the
+ * argument reads as commissioned editorial rather than an enlarged UI sans.
+ * Used only for the argument headline and section heads.
  */
-const display = Newsreader({
+const display = Fraunces({
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-display",
 });
 
-/** Body: Instrument Sans — quiet neo-grotesque, open apertures at 14–15px. Prose only. */
+/** Body — Instrument Sans. A quiet, clean neo-grotesque for prose and labels. */
 const body = Instrument_Sans({
   subsets: ["latin"],
   display: "swap",
@@ -24,12 +28,12 @@ const body = Instrument_Sans({
 });
 
 /**
- * Numerals: Spline Sans Mono. Monospaced, so every digit, the em dash, the
- * U+2212 minus and the "$" share one advance width — alignment is a property of
- * the font metrics rather than of an optional `tnum` feature a subsetter can
- * drop. Every numeral on the page is set in this face.
+ * Numerals — JetBrains Mono. A true monospace, so every digit, the minus, the
+ * dollar sign and the decimal share one advance width. Column alignment is a
+ * property of the metrics, not of an optional feature a subsetter can drop.
+ * Every number on the page is set in this face.
  */
-const numerals = Spline_Sans_Mono({
+const numerals = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "500"],
@@ -39,7 +43,7 @@ const numerals = Spline_Sans_Mono({
 export const metadata: Metadata = {
   title: "deep-bench — Lucan Labs",
   description:
-    "What each NBA bench is worth in wins, what those wins cost, which five a team should be starting, and where the minutes should go.",
+    "NBA teams are bad at buying bench value: bench payroll explains about six percent of the variance in bench quality.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -7,48 +7,55 @@ lineups and minutes should go
 
 A static Next.js app under the Lucan Labs brand. No backend, no database, no
 API routes — every figure is read at build time from
-[`data/deep-bench-data.json`](./data/deep-bench-data.json).
+[`data/deep-bench-data-v2.json`](./data/deep-bench-data-v2.json).
 
 ### What's on the page
 
-- **Scatter** — bench payroll against bench wins above average, one point per
-  team in that team's own colour, with quadrant lines at the league-average
-  payroll and at zero.
-- **Table** — all thirty benches, sortable, with an inline diverging bar per
-  row and the amber data flag for the twelve affected teams.
-- **Lineup optimizer** — the current five against the model's optimal five for
-  the selected team, with the wins gained between them.
-- **Minutes plan** — current minutes against the model's target for every
-  graded player on the selected team.
-- **How this was built** — the source's own definitions, quoted, plus the five
-  limitations in plain language.
+The page is three acts of deliberately unequal weight:
+
+- **The argument** — the headline claim (NBA teams are bad at buying bench
+  value) and the chart that carries it: a scatter of bench payroll against
+  bench wins above average, one point per team in that team's own colour, with
+  Boston, Portland, Denver, San Antonio and Brooklyn annotated directly on the
+  chart.
+- **The evidence** — all thirty benches in a sortable table, default-sorted by
+  surplus value, with an inline diverging bar per row and a flag marker for
+  every team carrying an imputed player.
+- **The tool** — a lineup optimizer (current five against the model's optimal
+  five, with the wins gained between them) and a minutes plan, both driven by
+  one team selector.
+- **How this was built** — the source's own formula definitions, quoted, plus
+  the seven limitations in plain language.
+
+Twenty-two players had no 2025-26 box score and are estimated rather than
+dropped. Two kinds of estimate are marked distinctly wherever the player
+appears — a steel `⟲` for a real prior-season stat reused as a prior, an amber
+`◆` for a modeled placeholder that is not a real stat.
 
 ### Data integrity
 
-No BPM, salary, win, gain, or minute value is generated, modified, estimated,
-or recomputed anywhere in this app. Values are read from the JSON and rendered
-as-is; only presentation changes (dollars shown in millions, a true minus
-glyph, fixed decimal places). Two consequences are deliberate:
+No BPM, salary, win, gain, surplus, or minute value is generated, modified,
+estimated, or recomputed anywhere in this app. Every displayed number is a
+direct field read from the JSON; components perform no averaging, summing, or
+formula. Only presentation changes (dollars shown in millions, a true minus
+glyph, explicit `+`/`−` signs, fixed decimal places).
 
-- The `delta` column renders the source's `delta` field and never `opt − cur` —
-  twelve of the 276 minute rows disagree with the computed figure.
-- The six teams with no lineup in the source get an empty state that says so.
-  No lineup is constructed for them, and four-player lineups are shown with
-  four players.
-
-The one derived figure on the page is the scatter's league-average payroll
-reference line, which is labelled as an average where it appears.
+The corrected data file serialised absent positions as bare `NaN`, which is not
+valid JSON. Those 21 tokens (all the `pos` field of imputed players) are stored
+as `null` so the file parses; no numeric value is touched.
 
 ### The data guard
 
 `scripts/check-data.mjs` validates the data file and **fails the build** if any
-invariant breaks. It is the permanent defense against a bad data swap — the
-September refresh included. A refresh that quietly breaks the league identity,
-drops a field, or loses a disclosure stops here instead of shipping wrong
+invariant breaks. It runs automatically before every build (the `prebuild`
+script), so it is the permanent defense against a bad data swap — the September
+refresh included. A refresh that quietly breaks the league identity, drops a
+field, or loses a disclosure stops the build here instead of shipping wrong
 numbers to the page.
 
 ```
-npm run check-data              # check the canonical data file
+npm run build                   # runs the guard first, then builds
+npm run check-data              # check the canonical data file on its own
 npm run check-data <path>       # check a specific file
 ```
 

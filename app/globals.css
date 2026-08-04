@@ -23,7 +23,8 @@
 
   /* Signal */
   --gold: #c8a44d; /* the single Lucan gold — four permitted uses only */
-  --flag: #e8a33a; /* the amber dataFlag marker only */
+  --flag: #e8a33a; /* amber: a rookie's MODELED placeholder — not a real stat */
+  --prior: #a9b0b6; /* steel: a returning player's REAL prior-season stat */
   --pos: #66d6a4;
   --neg: #e0685e;
   --casing: #050504;

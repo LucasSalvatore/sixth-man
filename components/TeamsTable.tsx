@@ -1,10 +1,11 @@
 "use client";
 
 import { Fragment, useMemo, useRef, useState } from "react";
-import type { Team } from "@/lib/types";
-import { fixed, formatMillions, signed } from "@/lib/format";
+import type { ImputeReason, Team } from "@/lib/types";
+import { fixed, formatMillions, formatSurplus, signed } from "@/lib/format";
 import { isAchromatic, teamIdentity } from "@/lib/teamColors";
 import { useFlip, useReducedMotion, useReveal } from "@/lib/motion";
+import { REASON_META, FlagDetails } from "@/components/flags";
 import { Money, Num } from "@/components/ui";
 
 type SortKey =
@@ -14,12 +15,20 @@ type SortKey =
   | "benchBPM"
   | "projWins"
   | "benchPayroll"
-  | "costPerBenchWin";
+  | "benchSurplusValue";
 
 type SortDir = "asc" | "desc";
 
-const BAR_DOMAIN = 3; // fixed symmetric ±3.00, so the scale never rescales on re-sort
+const BAR_DOMAIN = 3; // fixed symmetric ±3.00 (extreme is BKN −2.65), never rescales
 const BAR_HALF = 88;
+
+/** The reasons present on a team, deduped, so the gutter shows what kind(s) of
+ *  imputation the row carries at a glance; the expansion lists every player. */
+function reasonsOf(team: Team): ImputeReason[] {
+  const seen = new Set<ImputeReason>();
+  for (const flag of team.dataFlags) seen.add(flag.reason);
+  return [...seen];
+}
 
 export function TeamsTable({
   teams,
@@ -28,7 +37,8 @@ export function TeamsTable({
   teams: Team[];
   onHoverTeam?: (code: string | null) => void;
 }) {
-  const [sortKey, setSortKey] = useState<SortKey>("projWins");
+  // Default: surplus value descending; ties broken by projected wins descending.
+  const [sortKey, setSortKey] = useState<SortKey>("benchSurplusValue");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -39,23 +49,20 @@ export function TeamsTable({
   const sorted = useMemo(() => {
     const rows = [...teams];
     rows.sort((a, b) => {
+      let cmp: number;
       if (sortKey === "team") {
-        const cmp = a.team.localeCompare(b.team);
+        cmp = a.team.localeCompare(b.team);
         return sortDir === "asc" ? cmp : -cmp;
       }
-      const av = a[sortKey];
-      const bv = b[sortKey];
-      // Nulls always sort last, in both directions.
-      if (av === null && bv === null) return 0;
-      if (av === null) return 1;
-      if (bv === null) return -1;
-      const cmp = av - bv;
-      return sortDir === "asc" ? cmp : -cmp;
+      cmp = a[sortKey] - b[sortKey];
+      const primary = sortDir === "asc" ? cmp : -cmp;
+      if (primary !== 0) return primary;
+      // Deterministic tiebreak so re-sorts never reorder ties randomly.
+      return b.projWins - a.projWins || a.team.localeCompare(b.team);
     });
     return rows;
   }, [teams, sortKey, sortDir]);
 
-  // Biggest movers land last, which is what makes it read as sorting.
   const ranks = useRef<Map<string, number>>(new Map());
   const previousRanks = useRef<Map<string, number>>(new Map());
   previousRanks.current = ranks.current;
@@ -85,11 +92,6 @@ export function TeamsTable({
     onHoverTeam?.(code);
   }
 
-  const firstNullIndex =
-    sortKey === "costPerBenchWin"
-      ? sorted.findIndex((t) => t.costPerBenchWin === null)
-      : -1;
-
   const headCell = (key: SortKey, label: string, span?: number) => {
     const activeSort = sortKey === key;
     return (
@@ -106,7 +108,7 @@ export function TeamsTable({
           className="inline-flex items-center gap-1 text-[11.5px]"
           style={{
             fontWeight: 500,
-            letterSpacing: "0.055em",
+            letterSpacing: "0.04em",
             color: activeSort ? "var(--text-hi)" : "var(--text-lo)",
             borderBottom: activeSort ? "1px solid var(--gold)" : "1px solid transparent",
             paddingBottom: 2,
@@ -129,7 +131,7 @@ export function TeamsTable({
         <table
           className="w-full"
           style={{
-            minWidth: 760,
+            minWidth: 780,
             borderCollapse: "separate",
             borderSpacing: 0,
             tableLayout: "fixed",
@@ -137,15 +139,15 @@ export function TeamsTable({
           }}
         >
           <colgroup>
-            <col style={{ width: 24 }} />
+            <col style={{ width: 30 }} />
             <col style={{ width: 76 }} />
-            <col style={{ width: 84 }} />
+            <col style={{ width: 80 }} />
             <col style={{ width: 176 }} />
             <col style={{ width: 92 }} />
             <col style={{ width: 92 }} />
             <col style={{ width: 84 }} />
             <col style={{ width: 108 }} />
-            <col style={{ width: 128 }} />
+            <col style={{ width: 120 }} />
           </colgroup>
           <thead>
             <tr style={{ position: "sticky", top: 0, zIndex: 3 }}>
@@ -158,18 +160,16 @@ export function TeamsTable({
                   borderBottom: "1px solid var(--rule-2)",
                 }}
               >
-                <span className="sr-only">Data flag</span>
+                <span className="sr-only">Data flags</span>
               </th>
               <th
                 scope="col"
-                aria-sort={
-                  sortKey === "team" ? (sortDir === "asc" ? "ascending" : "descending") : "none"
-                }
+                aria-sort={sortKey === "team" ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
                 className="whitespace-nowrap px-3 py-2 text-left align-bottom"
                 style={{
                   background: "var(--bg-panel)",
                   position: "sticky",
-                  left: 24,
+                  left: 30,
                   zIndex: 4,
                   borderBottom: "1px solid var(--rule-2)",
                   borderRight: "1px solid var(--rule-2)",
@@ -181,10 +181,9 @@ export function TeamsTable({
                   className="inline-flex items-center gap-1 text-[11.5px]"
                   style={{
                     fontWeight: 500,
-                    letterSpacing: "0.055em",
+                    letterSpacing: "0.04em",
                     color: sortKey === "team" ? "var(--text-hi)" : "var(--text-lo)",
-                    borderBottom:
-                      sortKey === "team" ? "1px solid var(--gold)" : "1px solid transparent",
+                    borderBottom: sortKey === "team" ? "1px solid var(--gold)" : "1px solid transparent",
                     paddingBottom: 2,
                   }}
                 >
@@ -201,7 +200,7 @@ export function TeamsTable({
               <>{headCell("benchBPM", "Bench BPM")}</>
               <>{headCell("projWins", "Proj. wins")}</>
               <>{headCell("benchPayroll", "Bench payroll")}</>
-              <>{headCell("costPerBenchWin", "Cost per bench win")}</>
+              <>{headCell("benchSurplusValue", "Surplus value")}</>
             </tr>
           </thead>
 
@@ -218,28 +217,11 @@ export function TeamsTable({
               } as const;
               const width = Math.min(1, Math.abs(team.benchWinsAboveAvg) / BAR_DOMAIN) * BAR_HALF;
               const positive = team.benchWinsAboveAvg >= 0;
+              const reasons = reasonsOf(team);
+              const surplusNeg = team.benchSurplusValue < 0;
 
               return (
                 <Fragment key={team.team}>
-                  {/* Anchored above the first null row, so all fifteen sit beneath the label. */}
-                  {index === firstNullIndex && (
-                    <tr>
-                      <td
-                        colSpan={9}
-                        className="px-4 text-[11.5px]"
-                        style={{
-                          height: 32,
-                          borderTop: "1px solid var(--rule-2)",
-                          borderBottom: "1px solid var(--rule-1)",
-                          color: "var(--text-lo)",
-                          background: "var(--bg-panel)",
-                        }}
-                      >
-                        Undefined — the source records no cost per bench win for these fifteen
-                        teams
-                      </td>
-                    </tr>
-                  )}
                   <tr
                     data-flip-key={team.team}
                     style={{ "--team": identity.color } as React.CSSProperties}
@@ -250,27 +232,28 @@ export function TeamsTable({
                   >
                     <td
                       className="text-center align-middle"
-                      style={{
-                        ...cell,
-                        position: "sticky",
-                        left: 0,
-                        zIndex: 2,
-                        height: 44,
-                      }}
+                      style={{ ...cell, position: "sticky", left: 0, zIndex: 2, height: 44 }}
                     >
-                      {team.dataFlag && (
+                      {reasons.length > 0 && (
                         <button
                           type="button"
-                          title={team.dataFlag}
                           aria-expanded={isExpanded}
-                          aria-label={`Data flag for ${team.team}: ${team.dataFlag}`}
-                          onClick={() =>
-                            setExpanded((cur) => (cur === team.team ? null : team.team))
-                          }
-                          className="inline-flex h-6 w-6 items-center justify-center text-[9px] leading-none"
-                          style={{ color: live ? "var(--text-lo)" : "var(--flag)" }}
+                          aria-label={`${team.dataFlags.length} imputed player${
+                            team.dataFlags.length === 1 ? "" : "s"
+                          } for ${team.team}. Activate to show details.`}
+                          onClick={() => setExpanded((cur) => (cur === team.team ? null : team.team))}
+                          className="inline-flex h-6 items-center justify-center gap-0.5 leading-none"
                         >
-                          {live ? "△" : "▲"}
+                          {reasons.map((reason) => (
+                            <span
+                              key={reason}
+                              aria-hidden="true"
+                              className="text-[10px]"
+                              style={{ color: REASON_META[reason].color }}
+                            >
+                              {REASON_META[reason].glyph}
+                            </span>
+                          ))}
                         </button>
                       )}
                     </td>
@@ -280,7 +263,7 @@ export function TeamsTable({
                       style={{
                         ...cell,
                         position: "sticky",
-                        left: 24,
+                        left: 30,
                         zIndex: 2,
                         borderRight: "1px solid var(--rule-2)",
                       }}
@@ -312,10 +295,7 @@ export function TeamsTable({
                     </td>
 
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Num
-                        className="text-[13.5px] sm:text-[14.5px]"
-                        style={{ color: "var(--text-hi)" }}
-                      >
+                      <Num className="text-[13.5px] sm:text-[14.5px]" style={{ color: "var(--text-hi)" }}>
                         {signed(team.benchWinsAboveAvg)}
                       </Num>
                     </td>
@@ -324,17 +304,8 @@ export function TeamsTable({
                       <div className="relative mx-auto" style={{ width: 176, height: 44 }}>
                         <div
                           aria-hidden="true"
-                          style={{
-                            position: "absolute",
-                            left: BAR_HALF,
-                            top: 0,
-                            bottom: 0,
-                            width: 1,
-                            background: "var(--rule-3)",
-                          }}
+                          style={{ position: "absolute", left: BAR_HALF, top: 0, bottom: 0, width: 1, background: "var(--rule-3)" }}
                         />
-                        {/* Two spans anchored at the spine with opposite origins, so
-                            growth is literally from the centre outward. */}
                         <div
                           aria-hidden="true"
                           style={{
@@ -348,9 +319,7 @@ export function TeamsTable({
                             background: "var(--pos)",
                             outline: live ? "1px solid var(--team)" : "none",
                             filter: live ? "brightness(1.08)" : "none",
-                            transition: reduced
-                              ? "none"
-                              : `transform 560ms var(--ease-grow) ${index * 14}ms`,
+                            transition: reduced ? "none" : `transform 560ms var(--ease-grow) ${index * 14}ms`,
                           }}
                         />
                         <div
@@ -366,68 +335,51 @@ export function TeamsTable({
                             background: "var(--neg)",
                             outline: live ? "1px solid var(--team)" : "none",
                             filter: live ? "brightness(1.08)" : "none",
-                            transition: reduced
-                              ? "none"
-                              : `transform 560ms var(--ease-grow) ${index * 14}ms`,
+                            transition: reduced ? "none" : `transform 560ms var(--ease-grow) ${index * 14}ms`,
                           }}
                         />
                       </div>
                     </td>
 
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Num
-                        className="text-[13.5px] sm:text-[14.5px]"
-                        style={{ color: "var(--text-hi)" }}
-                      >
+                      <Num className="text-[13.5px] sm:text-[14.5px]" style={{ color: "var(--text-hi)" }}>
                         {signed(team.starterBPM)}
                       </Num>
                     </td>
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Num
-                        className="text-[13.5px] sm:text-[14.5px]"
-                        style={{ color: "var(--text-hi)" }}
-                      >
+                      <Num className="text-[13.5px] sm:text-[14.5px]" style={{ color: "var(--text-hi)" }}>
                         {signed(team.benchBPM)}
                       </Num>
                     </td>
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Num
-                        className="text-[13.5px] sm:text-[14.5px]"
-                        style={{ color: "var(--text-hi)" }}
-                      >
+                      <Num className="text-[13.5px] sm:text-[14.5px]" style={{ color: "var(--text-hi)" }}>
                         {fixed(team.projWins, 1)}
                       </Num>
                     </td>
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Money
-                        className="text-[13.5px] sm:text-[14.5px]"
-                        text={formatMillions(team.benchPayroll)}
-                      />
+                      <Money className="text-[13.5px] sm:text-[14.5px]" text={formatMillions(team.benchPayroll)} />
                     </td>
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Money
+                      <Num
                         className="text-[13.5px] sm:text-[14.5px]"
-                        text={formatMillions(team.costPerBenchWin)}
-                      />
+                        style={{ color: surplusNeg ? "var(--neg)" : "var(--pos)" }}
+                      >
+                        {formatSurplus(team.benchSurplusValue)}
+                      </Num>
                     </td>
                   </tr>
 
-                  {team.dataFlag && isExpanded && (
+                  {reasons.length > 0 && isExpanded && (
                     <tr>
                       <td
                         colSpan={9}
-                        className="px-4 py-3 text-[12.5px] leading-[1.55]"
-                        style={{
-                          background: "var(--bg-overlay)",
-                          borderBottom: "1px solid var(--rule-2)",
-                          color: "var(--text-mid)",
-                        }}
+                        className="px-4 py-3"
+                        style={{ background: "var(--bg-overlay)", borderBottom: "1px solid var(--rule-2)" }}
                       >
-                        {team.dataFlag}
+                        <FlagDetails flags={team.dataFlags} />
                       </td>
                     </tr>
                   )}
-
                 </Fragment>
               );
             })}
