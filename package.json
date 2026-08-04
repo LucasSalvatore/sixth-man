@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "check-data": "node scripts/check-data.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

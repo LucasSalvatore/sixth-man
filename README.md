@@ -39,6 +39,35 @@ glyph, fixed decimal places). Two consequences are deliberate:
 The one derived figure on the page is the scatter's league-average payroll
 reference line, which is labelled as an average where it appears.
 
+### The data guard
+
+`scripts/check-data.mjs` validates the data file and **fails the build** if any
+invariant breaks. It is the permanent defense against a bad data swap — the
+September refresh included. A refresh that quietly breaks the league identity,
+drops a field, or loses a disclosure stops here instead of shipping wrong
+numbers to the page.
+
+```
+npm run check-data              # check the canonical data file
+npm run check-data <path>       # check a specific file
+```
+
+It enforces:
+
+| Invariant | Why |
+| --- | --- |
+| `projWins` sums to 1230 (±0.5) | The projections must describe a real 82-game season |
+| `benchWinsAboveAvg` sums to 0 (±0.05) | Measured against average, so it has to cancel |
+| `benchSurplusValue` sums to $0 (±$0.5M) | Measured against the league's own pricing, so it cancels |
+| Every team has a non-null `benchSurplusValue` | The column has no undefined state |
+| `dataFlags` entries total 22 | Every excluded or imputed player stays disclosed |
+| Every `dataFlags.reason` is a known value | Guards against a new reason rendering as an unlabelled flag |
+| No lineup has a negative `gainWins` | An "optimal" five cannot be worse than the current one |
+| `curLineupBPM` equals that team's `starterBPM` (±0.01) | The two files must agree about the same five players |
+
+The sum checks refuse to evaluate when a field is missing, so an absent column
+fails loudly rather than passing vacuously as a sum of zeros.
+
 ### Run locally
 
 ```

@@ -48,7 +48,11 @@ export function TeamExplorer({
         </div>
 
         <Reveal>
+          {/* Keyed on the selection: a team change remounts the panel so every
+              animated figure re-runs from the new team's data rather than
+              holding a stale value from the previous team. */}
           <LineupOptimizer
+            key={selected}
             code={selected}
             lineup={lineups[selected]}
             minutesCount={rows.length}
@@ -63,8 +67,14 @@ export function TeamExplorer({
           title="Minutes plan"
           deck="Where the model would move each player's minutes."
         />
+        <p className="mb-6 max-w-[68ch] text-[13px] leading-[1.6]" style={{ color: "var(--text-lo)" }}>
+          These two panels answer different questions — who should start, and how the minutes
+          should be shared — so they can legitimately disagree for the same team.
+        </p>
         <Reveal>
-          <MinutesPlan code={selected} rows={rows} />
+          {/* Keyed on the selection for the same reason as the panel above: the
+              bars must grow from the new team's numbers on every change. */}
+          <MinutesPlan key={selected} code={selected} rows={rows} />
         </Reveal>
       </section>
     </>
