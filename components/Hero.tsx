@@ -16,9 +16,13 @@ type Counter = {
   sub: string;
 };
 
-const COUNTERS: Counter[] = [
+/**
+ * Shapes only. The four values are looked up in the JSON on the server and
+ * passed in, so a data refresh moves the counters instead of leaving stale
+ * literals on the page — and the data file stays out of the client bundle.
+ */
+const SHAPES: Omit<Counter, "value">[] = [
   {
-    value: 1.96,
     digits: 2,
     signed: true,
     money: false,
@@ -26,7 +30,6 @@ const COUNTERS: Counter[] = [
     sub: "Boston",
   },
   {
-    value: 13469235,
     digits: 1,
     signed: false,
     money: true,
@@ -34,7 +37,6 @@ const COUNTERS: Counter[] = [
     sub: "Boston",
   },
   {
-    value: 1.566,
     digits: 2,
     signed: true,
     money: false,
@@ -42,7 +44,6 @@ const COUNTERS: Counter[] = [
     sub: "Phoenix",
   },
   {
-    value: 23.3,
     digits: 1,
     signed: true,
     money: false,
@@ -84,7 +85,12 @@ function Counter({ counter, index }: { counter: Counter; index: number }) {
   );
 }
 
-export function Hero() {
+export function Hero({ counterValues }: { counterValues: number[] }) {
+  const COUNTERS: Counter[] = SHAPES.map((shape, i) => ({
+    ...shape,
+    value: counterValues[i] ?? 0,
+  }));
+
   return (
     <header className="pt-14 sm:pt-20">
       <Num className="text-[12.5px]" style={{ letterSpacing: "0.08em", color: "var(--text-lo)" }}>

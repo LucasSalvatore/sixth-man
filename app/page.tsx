@@ -16,9 +16,18 @@ import {
 export default function Home() {
   const { meta } = deepBenchData;
 
+  // Read on the server, straight from the JSON — no literals duplicated in the UI.
+  const bos = teams.find((t) => t.team === "BOS");
+  const counterValues = [
+    bos?.benchWinsAboveAvg ?? 0,
+    bos?.costPerBenchWin ?? 0,
+    lineups.PHX?.gainWins ?? 0,
+    minutes.CLE?.find((p) => p.name === "Thomas Bryant")?.delta ?? 0,
+  ];
+
   return (
     <div className="mx-auto max-w-[1240px] px-4 pb-0 sm:px-8">
-      <Hero />
+      <Hero counterValues={counterValues} />
 
       <main>
         <section className="mt-16 sm:mt-24">

@@ -14,8 +14,8 @@ const NOTES: { id: string; title: string; body: React.ReactNode }[] = [
         Twenty-two players — 2026 rookies, and players who missed the whole season — have no
         2025-26 BPM. The model cannot price them, so it leaves them out. Twelve teams lose real
         value that way. Wherever a team is affected you will see an amber flag beside its tricode
-        in the table; open it and it names exactly who is missing. Read those teams&apos; starter
-        numbers as a floor, not as a verdict.
+        in the table; open it and it names the players the source lists for that team. Read those
+        teams&apos; starter numbers as a floor, not as a verdict.
       </>
     ),
   },
@@ -50,12 +50,13 @@ const NOTES: { id: string; title: string; body: React.ReactNode }[] = [
     title: "Why fifteen cost cells are blank",
     body: (
       <>
-        Cost per bench win only means something when a bench is adding wins. For fifteen teams the
-        source found no positive win contribution to divide the payroll by, and left the figure
-        undefined rather than printing a number. Those cells show an em dash. An em dash is not a
-        zero, and it is certainly not a bargain — it means the question does not apply. Sort by
-        that column and the fifteen gather below a labelled divider instead of scattering through
-        the order.
+        The source records no cost per bench win for fifteen teams, and those cells show an em
+        dash. Its own note says the figure is undefined for a bench at or below average — which
+        covers fourteen of them. Atlanta is blank at +0.04, just above average, and the source does
+        not say why. So we show the em dash and leave it unexplained rather than inventing a reason
+        that fits fourteen teams and not the fifteenth. An em dash is not a zero and not a bargain;
+        it means the source carries no number. Sort by that column and the fifteen gather below a
+        labelled divider instead of scattering through the order.
       </>
     ),
   },

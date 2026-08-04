@@ -221,6 +221,25 @@ export function TeamsTable({
 
               return (
                 <Fragment key={team.team}>
+                  {/* Anchored above the first null row, so all fifteen sit beneath the label. */}
+                  {index === firstNullIndex && (
+                    <tr>
+                      <td
+                        colSpan={9}
+                        className="px-4 text-[11.5px]"
+                        style={{
+                          height: 32,
+                          borderTop: "1px solid var(--rule-2)",
+                          borderBottom: "1px solid var(--rule-1)",
+                          color: "var(--text-lo)",
+                          background: "var(--bg-panel)",
+                        }}
+                      >
+                        Undefined — the source records no cost per bench win for these fifteen
+                        teams
+                      </td>
+                    </tr>
+                  )}
                   <tr
                     data-flip-key={team.team}
                     style={{ "--team": identity.color } as React.CSSProperties}
@@ -409,24 +428,6 @@ export function TeamsTable({
                     </tr>
                   )}
 
-                  {index === firstNullIndex && (
-                    <tr>
-                      <td
-                        colSpan={9}
-                        className="px-4 text-[11.5px]"
-                        style={{
-                          height: 32,
-                          borderTop: "1px solid var(--rule-2)",
-                          borderBottom: "1px solid var(--rule-1)",
-                          color: "var(--text-lo)",
-                          background: "var(--bg-panel)",
-                        }}
-                      >
-                        Undefined — the source records no cost per bench win for these fifteen
-                        teams
-                      </td>
-                    </tr>
-                  )}
                 </Fragment>
               );
             })}

@@ -364,7 +364,7 @@ export function BenchScatter({
             whiteSpace: "nowrap",
           }}
         >
-          League average $37.9m
+          League average {formatMillions(leagueAveragePayroll)}
         </div>
 
         <div

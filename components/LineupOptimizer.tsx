@@ -76,9 +76,10 @@ function PlayerRow({
 
   const { player } = slot;
   const exchangeIndex = index - commonCount;
+  // Players in both fives stay put — no entrance at all. Only the exchange moves.
   const animation =
     slot.kind === "common"
-      ? `db-fade-in 200ms ease-out ${index * 30}ms backwards`
+      ? undefined
       : slot.kind === "demoted"
         ? `db-slide-in-left 320ms var(--ease-out) ${120 + exchangeIndex * 40}ms backwards`
         : `db-slide-in-right 360ms cubic-bezier(0.34, 1.42, 0.64, 1) ${
@@ -134,13 +135,13 @@ function PlayerRow({
 
       <div className="text-right">
         {player.salary === null ? (
-          <span
-            className="text-[12.5px] italic"
+          <a
+            href="#note-payroll"
+            className="text-[12.5px] italic underline decoration-dotted underline-offset-2"
             style={{ color: "var(--text-lo)" }}
-            title="No 2026-27 salary in the source — see methodology note 2"
           >
             Unsigned&nbsp;‡
-          </span>
+          </a>
         ) : (
           <Num className="text-[14.5px]" style={{ color: "var(--text-hi)" }}>
             {formatMillions(player.salary)}
@@ -240,8 +241,8 @@ export function LineupOptimizer({
             <div className="mt-5 pt-4" style={{ borderTop: "1px solid var(--rule-1)" }}>
               {dataFlag ? (
                 <p className="text-[13px] leading-[1.6]" style={{ color: "var(--text-lo)" }}>
-                  This team also carries a data flag. It is about starter value, not about the
-                  lineup: <em style={{ color: "var(--text-mid)" }}>&ldquo;{dataFlag}&rdquo;</em>
+                  This team also carries a data flag. In the source&apos;s words:{" "}
+                  <em style={{ color: "var(--text-mid)" }}>&ldquo;{dataFlag}&rdquo;</em>
                 </p>
               ) : (
                 <p className="text-[13px] leading-[1.6]" style={{ color: "var(--text-lo)" }}>
@@ -321,6 +322,18 @@ export function LineupOptimizer({
           <strong style={{ color: "var(--text-hi)", fontWeight: 600 }}>
             The model&apos;s optimal five is the five already on the floor.
           </strong>
+        </p>
+      )}
+
+      {[...built.left, ...built.right].some(
+        (slot) => slot.kind !== "void" && slot.player.salary === null,
+      ) && (
+        <p className="mt-5 max-w-[68ch] text-[13px] leading-[1.6]" style={{ color: "var(--text-lo)" }}>
+          ‡ The source carries no 2026-27 salary for this player, so no figure is shown. See{" "}
+          <a href="#note-payroll" className="underline decoration-dotted underline-offset-2">
+            bench payroll is committed money only
+          </a>
+          .
         </p>
       )}
 

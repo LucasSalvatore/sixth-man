@@ -107,6 +107,9 @@ export function Reveal({
     <div
       ref={ref}
       className={className}
+      // data-reveal is the hook a <noscript> rule uses to force this visible;
+      // without it, a JS-less visitor would get a permanently opacity-0 panel.
+      data-reveal=""
       style={{
         opacity: revealed ? 1 : 0,
         // No transform in the resting state at all — not even scale(1).

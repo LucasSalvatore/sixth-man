@@ -1,6 +1,7 @@
 # sixth-man
 
-Swapping benches between NBA rosters to measure depth's impact on wins
+What each NBA bench is worth in wins, what those wins cost, and where the
+lineups and minutes should go
 
 ## deep-bench
 

@@ -4,9 +4,12 @@ import type { DeepBenchData, Lineup, MinutesRow, Team } from "@/lib/types";
 /**
  * The JSON is the single source of truth. Nothing here derives, cleans, or
  * recomputes a BPM, salary, win, gain, or minute value — values are read and
- * passed through untouched. The only computed figure anywhere in the app is
- * the scatter's league-average payroll reference line, which the design brief
- * explicitly calls for and which is labelled as such in the UI.
+ * passed through untouched. The only derived *measurement* anywhere in the app
+ * is the scatter's league-average payroll reference line, which the design
+ * brief calls for and which is labelled as an average in the UI. Counts of
+ * rendered rows (for example the tally of players at the model ceiling in the
+ * minutes plan) are computed in their components; those describe the table on
+ * screen rather than restating a metric.
  */
 export const deepBenchData = raw as unknown as DeepBenchData;
 

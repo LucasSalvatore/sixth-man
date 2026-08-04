@@ -46,6 +46,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${numerals.variable}`}>
       <body className="min-h-screen antialiased" style={{ fontFamily: "var(--font-body)" }}>
+        <noscript>
+          <style>{`[data-reveal]{opacity:1 !important;transform:none !important}`}</style>
+        </noscript>
         <a className="skip-link" href="#methodology">
           Skip to methodology
         </a>

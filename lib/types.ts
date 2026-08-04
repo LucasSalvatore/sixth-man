@@ -22,9 +22,10 @@ export type LineupPlayer = {
 };
 
 /**
- * Only 24 of the 30 teams have a lineup entry, and 7 of those carry four
- * players rather than five. Both are properties of the source data (players
- * without a 2025-26 BPM are excluded upstream) and are surfaced as-is.
+ * The source carries no lineup entry for CHA, BKN, IND, DAL, UTA or SAC, and
+ * lists four players for CHI, GSW, HOU, MEM, MIN, POR and WAS. The source gives
+ * no reason for either; both are surfaced as-is. Do not infer a cause — all six
+ * teams without a lineup have eight fully graded players in `minutes`.
  */
 export type Lineup = {
   current: LineupPlayer[];
