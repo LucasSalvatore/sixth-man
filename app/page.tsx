@@ -1,31 +1,74 @@
+import { BenchScatter } from "@/components/BenchScatter";
+import { Hero } from "@/components/Hero";
+import { Methodology } from "@/components/Methodology";
+import { TeamExplorer } from "@/components/TeamExplorer";
 import { TeamsTable } from "@/components/TeamsTable";
-import { deepBenchData } from "@/lib/data";
+import { Reveal, SectionHead } from "@/components/ui";
+import {
+  deepBenchData,
+  leagueAveragePayroll,
+  lineups,
+  minutes,
+  teamCodes,
+  teams,
+} from "@/lib/data";
 
 export default function Home() {
-  const { teams, meta } = deepBenchData;
+  const { meta } = deepBenchData;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <header className="mb-6">
-        <h1 className="text-lg font-semibold sm:text-xl">{meta.title}</h1>
-        <p className="mt-1 text-xs text-neutral-600 sm:text-sm dark:text-neutral-400">
-          Swapping benches between NBA rosters to measure depth&apos;s impact on
-          wins.
-        </p>
-      </header>
+    <div className="mx-auto max-w-[1240px] px-4 pb-0 sm:px-8">
+      <Hero />
 
-      <TeamsTable teams={teams} />
+      <main>
+        <section className="mt-16 sm:mt-24">
+          <SectionHead
+            id="scatter"
+            title="Bench spending against bench value"
+            deck="Thirty benches plotted by what they cost and what they add."
+          />
+          <Reveal>
+            <BenchScatter teams={teams} leagueAveragePayroll={leagueAveragePayroll} />
+          </Reveal>
+        </section>
 
-      <section className="mt-10 border-t border-neutral-300 pt-6 dark:border-neutral-700">
-        <h2 className="text-sm font-semibold sm:text-base">
-          Methodology &amp; limitations
-        </h2>
-        <ul className="mt-3 list-disc space-y-2 pl-5 text-xs text-neutral-700 sm:text-sm dark:text-neutral-300">
-          {meta.disclosures.map((disclosure, i) => (
-            <li key={i}>{disclosure}</li>
-          ))}
-        </ul>
-      </section>
-    </main>
+        <section className="mt-24 sm:mt-28">
+          <SectionHead
+            id="table"
+            title="All thirty benches"
+            deck="Sortable. Click a column head to reorder; hover a row to bring up that team's colour."
+          />
+          <TeamsTable teams={teams} />
+        </section>
+
+        <TeamExplorer
+          teamCodes={teamCodes}
+          teams={teams}
+          lineups={lineups}
+          minutes={minutes}
+        />
+
+        <section className="mt-24 sm:mt-28" id="methodology">
+          <SectionHead
+            id="methodology-head"
+            title="How this was built"
+            deck="What the model can see, and the five places it cannot."
+          />
+          <Methodology meta={meta} />
+        </section>
+      </main>
+
+      <footer
+        className="mt-24 py-12 sm:mt-28"
+        style={{ borderTop: "1px solid var(--rule-2)" }}
+      >
+        <span
+          className="text-[16px]"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--gold)" }}
+        >
+          Lucan Labs
+        </span>
+      </footer>
+    </div>
   );
 }

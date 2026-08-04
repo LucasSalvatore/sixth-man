@@ -2,6 +2,121 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Surfaces — warm near-black, five tiers. No navy in the system. */
+  --bg-base: #0a0a09;
+  --bg-panel: #0f0f0d;
+  --bg-raised: #141412;
+  --bg-hover: #1a1a17;
+  --bg-overlay: #22211d;
+
+  /* Text — three tiers, --text-lo is the floor and clears AA everywhere. */
+  --text-hi: #f2f0ea;
+  --text-mid: #c9c6bd;
+  --text-lo: #97948b;
+
+  /* Rules */
+  --rule-1: #262520;
+  --rule-2: #35342e;
+  --rule-3: #4e4c43;
+  --rule-4: #6b685f; /* all mandated graphical structure; 3.45:1 on plot field */
+
+  /* Signal */
+  --gold: #c8a44d; /* the single Lucan gold — four permitted uses only */
+  --flag: #e8a33a; /* the amber dataFlag marker only */
+  --pos: #66d6a4;
+  --neg: #e0685e;
+  --casing: #050504;
+
+  --dur-fast: 140ms;
+  --dur-mid: 320ms;
+  --dur-slow: 520ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-grow: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 html {
   font-variant-numeric: tabular-nums;
+  background: var(--bg-base);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-mid);
+}
+
+/* Focus is never animated and never removed. Gold at rest; becomes the team's
+   colour wherever a team is live, so focus joins the signature element. */
+:focus-visible {
+  outline: 2px solid var(--team, var(--gold));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--casing);
+}
+
+/* Numerals: --team is a graphic colour, --team-text is its legible text form. */
+.team-text {
+  color: var(--team, var(--text-hi));
+  color: color-mix(in oklab, var(--team, var(--text-hi)) 70%, #f2f0ea);
+}
+
+/* HTML chart labels punch through dashed lines instead of colliding. */
+.halo {
+  text-shadow:
+    0 2px 3px var(--bg-raised),
+    0 -2px 3px var(--bg-raised),
+    2px 0 3px var(--bg-raised),
+    -2px 0 3px var(--bg-raised);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 12px 16px;
+  background: var(--bg-overlay);
+  color: var(--text-hi);
+  border: 1px solid var(--rule-2);
+}
+.skip-link:focus {
+  left: 16px;
+  top: 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Belt-and-braces. The motion hooks also zero duration AND stagger. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
+  }
+}
+
+@keyframes db-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes db-slide-in-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes db-slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
 }
