@@ -592,14 +592,14 @@
    "current": [
     {
      "name": "Mikel Brown Jr.",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 8787000,
      "imputed": "rookie_no_history"
     },
     {
      "name": "Egor Demin",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": null,
      "imputed": "rookie_no_history"
@@ -629,14 +629,14 @@
    "optimal": [
     {
      "name": "Mikel Brown Jr.",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 8787000,
      "imputed": "rookie_no_history"
     },
     {
      "name": "Egor Demin",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": null,
      "imputed": "rookie_no_history"
@@ -850,7 +850,7 @@
     },
     {
      "name": "Caleb Wilson",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 10683720,
      "imputed": "rookie_no_history"
@@ -987,7 +987,7 @@
    "current": [
     {
      "name": "Kyrie Irving",
-     "pos": NaN,
+     "pos": null,
      "bpm": 3.4,
      "salary": 39491282,
      "imputed": "returning_from_injury"
@@ -1024,7 +1024,7 @@
    "optimal": [
     {
      "name": "Kyrie Irving",
-     "pos": NaN,
+     "pos": null,
      "bpm": 3.4,
      "salary": 39491282,
      "imputed": "returning_from_injury"
@@ -1238,7 +1238,7 @@
     },
     {
      "name": "Yaxel Lendeborg",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 6096240,
      "imputed": "rookie_no_history"
@@ -1303,7 +1303,7 @@
    "current": [
     {
      "name": "Fred VanVleet",
-     "pos": NaN,
+     "pos": null,
      "bpm": 0.9,
      "salary": 25000000,
      "imputed": "returning_from_injury"
@@ -1340,7 +1340,7 @@
    "optimal": [
     {
      "name": "Fred VanVleet",
-     "pos": NaN,
+     "pos": null,
      "bpm": 0.9,
      "salary": 25000000,
      "imputed": "returning_from_injury"
@@ -1382,7 +1382,7 @@
    "current": [
     {
      "name": "Tyrese Haliburton",
-     "pos": NaN,
+     "pos": null,
      "bpm": 5.8,
      "salary": 48924624,
      "imputed": "returning_from_injury"
@@ -1419,7 +1419,7 @@
    "optimal": [
     {
      "name": "Tyrese Haliburton",
-     "pos": NaN,
+     "pos": null,
      "bpm": 5.8,
      "salary": 48924624,
      "imputed": "returning_from_injury"
@@ -1640,7 +1640,7 @@
     },
     {
      "name": "Cameron Boozer",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 11849760,
      "imputed": "rookie_no_history"
@@ -1877,7 +1877,7 @@
     },
     {
      "name": "Trey Lyles",
-     "pos": NaN,
+     "pos": null,
      "bpm": -0.7,
      "salary": 2449421,
      "imputed": "returning_from_injury"
@@ -2409,7 +2409,7 @@
    "current": [
     {
      "name": "Damian Lillard",
-     "pos": NaN,
+     "pos": null,
      "bpm": 4.0,
      "salary": 35915403,
      "imputed": "returning_from_injury"
@@ -2446,7 +2446,7 @@
    "optimal": [
     {
      "name": "Damian Lillard",
-     "pos": NaN,
+     "pos": null,
      "bpm": 4.0,
      "salary": 35915403,
      "imputed": "returning_from_injury"
@@ -2488,7 +2488,7 @@
    "current": [
     {
      "name": "Darius Acuff",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 8021640,
      "imputed": "rookie_no_history"
@@ -2525,7 +2525,7 @@
    "optimal": [
     {
      "name": "Darius Acuff",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 8021640,
      "imputed": "rookie_no_history"
@@ -2732,7 +2732,7 @@
     },
     {
      "name": "Darryn Peterson",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 13195320,
      "imputed": "rookie_no_history"
@@ -2769,7 +2769,7 @@
     },
     {
      "name": "Darryn Peterson",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 13195320,
      "imputed": "rookie_no_history"
@@ -2818,7 +2818,7 @@
     },
     {
      "name": "AJ Dybantsa",
-     "pos": NaN,
+     "pos": null,
      "bpm": -1.5,
      "salary": 14748000,
      "imputed": "rookie_no_history"
