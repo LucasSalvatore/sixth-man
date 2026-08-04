@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import type { Lineup, LineupPlayer } from "@/lib/types";
 import { formatMillions, signed, sourcePrecision } from "@/lib/format";
 import { teamIdentity } from "@/lib/teamColors";
-import { useTween } from "@/lib/motion";
+import { useCountUp } from "@/lib/motion";
 import { MicroLabel, Num } from "@/components/ui";
 
 type Slot =
@@ -204,7 +204,9 @@ export function LineupOptimizer({
 }) {
   const identity = teamIdentity(code);
   const built = useMemo(() => (lineup ? buildSlots(lineup) : null), [lineup]);
-  const gain = useTween(lineup?.gainWins ?? 0);
+  // Counts up from zero on every team change. The panel is remounted on
+  // selection, so this always animates to the newly selected team's figure.
+  const gain = useCountUp(lineup?.gainWins ?? 0, { duration: 620 });
 
   const footer = (
     <p className="mt-6 max-w-[68ch] text-[13px] leading-[1.6]" style={{ color: "var(--text-lo)" }}>
