@@ -5,6 +5,7 @@ import type { Lineup, LineupPlayer } from "@/lib/types";
 import { formatMillions, signed, sourcePrecision } from "@/lib/format";
 import { teamIdentity } from "@/lib/teamColors";
 import { useCountUp } from "@/lib/motion";
+import { FlagMark } from "@/components/flags";
 import { MicroLabel, Num } from "@/components/ui";
 
 type Slot =
@@ -16,11 +17,6 @@ type Slot =
 const byBpmThenName = (a: LineupPlayer, b: LineupPlayer) =>
   b.bpm - a.bpm || a.name.localeCompare(b.name);
 
-/**
- * Common players take the same slot index in both cards, so they sit on one
- * horizontal line by construction rather than by measurement. The exchange
- * block below them pairs demoted against promoted, line for line.
- */
 function buildSlots(lineup: Lineup): { left: Slot[]; right: Slot[]; hasVoid: boolean } {
   const currentNames = new Set(lineup.current.map((p) => p.name));
   const optimalNames = new Set(lineup.optimal.map((p) => p.name));
@@ -38,13 +34,12 @@ function buildSlots(lineup: Lineup): { left: Slot[]; right: Slot[]; hasVoid: boo
     ...promoted.map((player) => ({ kind: "promoted" as const, player })),
   ];
 
-  // Seven teams carry four players. Slot five is held open on both cards rather
-  // than filled with a player the model never picked.
-  const hasVoid = left.length < 5;
-  if (hasVoid) {
-    left.push({ kind: "void" });
-    right.push({ kind: "void" });
-  }
+  // Defensive: v2 lists five for every team, but if a future refresh ships a
+  // short lineup, hold the slot open rather than fabricate a player.
+  const size = Math.max(left.length, right.length, lineup.current.length, lineup.optimal.length);
+  const hasVoid = left.length < size || right.length < size;
+  while (left.length < size) left.push({ kind: "void" });
+  while (right.length < size) right.push({ kind: "void" });
   return { left, right, hasVoid };
 }
 
@@ -63,11 +58,7 @@ function PlayerRow({
     return (
       <div
         className="flex items-center justify-center px-3 text-[12.5px]"
-        style={{
-          height: 48,
-          border: "1px dashed var(--rule-2)",
-          color: "var(--text-mid)",
-        }}
+        style={{ height: 48, border: "1px dashed var(--rule-2)", color: "var(--text-mid)" }}
       >
         Fifth slot not in the source
       </div>
@@ -76,15 +67,13 @@ function PlayerRow({
 
   const { player } = slot;
   const exchangeIndex = index - commonCount;
-  // Players in both fives stay put — no entrance at all. Only the exchange moves.
+  // Players in both fives stay put — no entrance. Only the exchange moves.
   const animation =
     slot.kind === "common"
       ? undefined
       : slot.kind === "demoted"
         ? `db-slide-in-left 320ms var(--ease-out) ${120 + exchangeIndex * 40}ms backwards`
-        : `db-slide-in-right 360ms cubic-bezier(0.34, 1.42, 0.64, 1) ${
-            120 + exchangeIndex * 40
-          }ms backwards`;
+        : `db-slide-in-right 360ms cubic-bezier(0.34, 1.42, 0.64, 1) ${120 + exchangeIndex * 40}ms backwards`;
 
   const keyline =
     slot.kind === "promoted"
@@ -98,7 +87,7 @@ function PlayerRow({
       key={`${animKey}-${player.name}`}
       className="grid items-center gap-2"
       style={{
-        gridTemplateColumns: "28px minmax(0,1fr) 56px 92px",
+        gridTemplateColumns: "30px minmax(0,1fr) 56px 92px",
         minHeight: 48,
         borderLeft: keyline,
         paddingLeft: 10,
@@ -106,18 +95,16 @@ function PlayerRow({
       }}
     >
       <Num className="text-[11.5px]" style={{ color: "var(--text-lo)" }}>
-        {player.pos}
+        {player.pos ?? "—"}
       </Num>
 
       <div className="min-w-0">
         <div
-          className="text-[14.5px] leading-[1.25]"
-          style={{
-            fontWeight: 500,
-            color: slot.kind === "demoted" ? "var(--text-mid)" : "var(--text-hi)",
-          }}
+          className="flex items-center gap-1.5 text-[14.5px] leading-[1.25]"
+          style={{ fontWeight: 500, color: slot.kind === "demoted" ? "var(--text-mid)" : "var(--text-hi)" }}
         >
-          {player.name}
+          <span className="truncate">{player.name}</span>
+          {player.imputed && <FlagMark reason={player.imputed} />}
         </div>
         {slot.kind !== "common" && (
           <span
@@ -167,10 +154,7 @@ function Card({
 }) {
   return (
     <div style={{ background: "var(--bg-panel)", border: "1px solid var(--rule-2)", padding: 20 }}>
-      <h4
-        className="text-[18px]"
-        style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--text-hi)" }}
-      >
+      <h4 className="text-[18px]" style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--text-hi)" }}>
         {title}
       </h4>
       <Num className="text-[11.5px]" style={{ color: "var(--text-lo)" }}>
@@ -191,21 +175,10 @@ function Card({
   );
 }
 
-export function LineupOptimizer({
-  code,
-  lineup,
-  minutesCount,
-  dataFlag,
-}: {
-  code: string;
-  lineup: Lineup | undefined;
-  minutesCount: number;
-  dataFlag: string | null;
-}) {
+export function LineupOptimizer({ code, lineup }: { code: string; lineup: Lineup | undefined }) {
   const identity = teamIdentity(code);
   const built = useMemo(() => (lineup ? buildSlots(lineup) : null), [lineup]);
-  // Counts up from zero on every team change. The panel is remounted on
-  // selection, so this always animates to the newly selected team's figure.
+  // Counts up on every team change (the panel is remounted on selection).
   const gain = useCountUp(lineup?.gainWins ?? 0, { duration: 620 });
 
   const footer = (
@@ -223,37 +196,10 @@ export function LineupOptimizer({
           className="flex min-h-[320px] items-center justify-center p-6"
           style={{ background: "var(--bg-panel)", border: "1px dashed var(--rule-2)" }}
         >
-          <div className="max-w-[56ch] text-center">
-            <h4
-              className="text-[22px]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 500,
-                color: "var(--text-hi)",
-              }}
-            >
-              No lineup for {identity.name}.
-            </h4>
-            <p className="mt-4 text-[15px] leading-[1.6]" style={{ color: "var(--text-mid)" }}>
-              The source&apos;s lineup table has no entry for {identity.name}, so there is nothing
-              here to optimize. We will not build one — choosing five players the model never chose
-              would be our lineup, not the model&apos;s. The minutes plan below covers all{" "}
-              {minutesCount} {identity.name} players the model does grade.
-            </p>
-            <div className="mt-5 pt-4" style={{ borderTop: "1px solid var(--rule-1)" }}>
-              {dataFlag ? (
-                <p className="text-[13px] leading-[1.6]" style={{ color: "var(--text-lo)" }}>
-                  This team also carries a data flag. In the source&apos;s words:{" "}
-                  <em style={{ color: "var(--text-mid)" }}>&ldquo;{dataFlag}&rdquo;</em>
-                </p>
-              ) : (
-                <p className="text-[13px] leading-[1.6]" style={{ color: "var(--text-lo)" }}>
-                  {identity.name} carries no data flag, so the absence here is not explained
-                  anywhere in the source.
-                </p>
-              )}
-            </div>
-          </div>
+          <p className="max-w-[52ch] text-center text-[15px] leading-[1.6]" style={{ color: "var(--text-mid)" }}>
+            The source has no lineup for {identity.name}. We show what the source has and nothing we
+            would have to invent.
+          </p>
         </div>
         {footer}
       </div>
@@ -266,13 +212,7 @@ export function LineupOptimizer({
   return (
     <div style={{ "--team": identity.color } as React.CSSProperties}>
       <div className="grid items-start gap-6 lg:grid-cols-[1fr_168px_1fr]">
-        <Card
-          title="Current five"
-          bpm={lineup.curBPM}
-          slots={built.left}
-          commonCount={commonCount}
-          animKey={code}
-        />
+        <Card title="Current five" bpm={lineup.curLineupBPM} slots={built.left} commonCount={commonCount} animKey={code} />
 
         <div
           className="flex flex-col items-center justify-center py-5 text-center lg:py-0"
@@ -283,40 +223,27 @@ export function LineupOptimizer({
             <>
               <div
                 className="mt-2 text-[26px] leading-tight"
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontStyle: "italic",
-                  color: "var(--text-hi)",
-                }}
+                style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--text-hi)" }}
               >
                 Already optimal
               </div>
               <Num className="mt-2 text-[11.5px]" style={{ color: "var(--text-lo)" }}>
-                Lineup BPM unchanged at {sourcePrecision(lineup.curBPM)}
+                Lineup BPM unchanged at {sourcePrecision(lineup.curLineupBPM)}
               </Num>
             </>
           ) : (
             <>
-              <Num
-                className="mt-2 text-[32px] leading-none lg:text-[46px]"
-                style={{ color: "var(--text-hi)" }}
-              >
+              <Num className="mt-2 text-[32px] leading-none lg:text-[46px]" style={{ color: "var(--text-hi)" }}>
                 {signed(gain, 2)}
               </Num>
               <Num className="mt-2 text-[11.5px]" style={{ color: "var(--text-lo)" }}>
-                {sourcePrecision(lineup.curBPM)} → {sourcePrecision(lineup.optBPM)}
+                {sourcePrecision(lineup.curLineupBPM)} → {sourcePrecision(lineup.optLineupBPM)}
               </Num>
             </>
           )}
         </div>
 
-        <Card
-          title="Optimal five"
-          bpm={lineup.optBPM}
-          slots={built.right}
-          commonCount={commonCount}
-          animKey={code}
-        />
+        <Card title="Optimal five" bpm={lineup.optLineupBPM} slots={built.right} commonCount={commonCount} animKey={code} />
       </div>
 
       {alreadyOptimal && (
@@ -324,28 +251,6 @@ export function LineupOptimizer({
           <strong style={{ color: "var(--text-hi)", fontWeight: 600 }}>
             The model&apos;s optimal five is the five already on the floor.
           </strong>
-        </p>
-      )}
-
-      {[...built.left, ...built.right].some(
-        (slot) => slot.kind !== "void" && slot.player.salary === null,
-      ) && (
-        <p className="mt-5 max-w-[68ch] text-[13px] leading-[1.6]" style={{ color: "var(--text-lo)" }}>
-          ‡ The source carries no 2026-27 salary for this player, so no figure is shown. See{" "}
-          <a href="#note-payroll" className="underline decoration-dotted underline-offset-2">
-            bench payroll is committed money only
-          </a>
-          .
-        </p>
-      )}
-
-      {built.hasVoid && (
-        <p className="mt-5 max-w-[68ch] text-[13px] leading-[1.6]" style={{ color: "var(--text-mid)" }}>
-          <strong style={{ color: "var(--text-hi)", fontWeight: 600 }}>
-            The source lists four players for this lineup, not five.
-          </strong>{" "}
-          We show four. The fifth row is left empty rather than filled with a player the model never
-          picked.
         </p>
       )}
 

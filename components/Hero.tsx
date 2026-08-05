@@ -1,138 +1,85 @@
 "use client";
 
 import { useCountUp } from "@/lib/motion";
+import { formatSurplus, signed } from "@/lib/format";
 import { GhostSized, MicroLabel, Num } from "@/components/ui";
 
-/**
- * Every hero figure is read straight from the JSON — there are no derived
- * figures here. Each previews a different section of the page.
- */
-type Counter = {
+export type HeroStat = {
+  /** Raw value read from the JSON on the server. */
   value: number;
-  digits: number;
-  signed: boolean;
-  money: boolean;
+  /** How to render it once counted up. */
+  format: "wins" | "surplus";
   label: string;
   sub: string;
 };
 
-/**
- * Shapes only. The four values are looked up in the JSON on the server and
- * passed in, so a data refresh moves the counters instead of leaving stale
- * literals on the page — and the data file stays out of the client bundle.
- */
-const SHAPES: Omit<Counter, "value">[] = [
-  {
-    digits: 2,
-    signed: true,
-    money: false,
-    label: "Best bench, wins above average",
-    sub: "Boston",
-  },
-  {
-    digits: 1,
-    signed: false,
-    money: true,
-    label: "Lowest cost per bench win",
-    sub: "Boston",
-  },
-  {
-    digits: 2,
-    signed: true,
-    money: false,
-    label: "Largest lineup gain, in wins",
-    sub: "Phoenix",
-  },
-  {
-    digits: 1,
-    signed: true,
-    money: false,
-    label: "Largest minute increase",
-    sub: "Thomas Bryant, Cleveland",
-  },
-];
-
-function render(counter: Counter, current: number): string {
-  if (counter.money) return `$${(current / 1_000_000).toFixed(counter.digits)}m`;
-  const fixed = Math.abs(current).toFixed(counter.digits);
-  if (!counter.signed) return fixed;
-  return `${current < 0 ? "−" : "+"}${fixed}`;
+function render(stat: HeroStat, current: number): string {
+  return stat.format === "surplus" ? formatSurplus(current) : signed(current, 1);
 }
 
-function Counter({ counter, index }: { counter: Counter; index: number }) {
-  const current = useCountUp(counter.value, { duration: 1100, delay: index * 90 });
+function Stat({ stat, index }: { stat: HeroStat; index: number }) {
+  const current = useCountUp(stat.value, { duration: 1100, delay: 200 + index * 110 });
+  const finalText = render(stat, stat.value);
+  const color =
+    stat.format === "surplus"
+      ? stat.value < 0
+        ? "var(--neg)"
+        : "var(--pos)"
+      : "var(--text-hi)";
   return (
-    <div className="px-0 py-4 sm:px-6 sm:first:pl-0">
+    <div className="flex flex-col gap-2">
       <div
-        className="text-[34px] leading-none sm:text-[56px]"
-        style={{
-          fontFamily: "var(--font-num)",
-          letterSpacing: "-0.02em",
-          color: "var(--text-hi)",
-        }}
+        className="text-[26px] leading-none sm:text-[32px]"
+        style={{ fontFamily: "var(--font-num)", letterSpacing: "-0.02em", color }}
       >
-        <GhostSized finalText={render(counter, counter.value)}>
-          {render(counter, current)}
-        </GhostSized>
+        <GhostSized finalText={finalText}>{render(stat, current)}</GhostSized>
       </div>
-      <div className="mt-3 max-w-[24ch]">
-        <MicroLabel>{counter.label}</MicroLabel>
+      <div className="max-w-[22ch]">
+        <MicroLabel>{stat.label}</MicroLabel>
       </div>
-      <div className="mt-1 text-[12.5px]" style={{ color: "var(--text-lo)" }}>
-        {counter.sub}
+      <div className="text-[12.5px]" style={{ color: "var(--text-lo)" }}>
+        {stat.sub}
       </div>
     </div>
   );
 }
 
-export function Hero({ counterValues }: { counterValues: number[] }) {
-  const COUNTERS: Counter[] = SHAPES.map((shape, i) => ({
-    ...shape,
-    value: counterValues[i] ?? 0,
-  }));
-
+export function Hero({ stats }: { stats: HeroStat[] }) {
   return (
     <header className="pt-14 sm:pt-20">
-      <Num className="text-[12.5px]" style={{ letterSpacing: "0.08em", color: "var(--text-lo)" }}>
-        deep-bench
+      <Num
+        className="text-[12.5px]"
+        style={{ letterSpacing: "0.14em", color: "var(--text-lo)", textTransform: "none" }}
+      >
+        deep-bench · bench value, 2025-26
       </Num>
 
       <h1
-        className="mt-5 max-w-[16ch] text-[34px] leading-[1.10] sm:max-w-[20ch] sm:text-[60px] sm:leading-[1.06]"
+        className="mt-6 max-w-[19ch] text-[40px] leading-[1.02] sm:text-[68px]"
         style={{
           fontFamily: "var(--font-display)",
-          fontWeight: 400,
-          letterSpacing: "-0.015em",
+          fontWeight: 500,
+          letterSpacing: "-0.02em",
           color: "var(--text-hi)",
         }}
       >
-        What a bench is worth, and what it costs.
+        NBA teams are bad at buying bench value.
       </h1>
 
-      <p className="mt-6 max-w-[62ch] text-[15.5px] leading-[1.55] sm:text-[17px]">
-        Thirty NBA benches, priced. What each one adds in wins, what those wins cost, which five
-        a team should actually be starting, and where the minutes should go.
+      <p className="mt-7 max-w-[64ch] text-[16px] leading-[1.6] sm:text-[18px]">
+        Bench payroll explains about six percent of the variance in bench quality — a correlation
+        of <Num style={{ color: "var(--text-hi)" }}>0.25</Num>. Boston built the league&apos;s best
+        bench, <Num style={{ color: "var(--text-hi)" }}>+1.9</Num> wins above average, for{" "}
+        <Num style={{ color: "var(--text-hi)" }}>$26.4m</Num>. Portland spent{" "}
+        <Num style={{ color: "var(--text-hi)" }}>$74.0m</Num> — the most in the NBA — for{" "}
+        <Num style={{ color: "var(--text-hi)" }}>+0.6</Num>.
       </p>
 
-      <div
-        className="mt-12 grid grid-cols-2 lg:grid-cols-4"
-        style={{ borderTop: "1px solid var(--rule-1)" }}
-      >
-        {COUNTERS.map((counter, index) => (
-          <div
-            key={counter.label}
-            style={{
-              borderBottom: "1px solid var(--rule-1)",
-              borderRight: "1px solid var(--rule-1)",
-            }}
-            className="[&:nth-child(2n)]:border-r-0 lg:[&:nth-child(2n)]:border-r lg:[&:last-child]:border-r-0"
-          >
-            <Counter counter={counter} index={index} />
-          </div>
+      <div className="mt-10 grid grid-cols-1 gap-8 border-t pt-8 sm:grid-cols-3" style={{ borderColor: "var(--rule-1)" }}>
+        {stats.map((stat, index) => (
+          <Stat key={stat.label} stat={stat} index={index} />
         ))}
       </div>
-
-      <div className="mt-10" style={{ borderTop: "1px solid var(--rule-2)" }} />
     </header>
   );
 }

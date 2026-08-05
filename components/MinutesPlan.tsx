@@ -5,6 +5,7 @@ import type { MinutesRow } from "@/lib/types";
 import { FIGURE_SPACE, formatMinutes, signed } from "@/lib/format";
 import { isAchromatic, teamIdentity } from "@/lib/teamColors";
 import { useReducedMotion, useReveal } from "@/lib/motion";
+import { FlagMark } from "@/components/flags";
 import { Num } from "@/components/ui";
 
 /** Fixed domain, so bars stay comparable across teams and never rescale. */
@@ -68,10 +69,11 @@ export function MinutesPlan({ code, rows }: { code: string; rows: MinutesRow[] }
             >
               <div className="min-w-0 sm:hidden">
                 <div
-                  className="truncate text-[14.5px]"
+                  className="flex items-center gap-1.5 text-[14.5px]"
                   style={{ fontWeight: 500, color: "var(--text-hi)" }}
                 >
-                  {row.name}
+                  <span className="truncate">{row.name}</span>
+                  {row.imputed && <FlagMark reason={row.imputed} />}
                 </div>
               </div>
               <div className="text-right sm:hidden">
@@ -81,13 +83,14 @@ export function MinutesPlan({ code, rows }: { code: string; rows: MinutesRow[] }
               <div className="col-span-2 grid items-center gap-3 sm:col-span-1 sm:grid-cols-[220px_minmax(0,1fr)] sm:gap-4">
                 <div className="hidden min-w-0 sm:block">
                   <div
-                    className="truncate text-[14.5px]"
+                    className="flex items-center gap-1.5 text-[14.5px]"
                     style={{ fontWeight: 500, color: "var(--text-hi)" }}
                   >
-                    {row.name}
+                    <span className="truncate">{row.name}</span>
+                    {row.imputed && <FlagMark reason={row.imputed} />}
                   </div>
                   <Num className="text-[11.5px]" style={{ color: "var(--text-lo)" }}>
-                    {row.role} · {signed(row.bpm, 1)} bpm · {row.gp} gp
+                    {row.role} · {signed(row.bpm, 1)} bpm
                   </Num>
                 </div>
 

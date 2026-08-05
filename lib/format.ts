@@ -14,6 +14,17 @@ export function formatMillions(value: number | null): string {
   return `$${(value / 1_000_000).toFixed(1)}m`;
 }
 
+/**
+ * Bench surplus value, with an explicit sign so polarity never rides on colour
+ * alone: 26089599 -> "+$26.1m", -33099774 -> "−$33.1m", 45105 -> "+$0.0m".
+ * The sign glyph for negatives is U+2212 (true minus).
+ */
+export function formatSurplus(value: number): string {
+  const magnitude = `$${(Math.abs(value) / 1_000_000).toFixed(1)}m`;
+  if (value < 0) return `${MINUS}${magnitude}`;
+  return `+${magnitude}`;
+}
+
 /** Axis ticks: 40000000 -> "$40m" */
 export function formatAxisMillions(value: number): string {
   return `$${Math.round(value / 1_000_000)}m`;
