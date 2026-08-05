@@ -231,8 +231,11 @@ export function BenchScatter({ teams }: { teams: Team[] }) {
                   onBlur={() => setActive((cur) => (cur === team.team ? null : cur))}
                   onClick={() => setActive(team.team)}
                 >
-                  {/* Invisible ≥32px tap/hit target. */}
-                  <circle cx={cx} cy={cy} r={17} fill="transparent" />
+                  {/* Invisible tap/hit target. r=18.5 viewBox units renders at
+                      33.2 CSS px at a 375px viewport (compact viewBox 380 wide
+                      inside a 341px container), clearing the 32px floor. r=17
+                      measured 30.5px and missed it. */}
+                  <circle cx={cx} cy={cy} r={18.5} fill="transparent" />
                   {isActive && (
                     <circle cx={cx} cy={cy} r={13} fill="none" stroke="var(--team)" strokeWidth={1} />
                   )}

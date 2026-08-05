@@ -23,13 +23,12 @@ export function TeamExplorer({
 }) {
   const [selected, setSelected] = useState("BOS");
 
-  const noLineup = new Set(teamCodes.filter((code) => !lineups[code]));
   const rows = minutes[selected] ?? [];
 
   return (
     <div>
       <div className="mb-10">
-        <TeamRail codes={teamCodes} selected={selected} onSelect={setSelected} noLineup={noLineup} />
+        <TeamRail codes={teamCodes} selected={selected} onSelect={setSelected} />
       </div>
 
       <section>

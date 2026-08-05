@@ -4,21 +4,16 @@ import { useRef } from "react";
 import { teamIdentity } from "@/lib/teamColors";
 import { Num } from "@/components/ui";
 
-/**
- * One selector, serving both panels. The six teams with no lineup in the source
- * are marked but stay fully selectable — Panel 2 has complete data for all
- * thirty, so the empty state is a route rather than a dead end.
- */
+/** One selector, serving both panels. Every team has a lineup and a minutes
+ *  plan in the source, so every cell is a live destination. */
 export function TeamRail({
   codes,
   selected,
   onSelect,
-  noLineup,
 }: {
   codes: string[];
   selected: string;
   onSelect: (code: string) => void;
-  noLineup: ReadonlySet<string>;
 }) {
   const refs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
@@ -47,7 +42,6 @@ export function TeamRail({
       {codes.map((code, index) => {
         const identity = teamIdentity(code);
         const isSelected = code === selected;
-        const missing = noLineup.has(code);
         return (
           <button
             key={code}
@@ -59,7 +53,6 @@ export function TeamRail({
             role="radio"
             aria-checked={isSelected}
             tabIndex={isSelected ? 0 : -1}
-            aria-describedby={missing ? "no-lineup-hint" : undefined}
             onClick={() => onSelect(code)}
             onKeyDown={(event) => onKeyDown(event, index)}
             className="flex h-[34px] items-center justify-center"
@@ -77,9 +70,7 @@ export function TeamRail({
             <Num
               className={`text-[13.5px] ${isSelected ? "team-text" : ""}`}
               style={{
-                color: isSelected ? undefined : missing ? "var(--text-lo)" : "var(--text-mid)",
-                textDecoration: missing ? "underline dotted" : "none",
-                textUnderlineOffset: 3,
+                color: isSelected ? undefined : "var(--text-mid)",
               }}
             >
               {code}
@@ -87,9 +78,6 @@ export function TeamRail({
           </button>
         );
       })}
-      <span id="no-lineup-hint" className="sr-only">
-        No lineup in the source. Minutes plan available.
-      </span>
     </div>
   );
 }

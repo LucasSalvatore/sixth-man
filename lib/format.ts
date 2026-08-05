@@ -25,10 +25,6 @@ export function formatSurplus(value: number): string {
   return `+${magnitude}`;
 }
 
-/** Axis ticks: 40000000 -> "$40m" */
-export function formatAxisMillions(value: number): string {
-  return `$${Math.round(value / 1_000_000)}m`;
-}
 
 /**
  * U+2007 FIGURE SPACE — one digit wide. Fills the 1ch sign slot ahead of an
