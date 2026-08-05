@@ -29,9 +29,6 @@
   --neg: #e0685e;
   --casing: #050504;
 
-  --dur-fast: 140ms;
-  --dur-mid: 320ms;
-  --dur-slow: 520ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-grow: cubic-bezier(0.16, 1, 0.3, 1);
 }

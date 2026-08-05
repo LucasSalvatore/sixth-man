@@ -11,13 +11,12 @@ import { MicroLabel, Num } from "@/components/ui";
 type Slot =
   | { kind: "common"; player: LineupPlayer }
   | { kind: "demoted"; player: LineupPlayer }
-  | { kind: "promoted"; player: LineupPlayer }
-  | { kind: "void" };
+  | { kind: "promoted"; player: LineupPlayer };
 
 const byBpmThenName = (a: LineupPlayer, b: LineupPlayer) =>
   b.bpm - a.bpm || a.name.localeCompare(b.name);
 
-function buildSlots(lineup: Lineup): { left: Slot[]; right: Slot[]; hasVoid: boolean } {
+function buildSlots(lineup: Lineup): { left: Slot[]; right: Slot[] } {
   const currentNames = new Set(lineup.current.map((p) => p.name));
   const optimalNames = new Set(lineup.optimal.map((p) => p.name));
 
@@ -34,13 +33,9 @@ function buildSlots(lineup: Lineup): { left: Slot[]; right: Slot[]; hasVoid: boo
     ...promoted.map((player) => ({ kind: "promoted" as const, player })),
   ];
 
-  // Defensive: v2 lists five for every team, but if a future refresh ships a
-  // short lineup, hold the slot open rather than fabricate a player.
-  const size = Math.max(left.length, right.length, lineup.current.length, lineup.optimal.length);
-  const hasVoid = left.length < size || right.length < size;
-  while (left.length < size) left.push({ kind: "void" });
-  while (right.length < size) right.push({ kind: "void" });
-  return { left, right, hasVoid };
+  // Both cards always hold as many rows as the source lists for that side; a
+  // player is never fabricated to fill a slot.
+  return { left, right };
 }
 
 function PlayerRow({
@@ -54,17 +49,6 @@ function PlayerRow({
   commonCount: number;
   animKey: string;
 }) {
-  if (slot.kind === "void") {
-    return (
-      <div
-        className="flex items-center justify-center px-3 text-[12.5px]"
-        style={{ height: 48, border: "1px dashed var(--rule-2)", color: "var(--text-mid)" }}
-      >
-        Fifth slot not in the source
-      </div>
-    );
-  }
-
   const { player } = slot;
   const exchangeIndex = index - commonCount;
   // Players in both fives stay put — no entrance. Only the exchange moves.
@@ -163,7 +147,7 @@ function Card({
       <div className="mt-4 flex flex-col gap-2">
         {slots.map((slot, index) => (
           <PlayerRow
-            key={slot.kind === "void" ? `void-${index}` : slot.player.name}
+            key={slot.player.name}
             slot={slot}
             index={index}
             commonCount={commonCount}
