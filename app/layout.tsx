@@ -40,10 +40,41 @@ const numerals = JetBrains_Mono({
   variable: "--font-num",
 });
 
+/** The one-line finding, shared verbatim between the meta description and the
+ *  Open Graph / Twitter Card descriptions so the three can't drift apart. */
+const FINDING =
+  "NBA teams are bad at buying bench value: bench payroll explains about six percent of the variance in bench quality.";
+
+/**
+ * Vercel injects this automatically for every deployment, pointing at the
+ * project's production domain (custom domain if one is attached) — so social
+ * previews and the canonical tag resolve correctly without a hardcoded guess.
+ * Falls back to localhost for local dev, where absolute OG/canonical URLs
+ * aren't meaningful anyway.
+ */
+const SITE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "deep-bench — Lucan Labs",
-  description:
-    "NBA teams are bad at buying bench value: bench payroll explains about six percent of the variance in bench quality.",
+  description: FINDING,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "deep-bench — NBA teams are bad at buying bench value",
+    description: FINDING,
+    url: "/",
+    siteName: "deep-bench",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "deep-bench — NBA teams are bad at buying bench value",
+    description: FINDING,
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
