@@ -1,0 +1,5629 @@
+{
+ "meta": {
+  "title": "deep-bench",
+  "version": 2,
+  "season_source": "2025-26 Basketball-Reference advanced + contracts tables; 2024-25 advanced for injury-return priors",
+  "winsFormula": "projWins = 41 + 2.7 x (teamBPM - leagueAdjustment); teamBPM = 2/3 starterBPM + 1/3 benchBPM",
+  "leagueAdjustment": 0.778,
+  "leagueAdjustmentNote": "Rotation-only samples (9-10 priced players/team) average above a true league-wide 0, since replacement-level bench minutes are structurally under-sampled. This constant recenters team strength so the 30 projections sum to a full 1230-win season, per NBA schedule identity.",
+  "starterBenchShareNote": "Every team's 5 starters are fixed at 32 min/game (160 total); the remaining 80 team-minutes split evenly across that team's own tracked bench players, so bench share is a consistent 1/3 regardless of how many bench players are tracked (4-6).",
+  "benchSurplusFormula": "benchSurplusValue = (fair-market bench payroll implied by benchWinsAboveAvg, from a league-wide regression of payroll on bench value) - actual bench payroll. Positive = bargain, negative = overpaying. Regression: payroll = $38.8M + $3.24M x benchWinsAboveAvg (r=0.25, r2=0.06).",
+  "lineupModelNote": "Lineup and minutes panels use the identical starterBPM/teamBPM formula and leagueAdjustment as the main table -- a team's 'current lineup' value is guaranteed identical to its table starterBPM by construction, not by cross-checking.",
+  "disclosures": [
+   "22 players (17 unproven 2026 rookies, 5 returning from season-long injury) have no 2025-26 BPM. All 22 are now imputed and flagged per-team in dataFlags, not silently dropped: rookies get a modeled placeholder (-1.5 starters / -3.0 bench, not a real stat); returning veterans (Haliburton, Lillard, VanVleet, Irving, Lyles) use their last full healthy season's real BPM as a prior.",
+   "11 unsigned free agents carry no confirmed 2026-27 salary; bench payroll is committed salary only, a lower bound.",
+   "All player value is box-score BPM from a single season (or a single prior season for imputed players): blind to fit, chemistry, coaching, and development between seasons.",
+   "benchSurplusValue is relative to the league's own revealed pricing (a regression on this dataset), not an external market valuation -- it shows who is over/underpaying *relative to how the league as a whole is currently paying for bench value*, not an absolute dollar-per-win truth.",
+   "Lineup swaps are constrained to 2-3 guards and 1-2 bigs using last-season position labels; rookies with no position history default to a neutral (wing) constraint.",
+   "Minutes-plan optima are linear with a hard 36-minute ceiling and 8-minute floor, so solutions cluster at those bounds -- read the direction and size of each delta, not the literal minutes, and treat it as an upper bound on available gain, not a rotation card.",
+   "Roster assignments (who is on which team for 2026-27) reflect a late-July/early-August 2026 offseason snapshot and were independently verified against ESPN/NBA.com transaction trackers for every major trade; unsigned restricted free agents' teams remain projections."
+  ],
+  "leagueAvgBenchPayroll": 38840540,
+  "leagueAvgBenchPayrollNote": "Mean 2026-27 committed bench payroll across all 30 teams. Provided as a field so the scatter's reference line is a direct read, not computed in a component."
+ },
+ "teams": [
+  {
+   "team": "OKC",
+   "starterBPM": 4.68,
+   "benchBPM": 0.86,
+   "nBench": 5,
+   "projWins": 48.1,
+   "benchWinsAboveAvg": 1.53,
+   "benchPayroll": 39597408,
+   "fairMarketBenchPayroll": 43780516,
+   "benchSurplusValue": 4183108,
+   "dataFlags": []
+  },
+  {
+   "team": "LAL",
+   "starterBPM": 4.52,
+   "benchBPM": -1.14,
+   "nBench": 5,
+   "projWins": 46.0,
+   "benchWinsAboveAvg": -0.27,
+   "benchPayroll": 34218331,
+   "fairMarketBenchPayroll": 37949915,
+   "benchSurplusValue": 3731584,
+   "dataFlags": []
+  },
+  {
+   "team": "SAS",
+   "starterBPM": 3.34,
+   "benchBPM": 0.86,
+   "nBench": 5,
+   "projWins": 45.7,
+   "benchWinsAboveAvg": 1.53,
+   "benchPayroll": 61128400,
+   "fairMarketBenchPayroll": 43780516,
+   "benchSurplusValue": -17347883,
+   "dataFlags": []
+  },
+  {
+   "team": "DET",
+   "starterBPM": 2.94,
+   "benchBPM": 0.9,
+   "nBench": 5,
+   "projWins": 45.0,
+   "benchWinsAboveAvg": 1.56,
+   "benchPayroll": 38328628,
+   "fairMarketBenchPayroll": 43897128,
+   "benchSurplusValue": 5568500,
+   "dataFlags": []
+  },
+  {
+   "team": "BOS",
+   "starterBPM": 2.34,
+   "benchBPM": 1.3,
+   "nBench": 5,
+   "projWins": 44.3,
+   "benchWinsAboveAvg": 1.92,
+   "benchPayroll": 26434261,
+   "fairMarketBenchPayroll": 45063249,
+   "benchSurplusValue": 18628988,
+   "dataFlags": []
+  },
+  {
+   "team": "DEN",
+   "starterBPM": 3.64,
+   "benchBPM": -1.52,
+   "nBench": 5,
+   "projWins": 44.1,
+   "benchWinsAboveAvg": -0.62,
+   "benchPayroll": 10752501,
+   "fairMarketBenchPayroll": 36842100,
+   "benchSurplusValue": 26089599,
+   "dataFlags": []
+  },
+  {
+   "team": "TOR",
+   "starterBPM": 3.28,
+   "benchBPM": -1.0,
+   "nBench": 5,
+   "projWins": 43.9,
+   "benchWinsAboveAvg": -0.15,
+   "benchPayroll": 19229556,
+   "fairMarketBenchPayroll": 38358057,
+   "benchSurplusValue": 19128501,
+   "dataFlags": [
+    {
+     "player": "Allen Graves",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-3.0 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "NYK",
+   "starterBPM": 2.82,
+   "benchBPM": -0.48,
+   "nBench": 5,
+   "projWins": 43.5,
+   "benchWinsAboveAvg": 0.32,
+   "benchPayroll": 18495230,
+   "fairMarketBenchPayroll": 39874013,
+   "benchSurplusValue": 21378783,
+   "dataFlags": []
+  },
+  {
+   "team": "PHI",
+   "starterBPM": 3.32,
+   "benchBPM": -1.66,
+   "nBench": 5,
+   "projWins": 43.4,
+   "benchWinsAboveAvg": -0.74,
+   "benchPayroll": 38917771,
+   "fairMarketBenchPayroll": 36433958,
+   "benchSurplusValue": -2483812,
+   "dataFlags": [
+    {
+     "player": "Dom Barlow",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-3.0 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "CLE",
+   "starterBPM": 2.94,
+   "benchBPM": -1.68,
+   "nBench": 5,
+   "projWins": 42.7,
+   "benchWinsAboveAvg": -0.76,
+   "benchPayroll": 36330547,
+   "fairMarketBenchPayroll": 36375652,
+   "benchSurplusValue": 45105,
+   "dataFlags": [
+    {
+     "player": "Mario Herzonja",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-3.0 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "MIA",
+   "starterBPM": 2.12,
+   "benchBPM": -0.2,
+   "nBench": 4,
+   "projWins": 42.5,
+   "benchWinsAboveAvg": 0.57,
+   "benchPayroll": 35755374,
+   "fairMarketBenchPayroll": 40690297,
+   "benchSurplusValue": 4934923,
+   "dataFlags": []
+  },
+  {
+   "team": "HOU",
+   "starterBPM": 2.3,
+   "benchBPM": -0.94,
+   "nBench": 5,
+   "projWins": 42.2,
+   "benchWinsAboveAvg": -0.09,
+   "benchPayroll": 46674025,
+   "fairMarketBenchPayroll": 38532975,
+   "benchSurplusValue": -8141049,
+   "dataFlags": [
+    {
+     "player": "Fred VanVleet",
+     "reason": "returning_from_injury",
+     "note": "No 2025-26 season; using 60-game 2024-25 BPM (+0.9) as a prior."
+    }
+   ]
+  },
+  {
+   "team": "MIN",
+   "starterBPM": 1.84,
+   "benchBPM": -0.24,
+   "nBench": 5,
+   "projWins": 42.0,
+   "benchWinsAboveAvg": 0.54,
+   "benchPayroll": 44048080,
+   "fairMarketBenchPayroll": 40573685,
+   "benchSurplusValue": -3474394,
+   "dataFlags": [
+    {
+     "player": "Trey Lyles",
+     "reason": "returning_from_injury",
+     "note": "No 2025-26 season; using 69-game 2024-25 BPM (-0.7) as a prior."
+    }
+   ]
+  },
+  {
+   "team": "POR",
+   "starterBPM": 1.76,
+   "benchBPM": -0.12,
+   "nBench": 5,
+   "projWins": 42.0,
+   "benchWinsAboveAvg": 0.64,
+   "benchPayroll": 74023297,
+   "fairMarketBenchPayroll": 40923522,
+   "benchSurplusValue": -33099774,
+   "dataFlags": [
+    {
+     "player": "Damian Lillard",
+     "reason": "returning_from_injury",
+     "note": "No 2025-26 season; using 58-game 2024-25 BPM (+4.0) as a prior."
+    }
+   ]
+  },
+  {
+   "team": "PHX",
+   "starterBPM": 0.72,
+   "benchBPM": 1.12,
+   "nBench": 5,
+   "projWins": 41.2,
+   "benchWinsAboveAvg": 1.76,
+   "benchPayroll": 59646157,
+   "fairMarketBenchPayroll": 44538495,
+   "benchSurplusValue": -15107661,
+   "dataFlags": []
+  },
+  {
+   "team": "ORL",
+   "starterBPM": 1.44,
+   "benchBPM": -0.5,
+   "nBench": 5,
+   "projWins": 41.0,
+   "benchWinsAboveAvg": 0.3,
+   "benchPayroll": 35287993,
+   "fairMarketBenchPayroll": 39815707,
+   "benchSurplusValue": 4527714,
+   "dataFlags": []
+  },
+  {
+   "team": "IND",
+   "starterBPM": 0.4,
+   "benchBPM": 1.12,
+   "nBench": 4,
+   "projWins": 40.6,
+   "benchWinsAboveAvg": 1.76,
+   "benchPayroll": 36717944,
+   "fairMarketBenchPayroll": 44553071,
+   "benchSurplusValue": 7835127,
+   "dataFlags": [
+    {
+     "player": "Tyrese Haliburton",
+     "reason": "returning_from_injury",
+     "note": "No 2025-26 season; using 73-game 2024-25 BPM (+5.8) as a prior."
+    }
+   ]
+  },
+  {
+   "team": "ATL",
+   "starterBPM": 1.08,
+   "benchBPM": -0.82,
+   "nBench": 5,
+   "projWins": 40.1,
+   "benchWinsAboveAvg": 0.01,
+   "benchPayroll": 50129985,
+   "fairMarketBenchPayroll": 38882811,
+   "benchSurplusValue": -11247173,
+   "dataFlags": []
+  },
+  {
+   "team": "GSW",
+   "starterBPM": 0.38,
+   "benchBPM": 0.28,
+   "nBench": 5,
+   "projWins": 39.8,
+   "benchWinsAboveAvg": 1.0,
+   "benchPayroll": 19282006,
+   "fairMarketBenchPayroll": 42089642,
+   "benchSurplusValue": 22807636,
+   "dataFlags": [
+    {
+     "player": "Yaxel Lendeborg",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-1.5 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "MEM",
+   "starterBPM": 0.68,
+   "benchBPM": -0.36,
+   "nBench": 5,
+   "projWins": 39.8,
+   "benchWinsAboveAvg": 0.43,
+   "benchPayroll": 56485655,
+   "fairMarketBenchPayroll": 40223849,
+   "benchSurplusValue": -16261805,
+   "dataFlags": [
+    {
+     "player": "Cameron Boozer",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-1.5 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "CHA",
+   "starterBPM": 1.14,
+   "benchBPM": -1.5,
+   "nBench": 5,
+   "projWins": 39.6,
+   "benchWinsAboveAvg": -0.6,
+   "benchPayroll": 51819680,
+   "fairMarketBenchPayroll": 36900406,
+   "benchSurplusValue": -14919273,
+   "dataFlags": [
+    {
+     "player": "Christian Anderson",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-3.0 BPM), not a real stat."
+    },
+    {
+     "player": "Hannes Steinbach",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-3.0 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "NOP",
+   "starterBPM": 0.56,
+   "benchBPM": -1.34,
+   "nBench": 5,
+   "projWins": 38.7,
+   "benchWinsAboveAvg": -0.45,
+   "benchPayroll": 54190591,
+   "fairMarketBenchPayroll": 37366855,
+   "benchSurplusValue": -16823735,
+   "dataFlags": []
+  },
+  {
+   "team": "DAL",
+   "starterBPM": 0.48,
+   "benchBPM": -1.22,
+   "nBench": 5,
+   "projWins": 38.7,
+   "benchWinsAboveAvg": -0.35,
+   "benchPayroll": 52215437,
+   "fairMarketBenchPayroll": 37716691,
+   "benchSurplusValue": -14498745,
+   "dataFlags": [
+    {
+     "player": "Kyrie Irving",
+     "reason": "returning_from_injury",
+     "note": "No 2025-26 season; using 50-game 2024-25 BPM (+3.4) as a prior."
+    },
+    {
+     "player": "Morez Johnson",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-3.0 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "CHI",
+   "starterBPM": 0.54,
+   "benchBPM": -2.06,
+   "nBench": 5,
+   "projWins": 38.0,
+   "benchWinsAboveAvg": -1.1,
+   "benchPayroll": 44425388,
+   "fairMarketBenchPayroll": 35267838,
+   "benchSurplusValue": -9157549,
+   "dataFlags": [
+    {
+     "player": "Caleb Wilson",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-1.5 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "MIL",
+   "starterBPM": 0.7,
+   "benchBPM": -2.42,
+   "nBench": 5,
+   "projWins": 38.0,
+   "benchWinsAboveAvg": -1.43,
+   "benchPayroll": 43450182,
+   "fairMarketBenchPayroll": 34218330,
+   "benchSurplusValue": -9231851,
+   "dataFlags": [
+    {
+     "player": "Brayden Burries",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-3.0 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "UTA",
+   "starterBPM": -0.6,
+   "benchBPM": -1.32,
+   "nBench": 5,
+   "projWins": 36.6,
+   "benchWinsAboveAvg": -0.44,
+   "benchPayroll": 22340883,
+   "fairMarketBenchPayroll": 37425161,
+   "benchSurplusValue": 15084278,
+   "dataFlags": [
+    {
+     "player": "Darryn Peterson",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-1.5 BPM), not a real stat."
+    },
+    {
+     "player": "Bryce Sensabaugh",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-3.0 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "BKN",
+   "starterBPM": 0.58,
+   "benchBPM": -3.78,
+   "nBench": 5,
+   "projWins": 36.5,
+   "benchWinsAboveAvg": -2.65,
+   "benchPayroll": 21737122,
+   "fairMarketBenchPayroll": 30253521,
+   "benchSurplusValue": 8516399,
+   "dataFlags": [
+    {
+     "player": "Mikel Brown Jr.",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-1.5 BPM), not a real stat."
+    },
+    {
+     "player": "Egor Demin",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-1.5 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "LAC",
+   "starterBPM": -0.42,
+   "benchBPM": -1.86,
+   "nBench": 5,
+   "projWins": 36.5,
+   "benchWinsAboveAvg": -0.92,
+   "benchPayroll": 33431511,
+   "fairMarketBenchPayroll": 35850898,
+   "benchSurplusValue": 2419387,
+   "dataFlags": []
+  },
+  {
+   "team": "WAS",
+   "starterBPM": -0.12,
+   "benchBPM": -2.68,
+   "nBench": 5,
+   "projWins": 36.3,
+   "benchWinsAboveAvg": -1.66,
+   "benchPayroll": 29040892,
+   "fairMarketBenchPayroll": 33460351,
+   "benchSurplusValue": 4419459,
+   "dataFlags": [
+    {
+     "player": "AJ Dybantsa",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-1.5 BPM), not a real stat."
+    }
+   ]
+  },
+  {
+   "team": "SAC",
+   "starterBPM": -1.88,
+   "benchBPM": -2.64,
+   "nBench": 5,
+   "projWins": 33.1,
+   "benchWinsAboveAvg": -1.62,
+   "benchPayroll": 31081352,
+   "fairMarketBenchPayroll": 33576963,
+   "benchSurplusValue": 2495611,
+   "dataFlags": [
+    {
+     "player": "Darius Acuff",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-1.5 BPM), not a real stat."
+    },
+    {
+     "player": "Emmanuel Sharp",
+     "reason": "rookie_no_history",
+     "note": "2026 rookie, no NBA history. Modeled placeholder (-3.0 BPM), not a real stat."
+    }
+   ]
+  }
+ ],
+ "lineups": {
+  "ATL": {
+   "current": [
+    {
+     "name": "Nickeil Alexander-Walker",
+     "pos": "SG",
+     "bpm": 1.2,
+     "salary": 14403710,
+     "imputed": null
+    },
+    {
+     "name": "Dyson Daniels",
+     "pos": "SG",
+     "bpm": 1.3,
+     "salary": 25000000,
+     "imputed": null
+    },
+    {
+     "name": "Jalen Johnson",
+     "pos": "SF",
+     "bpm": 4.2,
+     "salary": 30000000,
+     "imputed": null
+    },
+    {
+     "name": "Luguentz Dort",
+     "pos": "SF",
+     "bpm": -2.0,
+     "salary": 18222222,
+     "imputed": null
+    },
+    {
+     "name": "Onyeka Okongwu",
+     "pos": "C",
+     "bpm": 0.7,
+     "salary": 16120000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Nickeil Alexander-Walker",
+     "pos": "SG",
+     "bpm": 1.2,
+     "salary": 14403710,
+     "imputed": null
+    },
+    {
+     "name": "Dyson Daniels",
+     "pos": "SG",
+     "bpm": 1.3,
+     "salary": 25000000,
+     "imputed": null
+    },
+    {
+     "name": "Jalen Johnson",
+     "pos": "SF",
+     "bpm": 4.2,
+     "salary": 30000000,
+     "imputed": null
+    },
+    {
+     "name": "Onyeka Okongwu",
+     "pos": "C",
+     "bpm": 0.7,
+     "salary": 16120000,
+     "imputed": null
+    },
+    {
+     "name": "Jock Landale",
+     "pos": "C",
+     "bpm": -0.1,
+     "salary": 14100000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 1.08,
+   "optLineupBPM": 1.46,
+   "gainWins": 0.342
+  },
+  "BKN": {
+   "current": [
+    {
+     "name": "Mikel Brown Jr.",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 8787000,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Egor Demin",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": null,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Michael Porter Jr.",
+     "pos": "SF",
+     "bpm": 3.0,
+     "salary": 40806150,
+     "imputed": null
+    },
+    {
+     "name": "Julius Randle",
+     "pos": "PF",
+     "bpm": 1.5,
+     "salary": 33333334,
+     "imputed": null
+    },
+    {
+     "name": "Day'Ron Sharpe",
+     "pos": "C",
+     "bpm": 1.4,
+     "salary": 10000000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Mikel Brown Jr.",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 8787000,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Egor Demin",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": null,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Michael Porter Jr.",
+     "pos": "SF",
+     "bpm": 3.0,
+     "salary": 40806150,
+     "imputed": null
+    },
+    {
+     "name": "Julius Randle",
+     "pos": "PF",
+     "bpm": 1.5,
+     "salary": 33333334,
+     "imputed": null
+    },
+    {
+     "name": "Day'Ron Sharpe",
+     "pos": "C",
+     "bpm": 1.4,
+     "salary": 10000000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 0.58,
+   "optLineupBPM": 0.58,
+   "gainWins": 0.0
+  },
+  "BOS": {
+   "current": [
+    {
+     "name": "Derrick White",
+     "pos": "SG",
+     "bpm": 3.2,
+     "salary": 30348000,
+     "imputed": null
+    },
+    {
+     "name": "Hugo Gonzalez",
+     "pos": "SF",
+     "bpm": -1.5,
+     "salary": 2923560,
+     "imputed": null
+    },
+    {
+     "name": "Jayson Tatum",
+     "pos": "PF",
+     "bpm": 4.8,
+     "salary": 58456566,
+     "imputed": null
+    },
+    {
+     "name": "Paul George",
+     "pos": "PF",
+     "bpm": 1.7,
+     "salary": 54126380,
+     "imputed": null
+    },
+    {
+     "name": "Mitchell Robinson",
+     "pos": "C",
+     "bpm": 3.5,
+     "salary": 15044000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Derrick White",
+     "pos": "SG",
+     "bpm": 3.2,
+     "salary": 30348000,
+     "imputed": null
+    },
+    {
+     "name": "Jayson Tatum",
+     "pos": "PF",
+     "bpm": 4.8,
+     "salary": 58456566,
+     "imputed": null
+    },
+    {
+     "name": "Mitchell Robinson",
+     "pos": "C",
+     "bpm": 3.5,
+     "salary": 15044000,
+     "imputed": null
+    },
+    {
+     "name": "Payton Pritchard",
+     "pos": "PG",
+     "bpm": 2.3,
+     "salary": 7767857,
+     "imputed": null
+    },
+    {
+     "name": "Baylor Scheierman",
+     "pos": "SG",
+     "bpm": 0.6,
+     "salary": 2744040,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 2.34,
+   "optLineupBPM": 2.88,
+   "gainWins": 0.486
+  },
+  "CHA": {
+   "current": [
+    {
+     "name": "Coby White",
+     "pos": "SG",
+     "bpm": -1.3,
+     "salary": 22839506,
+     "imputed": null
+    },
+    {
+     "name": "Brandon Miller",
+     "pos": "SF",
+     "bpm": 1.6,
+     "salary": 15104626,
+     "imputed": null
+    },
+    {
+     "name": "Kon Knueppel",
+     "pos": "SF",
+     "bpm": 2.8,
+     "salary": 10516560,
+     "imputed": null
+    },
+    {
+     "name": "Naz Reid",
+     "pos": "C",
+     "bpm": 0.9,
+     "salary": 23275862,
+     "imputed": null
+    },
+    {
+     "name": "Moussa Diabate",
+     "pos": "C",
+     "bpm": 1.7,
+     "salary": 2461462,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Coby White",
+     "pos": "SG",
+     "bpm": -1.3,
+     "salary": 22839506,
+     "imputed": null
+    },
+    {
+     "name": "Brandon Miller",
+     "pos": "SF",
+     "bpm": 1.6,
+     "salary": 15104626,
+     "imputed": null
+    },
+    {
+     "name": "Kon Knueppel",
+     "pos": "SF",
+     "bpm": 2.8,
+     "salary": 10516560,
+     "imputed": null
+    },
+    {
+     "name": "Moussa Diabate",
+     "pos": "C",
+     "bpm": 1.7,
+     "salary": 2461462,
+     "imputed": null
+    },
+    {
+     "name": "Grayson Allen",
+     "pos": "SG",
+     "bpm": 2.1,
+     "salary": 18125000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 1.14,
+   "optLineupBPM": 1.38,
+   "gainWins": 0.216
+  },
+  "CHI": {
+   "current": [
+    {
+     "name": "Josh Giddey",
+     "pos": "PG",
+     "bpm": 2.7,
+     "salary": 25000000,
+     "imputed": null
+    },
+    {
+     "name": "Norman Powell",
+     "pos": "SG",
+     "bpm": 1.6,
+     "salary": 21500000,
+     "imputed": null
+    },
+    {
+     "name": "Matas Buzelis",
+     "pos": "PF",
+     "bpm": -1.0,
+     "salary": 5715360,
+     "imputed": null
+    },
+    {
+     "name": "Caleb Wilson",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 10683720,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Nic Claxton",
+     "pos": "C",
+     "bpm": 0.9,
+     "salary": 23147727,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Josh Giddey",
+     "pos": "PG",
+     "bpm": 2.7,
+     "salary": 25000000,
+     "imputed": null
+    },
+    {
+     "name": "Norman Powell",
+     "pos": "SG",
+     "bpm": 1.6,
+     "salary": 21500000,
+     "imputed": null
+    },
+    {
+     "name": "Nic Claxton",
+     "pos": "C",
+     "bpm": 0.9,
+     "salary": 23147727,
+     "imputed": null
+    },
+    {
+     "name": "Tre Jones",
+     "pos": "PG",
+     "bpm": 1.3,
+     "salary": 8000000,
+     "imputed": null
+    },
+    {
+     "name": "Zach Collins",
+     "pos": "C",
+     "bpm": 0.2,
+     "salary": 8292683,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 0.54,
+   "optLineupBPM": 1.34,
+   "gainWins": 0.72
+  },
+  "CLE": {
+   "current": [
+    {
+     "name": "James Harden",
+     "pos": "PG",
+     "bpm": 3.9,
+     "salary": 42317307,
+     "imputed": null
+    },
+    {
+     "name": "Donovan Mitchell",
+     "pos": "SG",
+     "bpm": 5.1,
+     "salary": 50105628,
+     "imputed": null
+    },
+    {
+     "name": "Jaylon Tyson",
+     "pos": "SG",
+     "bpm": 0.1,
+     "salary": 3658560,
+     "imputed": null
+    },
+    {
+     "name": "Evan Mobley",
+     "pos": "PF",
+     "bpm": 3.0,
+     "salary": 50105628,
+     "imputed": null
+    },
+    {
+     "name": "Jarrett Allen",
+     "pos": "C",
+     "bpm": 2.6,
+     "salary": 28000000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "James Harden",
+     "pos": "PG",
+     "bpm": 3.9,
+     "salary": 42317307,
+     "imputed": null
+    },
+    {
+     "name": "Donovan Mitchell",
+     "pos": "SG",
+     "bpm": 5.1,
+     "salary": 50105628,
+     "imputed": null
+    },
+    {
+     "name": "Jaylon Tyson",
+     "pos": "SG",
+     "bpm": 0.1,
+     "salary": 3658560,
+     "imputed": null
+    },
+    {
+     "name": "Evan Mobley",
+     "pos": "PF",
+     "bpm": 3.0,
+     "salary": 50105628,
+     "imputed": null
+    },
+    {
+     "name": "Jarrett Allen",
+     "pos": "C",
+     "bpm": 2.6,
+     "salary": 28000000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 2.94,
+   "optLineupBPM": 2.94,
+   "gainWins": 0.0
+  },
+  "DAL": {
+   "current": [
+    {
+     "name": "Kyrie Irving",
+     "pos": NaN,
+     "bpm": 3.4,
+     "salary": 39491282,
+     "imputed": "returning_from_injury"
+    },
+    {
+     "name": "Max Christie",
+     "pos": "SG",
+     "bpm": -1.5,
+     "salary": 8285714,
+     "imputed": null
+    },
+    {
+     "name": "Cooper Flagg",
+     "pos": "SF",
+     "bpm": 1.4,
+     "salary": 14517480,
+     "imputed": null
+    },
+    {
+     "name": "P.J. Washington",
+     "pos": "PF",
+     "bpm": -1.6,
+     "salary": 19813044,
+     "imputed": null
+    },
+    {
+     "name": "Daniel Gafford",
+     "pos": "C",
+     "bpm": 0.7,
+     "salary": 17263584,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Kyrie Irving",
+     "pos": NaN,
+     "bpm": 3.4,
+     "salary": 39491282,
+     "imputed": "returning_from_injury"
+    },
+    {
+     "name": "Max Christie",
+     "pos": "SG",
+     "bpm": -1.5,
+     "salary": 8285714,
+     "imputed": null
+    },
+    {
+     "name": "Cooper Flagg",
+     "pos": "SF",
+     "bpm": 1.4,
+     "salary": 14517480,
+     "imputed": null
+    },
+    {
+     "name": "Marcus Sasser",
+     "pos": "PG",
+     "bpm": -1.7,
+     "salary": 5198983,
+     "imputed": null
+    },
+    {
+     "name": "Santi Aldama",
+     "pos": "PF",
+     "bpm": 1.7,
+     "salary": 17007043,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 0.48,
+   "optLineupBPM": 0.66,
+   "gainWins": 0.162
+  },
+  "DEN": {
+   "current": [
+    {
+     "name": "Jamal Murray",
+     "pos": "PG",
+     "bpm": 4.1,
+     "salary": 50105628,
+     "imputed": null
+    },
+    {
+     "name": "Christian Braun",
+     "pos": "SG",
+     "bpm": -1.2,
+     "salary": 21551726,
+     "imputed": null
+    },
+    {
+     "name": "Cameron Johnson",
+     "pos": "SF",
+     "bpm": -0.6,
+     "salary": 23062500,
+     "imputed": null
+    },
+    {
+     "name": "Aaron Gordon",
+     "pos": "PF",
+     "bpm": 1.7,
+     "salary": 33658037,
+     "imputed": null
+    },
+    {
+     "name": "Nikola Jokic",
+     "pos": "C",
+     "bpm": 14.2,
+     "salary": 59033114,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Jamal Murray",
+     "pos": "PG",
+     "bpm": 4.1,
+     "salary": 50105628,
+     "imputed": null
+    },
+    {
+     "name": "Christian Braun",
+     "pos": "SG",
+     "bpm": -1.2,
+     "salary": 21551726,
+     "imputed": null
+    },
+    {
+     "name": "Cameron Johnson",
+     "pos": "SF",
+     "bpm": -0.6,
+     "salary": 23062500,
+     "imputed": null
+    },
+    {
+     "name": "Aaron Gordon",
+     "pos": "PF",
+     "bpm": 1.7,
+     "salary": 33658037,
+     "imputed": null
+    },
+    {
+     "name": "Nikola Jokic",
+     "pos": "C",
+     "bpm": 14.2,
+     "salary": 59033114,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 3.64,
+   "optLineupBPM": 3.64,
+   "gainWins": 0.0
+  },
+  "DET": {
+   "current": [
+    {
+     "name": "Cade Cunningham",
+     "pos": "PG",
+     "bpm": 6.3,
+     "salary": 50105628,
+     "imputed": null
+    },
+    {
+     "name": "Duncan Robinson",
+     "pos": "SG",
+     "bpm": 0.8,
+     "salary": 15992957,
+     "imputed": null
+    },
+    {
+     "name": "Ausar Thompson",
+     "pos": "SF",
+     "bpm": 3.1,
+     "salary": 11117925,
+     "imputed": null
+    },
+    {
+     "name": "John Collins",
+     "pos": "PF",
+     "bpm": -0.5,
+     "salary": 17000000,
+     "imputed": null
+    },
+    {
+     "name": "Jalen Duren",
+     "pos": "C",
+     "bpm": 5.0,
+     "salary": null,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Cade Cunningham",
+     "pos": "PG",
+     "bpm": 6.3,
+     "salary": 50105628,
+     "imputed": null
+    },
+    {
+     "name": "Ausar Thompson",
+     "pos": "SF",
+     "bpm": 3.1,
+     "salary": 11117925,
+     "imputed": null
+    },
+    {
+     "name": "Jalen Duren",
+     "pos": "C",
+     "bpm": 5.0,
+     "salary": null,
+     "imputed": null
+    },
+    {
+     "name": "Isaiah Joe",
+     "pos": "SG",
+     "bpm": 2.5,
+     "salary": 11323006,
+     "imputed": null
+    },
+    {
+     "name": "Paul Reed",
+     "pos": "C",
+     "bpm": 5.3,
+     "salary": 5602689,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 2.94,
+   "optLineupBPM": 4.44,
+   "gainWins": 1.35
+  },
+  "GSW": {
+   "current": [
+    {
+     "name": "Stephen Curry",
+     "pos": "PG",
+     "bpm": 5.4,
+     "salary": 62587158,
+     "imputed": null
+    },
+    {
+     "name": "De'Anthony Melton",
+     "pos": "PG",
+     "bpm": -2.5,
+     "salary": 3451779,
+     "imputed": null
+    },
+    {
+     "name": "Yaxel Lendeborg",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 6096240,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Draymond Green",
+     "pos": "PF",
+     "bpm": -1.4,
+     "salary": 27678571,
+     "imputed": null
+    },
+    {
+     "name": "Kristaps Porzingis",
+     "pos": "C",
+     "bpm": 1.9,
+     "salary": 19512195,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Stephen Curry",
+     "pos": "PG",
+     "bpm": 5.4,
+     "salary": 62587158,
+     "imputed": null
+    },
+    {
+     "name": "Kristaps Porzingis",
+     "pos": "C",
+     "bpm": 1.9,
+     "salary": 19512195,
+     "imputed": null
+    },
+    {
+     "name": "Gary Payton II",
+     "pos": "SG",
+     "bpm": 1.9,
+     "salary": null,
+     "imputed": null
+    },
+    {
+     "name": "Brandin Podziemski",
+     "pos": "SG",
+     "bpm": 0.2,
+     "salary": 5679459,
+     "imputed": null
+    },
+    {
+     "name": "Al Horford",
+     "pos": "C",
+     "bpm": 1.6,
+     "salary": 6822000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 0.38,
+   "optLineupBPM": 2.2,
+   "gainWins": 1.638
+  },
+  "HOU": {
+   "current": [
+    {
+     "name": "Fred VanVleet",
+     "pos": NaN,
+     "bpm": 0.9,
+     "salary": 25000000,
+     "imputed": "returning_from_injury"
+    },
+    {
+     "name": "Amen Thompson",
+     "pos": "PG",
+     "bpm": 2.6,
+     "salary": 12258609,
+     "imputed": null
+    },
+    {
+     "name": "Kevin Durant",
+     "pos": "SF",
+     "bpm": 4.5,
+     "salary": 43902439,
+     "imputed": null
+    },
+    {
+     "name": "Jabari Smith Jr.",
+     "pos": "PF",
+     "bpm": -0.7,
+     "salary": 23643411,
+     "imputed": null
+    },
+    {
+     "name": "Alperen Sengun",
+     "pos": "C",
+     "bpm": 4.2,
+     "salary": 35642202,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Fred VanVleet",
+     "pos": NaN,
+     "bpm": 0.9,
+     "salary": 25000000,
+     "imputed": "returning_from_injury"
+    },
+    {
+     "name": "Amen Thompson",
+     "pos": "PG",
+     "bpm": 2.6,
+     "salary": 12258609,
+     "imputed": null
+    },
+    {
+     "name": "Kevin Durant",
+     "pos": "SF",
+     "bpm": 4.5,
+     "salary": 43902439,
+     "imputed": null
+    },
+    {
+     "name": "Alperen Sengun",
+     "pos": "C",
+     "bpm": 4.2,
+     "salary": 35642202,
+     "imputed": null
+    },
+    {
+     "name": "Reed Sheppard",
+     "pos": "SG",
+     "bpm": 2.7,
+     "salary": 11108880,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 2.3,
+   "optLineupBPM": 2.98,
+   "gainWins": 0.612
+  },
+  "IND": {
+   "current": [
+    {
+     "name": "Tyrese Haliburton",
+     "pos": NaN,
+     "bpm": 5.8,
+     "salary": 48924624,
+     "imputed": "returning_from_injury"
+    },
+    {
+     "name": "Andrew Nembhard",
+     "pos": "PG",
+     "bpm": -0.8,
+     "salary": 19550160,
+     "imputed": null
+    },
+    {
+     "name": "Aaron Nesmith",
+     "pos": "SF",
+     "bpm": -3.4,
+     "salary": 11000000,
+     "imputed": null
+    },
+    {
+     "name": "Pascal Siakam",
+     "pos": "PF",
+     "bpm": 0.7,
+     "salary": 48924624,
+     "imputed": null
+    },
+    {
+     "name": "Ivica Zubac",
+     "pos": "C",
+     "bpm": -0.3,
+     "salary": 20342140,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Tyrese Haliburton",
+     "pos": NaN,
+     "bpm": 5.8,
+     "salary": 48924624,
+     "imputed": "returning_from_injury"
+    },
+    {
+     "name": "Andrew Nembhard",
+     "pos": "PG",
+     "bpm": -0.8,
+     "salary": 19550160,
+     "imputed": null
+    },
+    {
+     "name": "Pascal Siakam",
+     "pos": "PF",
+     "bpm": 0.7,
+     "salary": 48924624,
+     "imputed": null
+    },
+    {
+     "name": "T.J. McConnell",
+     "pos": "PG",
+     "bpm": 2.5,
+     "salary": 11000000,
+     "imputed": null
+    },
+    {
+     "name": "Obi Toppin",
+     "pos": "PF",
+     "bpm": 3.0,
+     "salary": 15000000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 0.4,
+   "optLineupBPM": 2.24,
+   "gainWins": 1.242
+  },
+  "LAC": {
+   "current": [
+    {
+     "name": "Darius Garland",
+     "pos": "PG",
+     "bpm": -0.2,
+     "salary": 42166510,
+     "imputed": null
+    },
+    {
+     "name": "Kris Dunn",
+     "pos": "PG",
+     "bpm": -0.8,
+     "salary": 5684800,
+     "imputed": null
+    },
+    {
+     "name": "Brandon Ingram",
+     "pos": "SF",
+     "bpm": 0.5,
+     "salary": 40000000,
+     "imputed": null
+    },
+    {
+     "name": "Derrick Jones Jr.",
+     "pos": "SF",
+     "bpm": -0.7,
+     "salary": 10476190,
+     "imputed": null
+    },
+    {
+     "name": "Brook Lopez",
+     "pos": "C",
+     "bpm": -0.9,
+     "salary": 9187500,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Darius Garland",
+     "pos": "PG",
+     "bpm": -0.2,
+     "salary": 42166510,
+     "imputed": null
+    },
+    {
+     "name": "Kris Dunn",
+     "pos": "PG",
+     "bpm": -0.8,
+     "salary": 5684800,
+     "imputed": null
+    },
+    {
+     "name": "Brandon Ingram",
+     "pos": "SF",
+     "bpm": 0.5,
+     "salary": 40000000,
+     "imputed": null
+    },
+    {
+     "name": "Brook Lopez",
+     "pos": "C",
+     "bpm": -0.9,
+     "salary": 9187500,
+     "imputed": null
+    },
+    {
+     "name": "Jordan Miller",
+     "pos": "SF",
+     "bpm": 0.2,
+     "salary": 5300000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": -0.42,
+   "optLineupBPM": -0.24,
+   "gainWins": 0.162
+  },
+  "LAL": {
+   "current": [
+    {
+     "name": "Luka Doncic",
+     "pos": "PG",
+     "bpm": 9.3,
+     "salary": 49800000,
+     "imputed": null
+    },
+    {
+     "name": "Austin Reaves",
+     "pos": "SG",
+     "bpm": 2.8,
+     "salary": 41240250,
+     "imputed": null
+    },
+    {
+     "name": "Matisse Thybulle",
+     "pos": "SG",
+     "bpm": 4.4,
+     "salary": 2449421,
+     "imputed": null
+    },
+    {
+     "name": "Sandro Mamukelashvili",
+     "pos": "C",
+     "bpm": 2.8,
+     "salary": 13000000,
+     "imputed": null
+    },
+    {
+     "name": "Walker Kessler",
+     "pos": "C",
+     "bpm": 3.3,
+     "salary": 30232558,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Luka Doncic",
+     "pos": "PG",
+     "bpm": 9.3,
+     "salary": 49800000,
+     "imputed": null
+    },
+    {
+     "name": "Austin Reaves",
+     "pos": "SG",
+     "bpm": 2.8,
+     "salary": 41240250,
+     "imputed": null
+    },
+    {
+     "name": "Matisse Thybulle",
+     "pos": "SG",
+     "bpm": 4.4,
+     "salary": 2449421,
+     "imputed": null
+    },
+    {
+     "name": "Sandro Mamukelashvili",
+     "pos": "C",
+     "bpm": 2.8,
+     "salary": 13000000,
+     "imputed": null
+    },
+    {
+     "name": "Walker Kessler",
+     "pos": "C",
+     "bpm": 3.3,
+     "salary": 30232558,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 4.52,
+   "optLineupBPM": 4.52,
+   "gainWins": 0.0
+  },
+  "MEM": {
+   "current": [
+    {
+     "name": "Ty Jerome",
+     "pos": "SG",
+     "bpm": 7.7,
+     "salary": 9220050,
+     "imputed": null
+    },
+    {
+     "name": "Cedric Coward",
+     "pos": "SG",
+     "bpm": -0.2,
+     "salary": 6001080,
+     "imputed": null
+    },
+    {
+     "name": "Jaylen Wells",
+     "pos": "SG",
+     "bpm": -3.1,
+     "salary": 2296271,
+     "imputed": null
+    },
+    {
+     "name": "Cameron Boozer",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 11849760,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Zach Edey",
+     "pos": "C",
+     "bpm": 0.5,
+     "salary": 6332760,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Ty Jerome",
+     "pos": "SG",
+     "bpm": 7.7,
+     "salary": 9220050,
+     "imputed": null
+    },
+    {
+     "name": "Cedric Coward",
+     "pos": "SG",
+     "bpm": -0.2,
+     "salary": 6001080,
+     "imputed": null
+    },
+    {
+     "name": "Zach Edey",
+     "pos": "C",
+     "bpm": 0.5,
+     "salary": 6332760,
+     "imputed": null
+    },
+    {
+     "name": "Cam Spencer",
+     "pos": "SG",
+     "bpm": 2.2,
+     "salary": 2411090,
+     "imputed": null
+    },
+    {
+     "name": "Jerami Grant",
+     "pos": "PF",
+     "bpm": 0.0,
+     "salary": 34206898,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 0.68,
+   "optLineupBPM": 2.04,
+   "gainWins": 1.224
+  },
+  "MIA": {
+   "current": [
+    {
+     "name": "Davion Mitchell",
+     "pos": "PG",
+     "bpm": -0.9,
+     "salary": 12400000,
+     "imputed": null
+    },
+    {
+     "name": "Pelle Larsson",
+     "pos": "SG",
+     "bpm": -1.2,
+     "salary": 2296271,
+     "imputed": null
+    },
+    {
+     "name": "Andrew Wiggins",
+     "pos": "SF",
+     "bpm": 1.2,
+     "salary": 30169644,
+     "imputed": null
+    },
+    {
+     "name": "Giannis Antetokounmpo",
+     "pos": "PF",
+     "bpm": 9.5,
+     "salary": 58456566,
+     "imputed": null
+    },
+    {
+     "name": "Bam Adebayo",
+     "pos": "C",
+     "bpm": 2.0,
+     "salary": 49800000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Davion Mitchell",
+     "pos": "PG",
+     "bpm": -0.9,
+     "salary": 12400000,
+     "imputed": null
+    },
+    {
+     "name": "Andrew Wiggins",
+     "pos": "SF",
+     "bpm": 1.2,
+     "salary": 30169644,
+     "imputed": null
+    },
+    {
+     "name": "Giannis Antetokounmpo",
+     "pos": "PF",
+     "bpm": 9.5,
+     "salary": 58456566,
+     "imputed": null
+    },
+    {
+     "name": "Bam Adebayo",
+     "pos": "C",
+     "bpm": 2.0,
+     "salary": 49800000,
+     "imputed": null
+    },
+    {
+     "name": "Dru Smith",
+     "pos": "SG",
+     "bpm": 2.2,
+     "salary": 2584539,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 2.12,
+   "optLineupBPM": 2.8,
+   "gainWins": 0.459
+  },
+  "MIL": {
+   "current": [
+    {
+     "name": "Ryan Rollins",
+     "pos": "PG",
+     "bpm": 0.2,
+     "salary": 4000000,
+     "imputed": null
+    },
+    {
+     "name": "Tyler Herro",
+     "pos": "SG",
+     "bpm": 2.0,
+     "salary": 33000000,
+     "imputed": null
+    },
+    {
+     "name": "Jaime Jaquez Jr.",
+     "pos": "SF",
+     "bpm": 0.1,
+     "salary": 5939141,
+     "imputed": null
+    },
+    {
+     "name": "Kel'el Ware",
+     "pos": "C",
+     "bpm": 2.1,
+     "salary": 4654920,
+     "imputed": null
+    },
+    {
+     "name": "Myles Turner",
+     "pos": "C",
+     "bpm": -0.9,
+     "salary": 26584164,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Ryan Rollins",
+     "pos": "PG",
+     "bpm": 0.2,
+     "salary": 4000000,
+     "imputed": null
+    },
+    {
+     "name": "Tyler Herro",
+     "pos": "SG",
+     "bpm": 2.0,
+     "salary": 33000000,
+     "imputed": null
+    },
+    {
+     "name": "Jaime Jaquez Jr.",
+     "pos": "SF",
+     "bpm": 0.1,
+     "salary": 5939141,
+     "imputed": null
+    },
+    {
+     "name": "Kel'el Ware",
+     "pos": "C",
+     "bpm": 2.1,
+     "salary": 4654920,
+     "imputed": null
+    },
+    {
+     "name": "Kasparas Jakucionis",
+     "pos": "PG",
+     "bpm": -0.4,
+     "salary": 3841680,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 0.7,
+   "optLineupBPM": 0.8,
+   "gainWins": 0.09
+  },
+  "MIN": {
+   "current": [
+    {
+     "name": "LaMelo Ball",
+     "pos": "PG",
+     "bpm": 4.7,
+     "salary": 40770520,
+     "imputed": null
+    },
+    {
+     "name": "Anthony Edwards",
+     "pos": "SG",
+     "bpm": 4.5,
+     "salary": 48924624,
+     "imputed": null
+    },
+    {
+     "name": "Jaden McDaniels",
+     "pos": "PF",
+     "bpm": -0.3,
+     "salary": 26200001,
+     "imputed": null
+    },
+    {
+     "name": "Trey Lyles",
+     "pos": NaN,
+     "bpm": -0.7,
+     "salary": 2449421,
+     "imputed": "returning_from_injury"
+    },
+    {
+     "name": "Rudy Gobert",
+     "pos": "C",
+     "bpm": 1.0,
+     "salary": 36500000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "LaMelo Ball",
+     "pos": "PG",
+     "bpm": 4.7,
+     "salary": 40770520,
+     "imputed": null
+    },
+    {
+     "name": "Anthony Edwards",
+     "pos": "SG",
+     "bpm": 4.5,
+     "salary": 48924624,
+     "imputed": null
+    },
+    {
+     "name": "Rudy Gobert",
+     "pos": "C",
+     "bpm": 1.0,
+     "salary": 36500000,
+     "imputed": null
+    },
+    {
+     "name": "Joan Beringer",
+     "pos": "PF",
+     "bpm": 0.4,
+     "salary": 4411200,
+     "imputed": null
+    },
+    {
+     "name": "Bones Hyland",
+     "pos": "PG",
+     "bpm": 1.7,
+     "salary": 2845883,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 1.84,
+   "optLineupBPM": 2.46,
+   "gainWins": 0.558
+  },
+  "NOP": {
+   "current": [
+    {
+     "name": "Dejounte Murray",
+     "pos": "PG",
+     "bpm": 1.4,
+     "salary": 32785071,
+     "imputed": null
+    },
+    {
+     "name": "Trey Murphy III",
+     "pos": "SF",
+     "bpm": 2.4,
+     "salary": 27000000,
+     "imputed": null
+    },
+    {
+     "name": "Herbert Jones",
+     "pos": "SF",
+     "bpm": -3.1,
+     "salary": 14898786,
+     "imputed": null
+    },
+    {
+     "name": "Zion Williamson",
+     "pos": "PF",
+     "bpm": 2.9,
+     "salary": 42166510,
+     "imputed": null
+    },
+    {
+     "name": "Derik Queen",
+     "pos": "C",
+     "bpm": -0.8,
+     "salary": 5416080,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Dejounte Murray",
+     "pos": "PG",
+     "bpm": 1.4,
+     "salary": 32785071,
+     "imputed": null
+    },
+    {
+     "name": "Trey Murphy III",
+     "pos": "SF",
+     "bpm": 2.4,
+     "salary": 27000000,
+     "imputed": null
+    },
+    {
+     "name": "Zion Williamson",
+     "pos": "PF",
+     "bpm": 2.9,
+     "salary": 42166510,
+     "imputed": null
+    },
+    {
+     "name": "Jeremiah Fears",
+     "pos": "PG",
+     "bpm": -2.7,
+     "salary": 7896240,
+     "imputed": null
+    },
+    {
+     "name": "Karlo Matkovic",
+     "pos": "PF",
+     "bpm": 0.7,
+     "salary": 2296271,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 0.56,
+   "optLineupBPM": 0.94,
+   "gainWins": 0.342
+  },
+  "NYK": {
+   "current": [
+    {
+     "name": "Jalen Brunson",
+     "pos": "PG",
+     "bpm": 3.1,
+     "salary": 37739521,
+     "imputed": null
+    },
+    {
+     "name": "Mikal Bridges",
+     "pos": "SF",
+     "bpm": 2.7,
+     "salary": 33482145,
+     "imputed": null
+    },
+    {
+     "name": "Josh Hart",
+     "pos": "SF",
+     "bpm": 3.0,
+     "salary": 20923760,
+     "imputed": null
+    },
+    {
+     "name": "OG Anunoby",
+     "pos": "PF",
+     "bpm": 2.0,
+     "salary": 42500000,
+     "imputed": null
+    },
+    {
+     "name": "Karl-Anthony Towns",
+     "pos": "C",
+     "bpm": 3.3,
+     "salary": 57078728,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Jalen Brunson",
+     "pos": "PG",
+     "bpm": 3.1,
+     "salary": 37739521,
+     "imputed": null
+    },
+    {
+     "name": "Mikal Bridges",
+     "pos": "SF",
+     "bpm": 2.7,
+     "salary": 33482145,
+     "imputed": null
+    },
+    {
+     "name": "Josh Hart",
+     "pos": "SF",
+     "bpm": 3.0,
+     "salary": 20923760,
+     "imputed": null
+    },
+    {
+     "name": "OG Anunoby",
+     "pos": "PF",
+     "bpm": 2.0,
+     "salary": 42500000,
+     "imputed": null
+    },
+    {
+     "name": "Karl-Anthony Towns",
+     "pos": "C",
+     "bpm": 3.3,
+     "salary": 57078728,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 2.82,
+   "optLineupBPM": 2.82,
+   "gainWins": 0.0
+  },
+  "OKC": {
+   "current": [
+    {
+     "name": "Shai Gilgeous-Alexander",
+     "pos": "PG",
+     "bpm": 11.7,
+     "salary": 40806150,
+     "imputed": null
+    },
+    {
+     "name": "Cason Wallace",
+     "pos": "SG",
+     "bpm": 1.2,
+     "salary": 7420806,
+     "imputed": null
+    },
+    {
+     "name": "Jalen Williams",
+     "pos": "SG",
+     "bpm": 2.1,
+     "salary": 41500000,
+     "imputed": null
+    },
+    {
+     "name": "Chet Holmgren",
+     "pos": "PF",
+     "bpm": 4.2,
+     "salary": 41500000,
+     "imputed": null
+    },
+    {
+     "name": "Isaiah Hartenstein",
+     "pos": "C",
+     "bpm": 4.2,
+     "salary": 23148148,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Shai Gilgeous-Alexander",
+     "pos": "PG",
+     "bpm": 11.7,
+     "salary": 40806150,
+     "imputed": null
+    },
+    {
+     "name": "Jalen Williams",
+     "pos": "SG",
+     "bpm": 2.1,
+     "salary": 41500000,
+     "imputed": null
+    },
+    {
+     "name": "Chet Holmgren",
+     "pos": "PF",
+     "bpm": 4.2,
+     "salary": 41500000,
+     "imputed": null
+    },
+    {
+     "name": "Isaiah Hartenstein",
+     "pos": "C",
+     "bpm": 4.2,
+     "salary": 23148148,
+     "imputed": null
+    },
+    {
+     "name": "Ajay Mitchell",
+     "pos": "SG",
+     "bpm": 1.9,
+     "salary": 2850000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 4.68,
+   "optLineupBPM": 4.82,
+   "gainWins": 0.126
+  },
+  "ORL": {
+   "current": [
+    {
+     "name": "Jalen Suggs",
+     "pos": "PG",
+     "bpm": 2.5,
+     "salary": 32400000,
+     "imputed": null
+    },
+    {
+     "name": "Desmond Bane",
+     "pos": "SG",
+     "bpm": 1.4,
+     "salary": 39446090,
+     "imputed": null
+    },
+    {
+     "name": "Franz Wagner",
+     "pos": "SF",
+     "bpm": 2.5,
+     "salary": 41754690,
+     "imputed": null
+    },
+    {
+     "name": "Paolo Banchero",
+     "pos": "PF",
+     "bpm": 1.4,
+     "salary": 41500000,
+     "imputed": null
+    },
+    {
+     "name": "Wendell Carter Jr.",
+     "pos": "C",
+     "bpm": -0.6,
+     "salary": 18102000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Jalen Suggs",
+     "pos": "PG",
+     "bpm": 2.5,
+     "salary": 32400000,
+     "imputed": null
+    },
+    {
+     "name": "Desmond Bane",
+     "pos": "SG",
+     "bpm": 1.4,
+     "salary": 39446090,
+     "imputed": null
+    },
+    {
+     "name": "Franz Wagner",
+     "pos": "SF",
+     "bpm": 2.5,
+     "salary": 41754690,
+     "imputed": null
+    },
+    {
+     "name": "Paolo Banchero",
+     "pos": "PF",
+     "bpm": 1.4,
+     "salary": 41500000,
+     "imputed": null
+    },
+    {
+     "name": "Goga Bitadze",
+     "pos": "C",
+     "bpm": 2.8,
+     "salary": 7608696,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 1.44,
+   "optLineupBPM": 2.12,
+   "gainWins": 0.612
+  },
+  "PHI": {
+   "current": [
+    {
+     "name": "Tyrese Maxey",
+     "pos": "PG",
+     "bpm": 5.4,
+     "salary": 40770520,
+     "imputed": null
+    },
+    {
+     "name": "VJ Edgecombe",
+     "pos": "SG",
+     "bpm": -0.5,
+     "salary": 11663880,
+     "imputed": null
+    },
+    {
+     "name": "Jaylen Brown",
+     "pos": "SF",
+     "bpm": 3.3,
+     "salary": 57078728,
+     "imputed": null
+    },
+    {
+     "name": "LeBron James",
+     "pos": "SF",
+     "bpm": 3.5,
+     "salary": 3876529,
+     "imputed": null
+    },
+    {
+     "name": "Joel Embiid",
+     "pos": "C",
+     "bpm": 4.9,
+     "salary": 58100000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Tyrese Maxey",
+     "pos": "PG",
+     "bpm": 5.4,
+     "salary": 40770520,
+     "imputed": null
+    },
+    {
+     "name": "Jaylen Brown",
+     "pos": "SF",
+     "bpm": 3.3,
+     "salary": 57078728,
+     "imputed": null
+    },
+    {
+     "name": "LeBron James",
+     "pos": "SF",
+     "bpm": 3.5,
+     "salary": 3876529,
+     "imputed": null
+    },
+    {
+     "name": "Joel Embiid",
+     "pos": "C",
+     "bpm": 4.9,
+     "salary": 58100000,
+     "imputed": null
+    },
+    {
+     "name": "Anfernee Simons",
+     "pos": "SG",
+     "bpm": -0.1,
+     "salary": 6000000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 3.32,
+   "optLineupBPM": 3.4,
+   "gainWins": 0.072
+  },
+  "PHX": {
+   "current": [
+    {
+     "name": "Collin Gillespie",
+     "pos": "PG",
+     "bpm": 2.5,
+     "salary": 10714286,
+     "imputed": null
+    },
+    {
+     "name": "Devin Booker",
+     "pos": "SG",
+     "bpm": 2.2,
+     "salary": 57078728,
+     "imputed": null
+    },
+    {
+     "name": "Dillon Brooks",
+     "pos": "SF",
+     "bpm": -2.3,
+     "salary": 19992727,
+     "imputed": null
+    },
+    {
+     "name": "Miles Bridges",
+     "pos": "PF",
+     "bpm": 1.1,
+     "salary": 22826087,
+     "imputed": null
+    },
+    {
+     "name": "Oso Ighodaro",
+     "pos": "PF",
+     "bpm": 0.1,
+     "salary": 2296271,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Collin Gillespie",
+     "pos": "PG",
+     "bpm": 2.5,
+     "salary": 10714286,
+     "imputed": null
+    },
+    {
+     "name": "Devin Booker",
+     "pos": "SG",
+     "bpm": 2.2,
+     "salary": 57078728,
+     "imputed": null
+    },
+    {
+     "name": "Jordan Goodwin",
+     "pos": "PG",
+     "bpm": 1.8,
+     "salary": 5864198,
+     "imputed": null
+    },
+    {
+     "name": "Haywood Highsmith",
+     "pos": "SF",
+     "bpm": 3.8,
+     "salary": 3018158,
+     "imputed": null
+    },
+    {
+     "name": "Mark Williams",
+     "pos": "C",
+     "bpm": 2.0,
+     "salary": 11728395,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 0.72,
+   "optLineupBPM": 2.46,
+   "gainWins": 1.566
+  },
+  "POR": {
+   "current": [
+    {
+     "name": "Damian Lillard",
+     "pos": NaN,
+     "bpm": 4.0,
+     "salary": 35915403,
+     "imputed": "returning_from_injury"
+    },
+    {
+     "name": "Ja Morant",
+     "pos": "PG",
+     "bpm": -1.5,
+     "salary": 42166510,
+     "imputed": null
+    },
+    {
+     "name": "Toumani Camara",
+     "pos": "PF",
+     "bpm": -1.0,
+     "salary": 18080358,
+     "imputed": null
+    },
+    {
+     "name": "Deni Avdija",
+     "pos": "SF",
+     "bpm": 4.3,
+     "salary": 13125000,
+     "imputed": null
+    },
+    {
+     "name": "Donovan Clingan",
+     "pos": "C",
+     "bpm": 3.0,
+     "salary": 7519920,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Damian Lillard",
+     "pos": NaN,
+     "bpm": 4.0,
+     "salary": 35915403,
+     "imputed": "returning_from_injury"
+    },
+    {
+     "name": "Deni Avdija",
+     "pos": "SF",
+     "bpm": 4.3,
+     "salary": 13125000,
+     "imputed": null
+    },
+    {
+     "name": "Jrue Holiday",
+     "pos": "PG",
+     "bpm": 1.9,
+     "salary": 34800000,
+     "imputed": null
+    },
+    {
+     "name": "Shaedon Sharpe",
+     "pos": "SG",
+     "bpm": -1.4,
+     "salary": 20089287,
+     "imputed": null
+    },
+    {
+     "name": "Robert Williams III",
+     "pos": "C",
+     "bpm": 4.5,
+     "salary": 13968254,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 1.76,
+   "optLineupBPM": 2.66,
+   "gainWins": 0.81
+  },
+  "SAC": {
+   "current": [
+    {
+     "name": "Darius Acuff",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 8021640,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Zach LaVine",
+     "pos": "SG",
+     "bpm": -1.5,
+     "salary": 48967380,
+     "imputed": null
+    },
+    {
+     "name": "Keegan Murray",
+     "pos": "PF",
+     "bpm": -3.1,
+     "salary": 24137936,
+     "imputed": null
+    },
+    {
+     "name": "De'Andre Hunter",
+     "pos": "SF",
+     "bpm": -3.9,
+     "salary": 24910714,
+     "imputed": null
+    },
+    {
+     "name": "Domantas Sabonis",
+     "pos": "C",
+     "bpm": 0.6,
+     "salary": 45472000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Darius Acuff",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 8021640,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Zach LaVine",
+     "pos": "SG",
+     "bpm": -1.5,
+     "salary": 48967380,
+     "imputed": null
+    },
+    {
+     "name": "Domantas Sabonis",
+     "pos": "C",
+     "bpm": 0.6,
+     "salary": 45472000,
+     "imputed": null
+    },
+    {
+     "name": "Malik Monk",
+     "pos": "SG",
+     "bpm": -1.3,
+     "salary": 20190035,
+     "imputed": null
+    },
+    {
+     "name": "Precious Achiuwa",
+     "pos": "C",
+     "bpm": -1.6,
+     "salary": 5477000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": -1.88,
+   "optLineupBPM": -1.06,
+   "gainWins": 0.738
+  },
+  "SAS": {
+   "current": [
+    {
+     "name": "De'Aaron Fox",
+     "pos": "PG",
+     "bpm": 2.2,
+     "salary": 49800000,
+     "imputed": null
+    },
+    {
+     "name": "Stephon Castle",
+     "pos": "PG",
+     "bpm": 1.9,
+     "salary": 10015920,
+     "imputed": null
+    },
+    {
+     "name": "Devin Vassell",
+     "pos": "SG",
+     "bpm": 0.5,
+     "salary": 27000000,
+     "imputed": null
+    },
+    {
+     "name": "Julian Champagnie",
+     "pos": "SF",
+     "bpm": 1.4,
+     "salary": 13888889,
+     "imputed": null
+    },
+    {
+     "name": "Victor Wembanyama",
+     "pos": "C",
+     "bpm": 10.7,
+     "salary": 16868246,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "De'Aaron Fox",
+     "pos": "PG",
+     "bpm": 2.2,
+     "salary": 49800000,
+     "imputed": null
+    },
+    {
+     "name": "Stephon Castle",
+     "pos": "PG",
+     "bpm": 1.9,
+     "salary": 10015920,
+     "imputed": null
+    },
+    {
+     "name": "Julian Champagnie",
+     "pos": "SF",
+     "bpm": 1.4,
+     "salary": 13888889,
+     "imputed": null
+    },
+    {
+     "name": "Victor Wembanyama",
+     "pos": "C",
+     "bpm": 10.7,
+     "salary": 16868246,
+     "imputed": null
+    },
+    {
+     "name": "Luke Kornet",
+     "pos": "C",
+     "bpm": 3.6,
+     "salary": 10450000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 3.34,
+   "optLineupBPM": 3.96,
+   "gainWins": 0.558
+  },
+  "TOR": {
+   "current": [
+    {
+     "name": "Immanuel Quickley",
+     "pos": "PG",
+     "bpm": 2.4,
+     "salary": 32500000,
+     "imputed": null
+    },
+    {
+     "name": "RJ Barrett",
+     "pos": "SF",
+     "bpm": 0.2,
+     "salary": 29616071,
+     "imputed": null
+    },
+    {
+     "name": "Scottie Barnes",
+     "pos": "PF",
+     "bpm": 4.2,
+     "salary": 41754690,
+     "imputed": null
+    },
+    {
+     "name": "Kawhi Leonard",
+     "pos": "SF",
+     "bpm": 8.0,
+     "salary": 50300000,
+     "imputed": null
+    },
+    {
+     "name": "Jakob Poeltl",
+     "pos": "C",
+     "bpm": 1.6,
+     "salary": 19500000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Immanuel Quickley",
+     "pos": "PG",
+     "bpm": 2.4,
+     "salary": 32500000,
+     "imputed": null
+    },
+    {
+     "name": "RJ Barrett",
+     "pos": "SF",
+     "bpm": 0.2,
+     "salary": 29616071,
+     "imputed": null
+    },
+    {
+     "name": "Scottie Barnes",
+     "pos": "PF",
+     "bpm": 4.2,
+     "salary": 41754690,
+     "imputed": null
+    },
+    {
+     "name": "Kawhi Leonard",
+     "pos": "SF",
+     "bpm": 8.0,
+     "salary": 50300000,
+     "imputed": null
+    },
+    {
+     "name": "Jakob Poeltl",
+     "pos": "C",
+     "bpm": 1.6,
+     "salary": 19500000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": 3.28,
+   "optLineupBPM": 3.28,
+   "gainWins": 0.0
+  },
+  "UTA": {
+   "current": [
+    {
+     "name": "Keyonte George",
+     "pos": "PG",
+     "bpm": 0.9,
+     "salary": 6563925,
+     "imputed": null
+    },
+    {
+     "name": "Darryn Peterson",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 13195320,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Ace Bailey",
+     "pos": "SF",
+     "bpm": -4.4,
+     "salary": 9523080,
+     "imputed": null
+    },
+    {
+     "name": "Lauri Markkanen",
+     "pos": "PF",
+     "bpm": 2.6,
+     "salary": 46113154,
+     "imputed": null
+    },
+    {
+     "name": "Jaren Jackson Jr.",
+     "pos": "C",
+     "bpm": -0.6,
+     "salary": 49000000,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Keyonte George",
+     "pos": "PG",
+     "bpm": 0.9,
+     "salary": 6563925,
+     "imputed": null
+    },
+    {
+     "name": "Darryn Peterson",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 13195320,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Lauri Markkanen",
+     "pos": "PF",
+     "bpm": 2.6,
+     "salary": 46113154,
+     "imputed": null
+    },
+    {
+     "name": "Josh Okogie",
+     "pos": "SG",
+     "bpm": -1.2,
+     "salary": 6000000,
+     "imputed": null
+    },
+    {
+     "name": "Jusuf Nurkic",
+     "pos": "C",
+     "bpm": 1.1,
+     "salary": 10576923,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": -0.6,
+   "optLineupBPM": 0.38,
+   "gainWins": 0.882
+  },
+  "WAS": {
+   "current": [
+    {
+     "name": "Trae Young",
+     "pos": "PG",
+     "bpm": 2.8,
+     "salary": 49488300,
+     "imputed": null
+    },
+    {
+     "name": "Tre Johnson",
+     "pos": "SG",
+     "bpm": -5.0,
+     "salary": 8649600,
+     "imputed": null
+    },
+    {
+     "name": "AJ Dybantsa",
+     "pos": NaN,
+     "bpm": -1.5,
+     "salary": 14748000,
+     "imputed": "rookie_no_history"
+    },
+    {
+     "name": "Anthony Davis",
+     "pos": "PF",
+     "bpm": 2.4,
+     "salary": 58456566,
+     "imputed": null
+    },
+    {
+     "name": "Alex Sarr",
+     "pos": "C",
+     "bpm": 0.7,
+     "salary": 12370680,
+     "imputed": null
+    }
+   ],
+   "optimal": [
+    {
+     "name": "Trae Young",
+     "pos": "PG",
+     "bpm": 2.8,
+     "salary": 49488300,
+     "imputed": null
+    },
+    {
+     "name": "Anthony Davis",
+     "pos": "PF",
+     "bpm": 2.4,
+     "salary": 58456566,
+     "imputed": null
+    },
+    {
+     "name": "Alex Sarr",
+     "pos": "C",
+     "bpm": 0.7,
+     "salary": 12370680,
+     "imputed": null
+    },
+    {
+     "name": "Bilal Coulibaly",
+     "pos": "SG",
+     "bpm": -2.1,
+     "salary": 9240012,
+     "imputed": null
+    },
+    {
+     "name": "Kyshawn George",
+     "pos": "SF",
+     "bpm": -1.2,
+     "salary": 3108000,
+     "imputed": null
+    }
+   ],
+   "curLineupBPM": -0.12,
+   "optLineupBPM": 0.52,
+   "gainWins": 0.576
+  }
+ },
+ "minutes": {
+  "ATL": [
+   {
+    "name": "Nickeil Alexander-Walker",
+    "role": "Starter",
+    "cur": 30.8,
+    "opt": 36.0,
+    "delta": 5.2,
+    "bpm": 1.2,
+    "imputed": null
+   },
+   {
+    "name": "Dyson Daniels",
+    "role": "Starter",
+    "cur": 30.6,
+    "opt": 36.0,
+    "delta": 5.4,
+    "bpm": 1.3,
+    "imputed": null
+   },
+   {
+    "name": "Jalen Johnson",
+    "role": "Starter",
+    "cur": 32.5,
+    "opt": 36.0,
+    "delta": 3.5,
+    "bpm": 4.2,
+    "imputed": null
+   },
+   {
+    "name": "Onyeka Okongwu",
+    "role": "Starter",
+    "cur": 28.7,
+    "opt": 36.0,
+    "delta": 7.3,
+    "bpm": 0.7,
+    "imputed": null
+   },
+   {
+    "name": "Jock Landale",
+    "role": "Bench",
+    "cur": 20.5,
+    "opt": 36.0,
+    "delta": 15.5,
+    "bpm": -0.1,
+    "imputed": null
+   },
+   {
+    "name": "CJ McCollum",
+    "role": "Bench",
+    "cur": 27.5,
+    "opt": 28.0,
+    "delta": 0.5,
+    "bpm": -0.3,
+    "imputed": null
+   },
+   {
+    "name": "Luguentz Dort",
+    "role": "Starter",
+    "cur": 24.7,
+    "opt": 8.0,
+    "delta": -16.7,
+    "bpm": -2.0,
+    "imputed": null
+   },
+   {
+    "name": "Aaron Wiggins",
+    "role": "Bench",
+    "cur": 20.1,
+    "opt": 8.0,
+    "delta": -12.1,
+    "bpm": -0.9,
+    "imputed": null
+   },
+   {
+    "name": "Asa Newell",
+    "role": "Bench",
+    "cur": 10.5,
+    "opt": 8.0,
+    "delta": -2.5,
+    "bpm": -1.5,
+    "imputed": null
+   },
+   {
+    "name": "Mouhamed Gueye",
+    "role": "Bench",
+    "cur": 14.1,
+    "opt": 8.0,
+    "delta": -6.1,
+    "bpm": -1.3,
+    "imputed": null
+   }
+  ],
+  "BKN": [
+   {
+    "name": "Julius Randle",
+    "role": "Starter",
+    "cur": 32.7,
+    "opt": 36.0,
+    "delta": 3.3,
+    "bpm": 1.5,
+    "imputed": null
+   },
+   {
+    "name": "Michael Porter Jr.",
+    "role": "Starter",
+    "cur": 32.1,
+    "opt": 36.0,
+    "delta": 3.9,
+    "bpm": 3.0,
+    "imputed": null
+   },
+   {
+    "name": "Day'Ron Sharpe",
+    "role": "Starter",
+    "cur": 18.5,
+    "opt": 36.0,
+    "delta": 17.5,
+    "bpm": 1.4,
+    "imputed": null
+   },
+   {
+    "name": "Keon Ellis",
+    "role": "Bench",
+    "cur": 20.3,
+    "opt": 36.0,
+    "delta": 15.7,
+    "bpm": -0.5,
+    "imputed": null
+   },
+   {
+    "name": "Egor Demin",
+    "role": "Starter",
+    "cur": 27.7,
+    "opt": 28.0,
+    "delta": 0.3,
+    "bpm": -1.5,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Mikel Brown Jr.",
+    "role": "Starter",
+    "cur": 27.7,
+    "opt": 28.0,
+    "delta": 0.3,
+    "bpm": -1.5,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Noah Clowney",
+    "role": "Bench",
+    "cur": 26.7,
+    "opt": 12.1,
+    "delta": -14.5,
+    "bpm": -3.4,
+    "imputed": null
+   },
+   {
+    "name": "Moritz Wagner",
+    "role": "Bench",
+    "cur": 11.7,
+    "opt": 11.9,
+    "delta": 0.1,
+    "bpm": -2.2,
+    "imputed": null
+   },
+   {
+    "name": "Nolan Traore",
+    "role": "Bench",
+    "cur": 21.9,
+    "opt": 8.0,
+    "delta": -13.9,
+    "bpm": -6.8,
+    "imputed": null
+   },
+   {
+    "name": "Drake Powell",
+    "role": "Bench",
+    "cur": 20.7,
+    "opt": 8.0,
+    "delta": -12.7,
+    "bpm": -6.0,
+    "imputed": null
+   }
+  ],
+  "BOS": [
+   {
+    "name": "Derrick White",
+    "role": "Starter",
+    "cur": 32.7,
+    "opt": 36.0,
+    "delta": 3.3,
+    "bpm": 3.2,
+    "imputed": null
+   },
+   {
+    "name": "Payton Pritchard",
+    "role": "Bench",
+    "cur": 31.0,
+    "opt": 36.0,
+    "delta": 5.0,
+    "bpm": 2.3,
+    "imputed": null
+   },
+   {
+    "name": "Neemias Queta",
+    "role": "Bench",
+    "cur": 24.3,
+    "opt": 36.0,
+    "delta": 11.7,
+    "bpm": 2.8,
+    "imputed": null
+   },
+   {
+    "name": "Mitchell Robinson",
+    "role": "Starter",
+    "cur": 18.8,
+    "opt": 36.0,
+    "delta": 17.2,
+    "bpm": 3.5,
+    "imputed": null
+   },
+   {
+    "name": "Jayson Tatum",
+    "role": "Starter",
+    "cur": 31.3,
+    "opt": 32.6,
+    "delta": 1.4,
+    "bpm": 4.8,
+    "imputed": null
+   },
+   {
+    "name": "Paul George",
+    "role": "Starter",
+    "cur": 29.4,
+    "opt": 30.7,
+    "delta": 1.3,
+    "bpm": 1.7,
+    "imputed": null
+   },
+   {
+    "name": "Sam Hauser",
+    "role": "Bench",
+    "cur": 23.8,
+    "opt": 8.7,
+    "delta": -15.1,
+    "bpm": 0.6,
+    "imputed": null
+   },
+   {
+    "name": "Hugo Gonzalez",
+    "role": "Starter",
+    "cur": 14.0,
+    "opt": 8.0,
+    "delta": -6.0,
+    "bpm": -1.5,
+    "imputed": null
+   },
+   {
+    "name": "Baylor Scheierman",
+    "role": "Bench",
+    "cur": 17.8,
+    "opt": 8.0,
+    "delta": -9.8,
+    "bpm": 0.6,
+    "imputed": null
+   },
+   {
+    "name": "Jordan Walsh",
+    "role": "Bench",
+    "cur": 17.1,
+    "opt": 8.0,
+    "delta": -9.1,
+    "bpm": 0.2,
+    "imputed": null
+   }
+  ],
+  "CHA": [
+   {
+    "name": "Brandon Miller",
+    "role": "Starter",
+    "cur": 30.2,
+    "opt": 36.0,
+    "delta": 5.8,
+    "bpm": 1.6,
+    "imputed": null
+   },
+   {
+    "name": "Kon Knueppel",
+    "role": "Starter",
+    "cur": 31.4,
+    "opt": 36.0,
+    "delta": 4.6,
+    "bpm": 2.8,
+    "imputed": null
+   },
+   {
+    "name": "Moussa Diabate",
+    "role": "Starter",
+    "cur": 25.9,
+    "opt": 36.0,
+    "delta": 10.1,
+    "bpm": 1.7,
+    "imputed": null
+   },
+   {
+    "name": "Naz Reid",
+    "role": "Starter",
+    "cur": 26.0,
+    "opt": 36.0,
+    "delta": 10.0,
+    "bpm": 0.9,
+    "imputed": null
+   },
+   {
+    "name": "Grayson Allen",
+    "role": "Bench",
+    "cur": 28.7,
+    "opt": 36.0,
+    "delta": 7.3,
+    "bpm": 2.1,
+    "imputed": null
+   },
+   {
+    "name": "Royce O'Neale",
+    "role": "Bench",
+    "cur": 28.3,
+    "opt": 28.0,
+    "delta": -0.3,
+    "bpm": 0.7,
+    "imputed": null
+   },
+   {
+    "name": "Coby White",
+    "role": "Starter",
+    "cur": 24.9,
+    "opt": 8.0,
+    "delta": -16.9,
+    "bpm": -1.3,
+    "imputed": null
+   },
+   {
+    "name": "Christian Anderson",
+    "role": "Bench",
+    "cur": 14.0,
+    "opt": 8.0,
+    "delta": -6.0,
+    "bpm": -3.0,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Dorian Finney-Smith",
+    "role": "Bench",
+    "cur": 16.7,
+    "opt": 8.0,
+    "delta": -8.7,
+    "bpm": -4.3,
+    "imputed": null
+   },
+   {
+    "name": "Hannes Steinbach",
+    "role": "Bench",
+    "cur": 14.0,
+    "opt": 8.0,
+    "delta": -6.0,
+    "bpm": -3.0,
+    "imputed": "rookie_no_history"
+   }
+  ],
+  "CHI": [
+   {
+    "name": "Josh Giddey",
+    "role": "Starter",
+    "cur": 30.2,
+    "opt": 36.0,
+    "delta": 5.8,
+    "bpm": 2.7,
+    "imputed": null
+   },
+   {
+    "name": "Norman Powell",
+    "role": "Starter",
+    "cur": 27.9,
+    "opt": 36.0,
+    "delta": 8.1,
+    "bpm": 1.6,
+    "imputed": null
+   },
+   {
+    "name": "Tre Jones",
+    "role": "Bench",
+    "cur": 25.4,
+    "opt": 36.0,
+    "delta": 10.6,
+    "bpm": 1.3,
+    "imputed": null
+   },
+   {
+    "name": "Nic Claxton",
+    "role": "Starter",
+    "cur": 26.2,
+    "opt": 36.0,
+    "delta": 9.8,
+    "bpm": 0.9,
+    "imputed": null
+   },
+   {
+    "name": "Jalen Smith",
+    "role": "Bench",
+    "cur": 19.5,
+    "opt": 36.0,
+    "delta": 16.5,
+    "bpm": -0.7,
+    "imputed": null
+   },
+   {
+    "name": "Zach Collins",
+    "role": "Bench",
+    "cur": 17.4,
+    "opt": 18.4,
+    "delta": 1.0,
+    "bpm": 0.2,
+    "imputed": null
+   },
+   {
+    "name": "Matas Buzelis",
+    "role": "Starter",
+    "cur": 27.5,
+    "opt": 17.6,
+    "delta": -9.9,
+    "bpm": -1.0,
+    "imputed": null
+   },
+   {
+    "name": "Caleb Wilson",
+    "role": "Starter",
+    "cur": 26.4,
+    "opt": 8.0,
+    "delta": -18.4,
+    "bpm": -1.5,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Isaac Okoro",
+    "role": "Bench",
+    "cur": 25.4,
+    "opt": 8.0,
+    "delta": -17.4,
+    "bpm": -3.8,
+    "imputed": null
+   },
+   {
+    "name": "Rob Dillingham",
+    "role": "Bench",
+    "cur": 14.1,
+    "opt": 8.0,
+    "delta": -6.1,
+    "bpm": -7.3,
+    "imputed": null
+   }
+  ],
+  "CLE": [
+   {
+    "name": "James Harden",
+    "role": "Starter",
+    "cur": 34.2,
+    "opt": 36.0,
+    "delta": 1.8,
+    "bpm": 3.9,
+    "imputed": null
+   },
+   {
+    "name": "Donovan Mitchell",
+    "role": "Starter",
+    "cur": 32.9,
+    "opt": 36.0,
+    "delta": 3.1,
+    "bpm": 5.1,
+    "imputed": null
+   },
+   {
+    "name": "Jaylon Tyson",
+    "role": "Starter",
+    "cur": 26.4,
+    "opt": 36.0,
+    "delta": 9.6,
+    "bpm": 0.1,
+    "imputed": null
+   },
+   {
+    "name": "Evan Mobley",
+    "role": "Starter",
+    "cur": 31.3,
+    "opt": 36.0,
+    "delta": 4.7,
+    "bpm": 3.0,
+    "imputed": null
+   },
+   {
+    "name": "Jarrett Allen",
+    "role": "Starter",
+    "cur": 26.6,
+    "opt": 36.0,
+    "delta": 9.4,
+    "bpm": 2.6,
+    "imputed": null
+   },
+   {
+    "name": "Thomas Bryant",
+    "role": "Bench",
+    "cur": 12.0,
+    "opt": 28.0,
+    "delta": 16.0,
+    "bpm": 0.1,
+    "imputed": null
+   },
+   {
+    "name": "Dennis Schroder",
+    "role": "Bench",
+    "cur": 23.8,
+    "opt": 8.0,
+    "delta": -15.8,
+    "bpm": -2.2,
+    "imputed": null
+   },
+   {
+    "name": "Mario Herzonja",
+    "role": "Bench",
+    "cur": 13.7,
+    "opt": 8.0,
+    "delta": -5.7,
+    "bpm": -3.0,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Max Strus",
+    "role": "Bench",
+    "cur": 23.6,
+    "opt": 8.0,
+    "delta": -15.6,
+    "bpm": -1.2,
+    "imputed": null
+   },
+   {
+    "name": "Nae'Qwan Tomlin",
+    "role": "Bench",
+    "cur": 15.4,
+    "opt": 8.0,
+    "delta": -7.4,
+    "bpm": -2.1,
+    "imputed": null
+   }
+  ],
+  "DAL": [
+   {
+    "name": "Kyrie Irving",
+    "role": "Starter",
+    "cur": 33.7,
+    "opt": 36.0,
+    "delta": 2.3,
+    "bpm": 3.4,
+    "imputed": "returning_from_injury"
+   },
+   {
+    "name": "Max Christie",
+    "role": "Starter",
+    "cur": 27.2,
+    "opt": 36.0,
+    "delta": 8.8,
+    "bpm": -1.5,
+    "imputed": null
+   },
+   {
+    "name": "Cooper Flagg",
+    "role": "Starter",
+    "cur": 31.2,
+    "opt": 36.0,
+    "delta": 4.8,
+    "bpm": 1.4,
+    "imputed": null
+   },
+   {
+    "name": "Daniel Gafford",
+    "role": "Starter",
+    "cur": 20.3,
+    "opt": 36.0,
+    "delta": 15.7,
+    "bpm": 0.7,
+    "imputed": null
+   },
+   {
+    "name": "Naji Marshall",
+    "role": "Bench",
+    "cur": 27.5,
+    "opt": 36.0,
+    "delta": 8.5,
+    "bpm": -0.6,
+    "imputed": null
+   },
+   {
+    "name": "Santi Aldama",
+    "role": "Bench",
+    "cur": 26.0,
+    "opt": 27.9,
+    "delta": 1.9,
+    "bpm": 1.7,
+    "imputed": null
+   },
+   {
+    "name": "P.J. Washington",
+    "role": "Starter",
+    "cur": 28.9,
+    "opt": 8.1,
+    "delta": -20.8,
+    "bpm": -1.6,
+    "imputed": null
+   },
+   {
+    "name": "Marcus Sasser",
+    "role": "Bench",
+    "cur": 11.2,
+    "opt": 8.0,
+    "delta": -3.2,
+    "bpm": -1.7,
+    "imputed": null
+   },
+   {
+    "name": "Zaccharie Risacher",
+    "role": "Bench",
+    "cur": 20.9,
+    "opt": 8.0,
+    "delta": -12.9,
+    "bpm": -2.5,
+    "imputed": null
+   },
+   {
+    "name": "Morez Johnson",
+    "role": "Bench",
+    "cur": 13.1,
+    "opt": 8.0,
+    "delta": -5.1,
+    "bpm": -3.0,
+    "imputed": "rookie_no_history"
+   }
+  ],
+  "DEN": [
+   {
+    "name": "Jamal Murray",
+    "role": "Starter",
+    "cur": 31.3,
+    "opt": 36.0,
+    "delta": 4.7,
+    "bpm": 4.1,
+    "imputed": null
+   },
+   {
+    "name": "Cameron Johnson",
+    "role": "Starter",
+    "cur": 27.0,
+    "opt": 36.0,
+    "delta": 9.0,
+    "bpm": -0.6,
+    "imputed": null
+   },
+   {
+    "name": "Marvin Bagley III",
+    "role": "Bench",
+    "cur": 17.7,
+    "opt": 36.0,
+    "delta": 18.3,
+    "bpm": 0.8,
+    "imputed": null
+   },
+   {
+    "name": "Nikola Jokic",
+    "role": "Starter",
+    "cur": 30.8,
+    "opt": 36.0,
+    "delta": 5.2,
+    "bpm": 14.2,
+    "imputed": null
+   },
+   {
+    "name": "Christian Braun",
+    "role": "Starter",
+    "cur": 28.1,
+    "opt": 31.8,
+    "delta": 3.7,
+    "bpm": -1.2,
+    "imputed": null
+   },
+   {
+    "name": "Aaron Gordon",
+    "role": "Starter",
+    "cur": 24.7,
+    "opt": 27.9,
+    "delta": 3.2,
+    "bpm": 1.7,
+    "imputed": null
+   },
+   {
+    "name": "Peyton Watson",
+    "role": "Bench",
+    "cur": 26.2,
+    "opt": 12.3,
+    "delta": -13.9,
+    "bpm": -1.2,
+    "imputed": null
+   },
+   {
+    "name": "Tyus Jones",
+    "role": "Bench",
+    "cur": 12.9,
+    "opt": 8.0,
+    "delta": -4.9,
+    "bpm": -2.4,
+    "imputed": null
+   },
+   {
+    "name": "Spencer Jones",
+    "role": "Bench",
+    "cur": 19.6,
+    "opt": 8.0,
+    "delta": -11.6,
+    "bpm": -2.4,
+    "imputed": null
+   },
+   {
+    "name": "Bruce Brown",
+    "role": "Bench",
+    "cur": 21.6,
+    "opt": 8.0,
+    "delta": -13.6,
+    "bpm": -2.4,
+    "imputed": null
+   }
+  ],
+  "DET": [
+   {
+    "name": "Cade Cunningham",
+    "role": "Starter",
+    "cur": 33.9,
+    "opt": 36.0,
+    "delta": 2.1,
+    "bpm": 6.3,
+    "imputed": null
+   },
+   {
+    "name": "Ausar Thompson",
+    "role": "Starter",
+    "cur": 25.9,
+    "opt": 36.0,
+    "delta": 10.1,
+    "bpm": 3.1,
+    "imputed": null
+   },
+   {
+    "name": "Paul Reed",
+    "role": "Bench",
+    "cur": 13.8,
+    "opt": 36.0,
+    "delta": 22.2,
+    "bpm": 5.3,
+    "imputed": null
+   },
+   {
+    "name": "Jalen Duren",
+    "role": "Starter",
+    "cur": 28.2,
+    "opt": 36.0,
+    "delta": 7.8,
+    "bpm": 5.0,
+    "imputed": null
+   },
+   {
+    "name": "Isaiah Joe",
+    "role": "Bench",
+    "cur": 21.2,
+    "opt": 36.0,
+    "delta": 14.8,
+    "bpm": 2.5,
+    "imputed": null
+   },
+   {
+    "name": "Duncan Robinson",
+    "role": "Starter",
+    "cur": 27.4,
+    "opt": 28.0,
+    "delta": 0.6,
+    "bpm": 0.8,
+    "imputed": null
+   },
+   {
+    "name": "Daniss Jenkins",
+    "role": "Bench",
+    "cur": 20.2,
+    "opt": 8.0,
+    "delta": -12.2,
+    "bpm": -0.7,
+    "imputed": null
+   },
+   {
+    "name": "John Collins",
+    "role": "Starter",
+    "cur": 27.1,
+    "opt": 8.0,
+    "delta": -19.1,
+    "bpm": -0.5,
+    "imputed": null
+   },
+   {
+    "name": "Kevin Huerter",
+    "role": "Bench",
+    "cur": 22.4,
+    "opt": 8.0,
+    "delta": -14.4,
+    "bpm": -0.6,
+    "imputed": null
+   },
+   {
+    "name": "Ron Holland II",
+    "role": "Bench",
+    "cur": 19.9,
+    "opt": 8.0,
+    "delta": -11.9,
+    "bpm": -2.0,
+    "imputed": null
+   }
+  ],
+  "GSW": [
+   {
+    "name": "Brandin Podziemski",
+    "role": "Bench",
+    "cur": 28.5,
+    "opt": 36.0,
+    "delta": 7.5,
+    "bpm": 0.2,
+    "imputed": null
+   },
+   {
+    "name": "Gary Payton II",
+    "role": "Bench",
+    "cur": 15.7,
+    "opt": 36.0,
+    "delta": 20.3,
+    "bpm": 1.9,
+    "imputed": null
+   },
+   {
+    "name": "Gui Santos",
+    "role": "Bench",
+    "cur": 20.6,
+    "opt": 36.0,
+    "delta": 15.4,
+    "bpm": -0.6,
+    "imputed": null
+   },
+   {
+    "name": "Draymond Green",
+    "role": "Starter",
+    "cur": 27.5,
+    "opt": 31.5,
+    "delta": 4.0,
+    "bpm": -1.4,
+    "imputed": null
+   },
+   {
+    "name": "Stephen Curry",
+    "role": "Starter",
+    "cur": 31.0,
+    "opt": 30.9,
+    "delta": -0.1,
+    "bpm": 5.4,
+    "imputed": null
+   },
+   {
+    "name": "Kristaps Porzingis",
+    "role": "Starter",
+    "cur": 24.1,
+    "opt": 24.0,
+    "delta": -0.1,
+    "bpm": 1.9,
+    "imputed": null
+   },
+   {
+    "name": "Al Horford",
+    "role": "Bench",
+    "cur": 21.6,
+    "opt": 21.5,
+    "delta": -0.0,
+    "bpm": 1.6,
+    "imputed": null
+   },
+   {
+    "name": "De'Anthony Melton",
+    "role": "Starter",
+    "cur": 23.0,
+    "opt": 8.0,
+    "delta": -15.0,
+    "bpm": -2.5,
+    "imputed": null
+   },
+   {
+    "name": "Yaxel Lendeborg",
+    "role": "Starter",
+    "cur": 28.1,
+    "opt": 8.0,
+    "delta": -20.1,
+    "bpm": -1.5,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Will Richard",
+    "role": "Bench",
+    "cur": 20.0,
+    "opt": 8.0,
+    "delta": -12.0,
+    "bpm": -1.7,
+    "imputed": null
+   }
+  ],
+  "HOU": [
+   {
+    "name": "Amen Thompson",
+    "role": "Starter",
+    "cur": 29.9,
+    "opt": 36.0,
+    "delta": 6.1,
+    "bpm": 2.6,
+    "imputed": null
+   },
+   {
+    "name": "Kevin Durant",
+    "role": "Starter",
+    "cur": 29.1,
+    "opt": 36.0,
+    "delta": 6.9,
+    "bpm": 4.5,
+    "imputed": null
+   },
+   {
+    "name": "Reed Sheppard",
+    "role": "Bench",
+    "cur": 20.9,
+    "opt": 36.0,
+    "delta": 15.1,
+    "bpm": 2.7,
+    "imputed": null
+   },
+   {
+    "name": "Alperen Sengun",
+    "role": "Starter",
+    "cur": 26.6,
+    "opt": 36.0,
+    "delta": 9.4,
+    "bpm": 4.2,
+    "imputed": null
+   },
+   {
+    "name": "Fred VanVleet",
+    "role": "Starter",
+    "cur": 28.1,
+    "opt": 35.2,
+    "delta": 7.1,
+    "bpm": 0.9,
+    "imputed": "returning_from_injury"
+   },
+   {
+    "name": "Steven Adams",
+    "role": "Bench",
+    "cur": 18.2,
+    "opt": 22.8,
+    "delta": 4.6,
+    "bpm": -0.5,
+    "imputed": null
+   },
+   {
+    "name": "Jabari Smith Jr.",
+    "role": "Starter",
+    "cur": 28.1,
+    "opt": 14.0,
+    "delta": -14.1,
+    "bpm": -0.7,
+    "imputed": null
+   },
+   {
+    "name": "Marcus Smart",
+    "role": "Bench",
+    "cur": 22.8,
+    "opt": 8.0,
+    "delta": -14.8,
+    "bpm": -2.2,
+    "imputed": null
+   },
+   {
+    "name": "Bogdan Bogdanovic",
+    "role": "Bench",
+    "cur": 15.7,
+    "opt": 8.0,
+    "delta": -7.7,
+    "bpm": -3.1,
+    "imputed": null
+   },
+   {
+    "name": "Tari Eason",
+    "role": "Bench",
+    "cur": 20.6,
+    "opt": 8.0,
+    "delta": -12.6,
+    "bpm": -1.6,
+    "imputed": null
+   }
+  ],
+  "IND": [
+   {
+    "name": "Pascal Siakam",
+    "role": "Starter",
+    "cur": 32.5,
+    "opt": 36.0,
+    "delta": 3.5,
+    "bpm": 0.7,
+    "imputed": null
+   },
+   {
+    "name": "Jay Huff",
+    "role": "Bench",
+    "cur": 20.5,
+    "opt": 36.0,
+    "delta": 15.5,
+    "bpm": 0.4,
+    "imputed": null
+   },
+   {
+    "name": "T.J. McConnell",
+    "role": "Bench",
+    "cur": 16.8,
+    "opt": 36.0,
+    "delta": 19.2,
+    "bpm": 2.5,
+    "imputed": null
+   },
+   {
+    "name": "Andrew Nembhard",
+    "role": "Starter",
+    "cur": 30.7,
+    "opt": 34.6,
+    "delta": 4.0,
+    "bpm": -0.8,
+    "imputed": null
+   },
+   {
+    "name": "Tyrese Haliburton",
+    "role": "Starter",
+    "cur": 32.9,
+    "opt": 33.6,
+    "delta": 0.7,
+    "bpm": 5.8,
+    "imputed": "returning_from_injury"
+   },
+   {
+    "name": "Ivica Zubac",
+    "role": "Starter",
+    "cur": 29.5,
+    "opt": 30.1,
+    "delta": 0.6,
+    "bpm": -0.3,
+    "imputed": null
+   },
+   {
+    "name": "Obi Toppin",
+    "role": "Bench",
+    "cur": 17.3,
+    "opt": 17.7,
+    "delta": 0.4,
+    "bpm": 3.0,
+    "imputed": null
+   },
+   {
+    "name": "Aaron Nesmith",
+    "role": "Starter",
+    "cur": 29.0,
+    "opt": 8.0,
+    "delta": -21.0,
+    "bpm": -3.4,
+    "imputed": null
+   },
+   {
+    "name": "Kelly Oubre Jr.",
+    "role": "Bench",
+    "cur": 30.8,
+    "opt": 8.0,
+    "delta": -22.8,
+    "bpm": -1.4,
+    "imputed": null
+   }
+  ],
+  "LAC": [
+   {
+    "name": "Kris Dunn",
+    "role": "Starter",
+    "cur": 26.0,
+    "opt": 36.0,
+    "delta": 10.0,
+    "bpm": -0.8,
+    "imputed": null
+   },
+   {
+    "name": "Brandon Ingram",
+    "role": "Starter",
+    "cur": 32.4,
+    "opt": 36.0,
+    "delta": 3.6,
+    "bpm": 0.5,
+    "imputed": null
+   },
+   {
+    "name": "Jordan Miller",
+    "role": "Bench",
+    "cur": 21.1,
+    "opt": 36.0,
+    "delta": 14.9,
+    "bpm": 0.2,
+    "imputed": null
+   },
+   {
+    "name": "Derrick Jones Jr.",
+    "role": "Starter",
+    "cur": 25.9,
+    "opt": 36.0,
+    "delta": 10.1,
+    "bpm": -0.7,
+    "imputed": null
+   },
+   {
+    "name": "Brook Lopez",
+    "role": "Starter",
+    "cur": 20.9,
+    "opt": 34.1,
+    "delta": 13.3,
+    "bpm": -0.9,
+    "imputed": null
+   },
+   {
+    "name": "Darius Garland",
+    "role": "Starter",
+    "cur": 28.6,
+    "opt": 29.9,
+    "delta": 1.3,
+    "bpm": -0.2,
+    "imputed": null
+   },
+   {
+    "name": "Bennedict Mathurin",
+    "role": "Bench",
+    "cur": 28.7,
+    "opt": 8.0,
+    "delta": -20.7,
+    "bpm": -2.5,
+    "imputed": null
+   },
+   {
+    "name": "Rui Hachimura",
+    "role": "Bench",
+    "cur": 27.1,
+    "opt": 8.0,
+    "delta": -19.1,
+    "bpm": -2.2,
+    "imputed": null
+   },
+   {
+    "name": "Isaiah Jackson",
+    "role": "Bench",
+    "cur": 15.8,
+    "opt": 8.0,
+    "delta": -7.8,
+    "bpm": -1.2,
+    "imputed": null
+   },
+   {
+    "name": "Gradey Dick",
+    "role": "Bench",
+    "cur": 13.4,
+    "opt": 8.0,
+    "delta": -5.4,
+    "bpm": -3.6,
+    "imputed": null
+   }
+  ],
+  "LAL": [
+   {
+    "name": "Luka Doncic",
+    "role": "Starter",
+    "cur": 33.7,
+    "opt": 36.0,
+    "delta": 2.3,
+    "bpm": 9.3,
+    "imputed": null
+   },
+   {
+    "name": "Austin Reaves",
+    "role": "Starter",
+    "cur": 32.5,
+    "opt": 36.0,
+    "delta": 3.5,
+    "bpm": 2.8,
+    "imputed": null
+   },
+   {
+    "name": "Sandro Mamukelashvili",
+    "role": "Starter",
+    "cur": 20.6,
+    "opt": 36.0,
+    "delta": 15.4,
+    "bpm": 2.8,
+    "imputed": null
+   },
+   {
+    "name": "Collin Sexton",
+    "role": "Bench",
+    "cur": 22.4,
+    "opt": 36.0,
+    "delta": 13.6,
+    "bpm": 0.6,
+    "imputed": null
+   },
+   {
+    "name": "Walker Kessler",
+    "role": "Starter",
+    "cur": 29.0,
+    "opt": 30.8,
+    "delta": 1.8,
+    "bpm": 3.3,
+    "imputed": null
+   },
+   {
+    "name": "Jake LaRavia",
+    "role": "Bench",
+    "cur": 23.7,
+    "opt": 25.2,
+    "delta": 1.5,
+    "bpm": -1.2,
+    "imputed": null
+   },
+   {
+    "name": "Matisse Thybulle",
+    "role": "Starter",
+    "cur": 15.1,
+    "opt": 16.0,
+    "delta": 0.9,
+    "bpm": 4.4,
+    "imputed": null
+   },
+   {
+    "name": "Quentin Grimes",
+    "role": "Bench",
+    "cur": 27.7,
+    "opt": 8.0,
+    "delta": -19.7,
+    "bpm": -1.6,
+    "imputed": null
+   },
+   {
+    "name": "Ziaire Williams",
+    "role": "Bench",
+    "cur": 21.5,
+    "opt": 8.0,
+    "delta": -13.5,
+    "bpm": -1.7,
+    "imputed": null
+   },
+   {
+    "name": "Kevon Looney",
+    "role": "Bench",
+    "cur": 13.8,
+    "opt": 8.0,
+    "delta": -5.8,
+    "bpm": -1.8,
+    "imputed": null
+   }
+  ],
+  "MEM": [
+   {
+    "name": "Cedric Coward",
+    "role": "Starter",
+    "cur": 25.0,
+    "opt": 36.0,
+    "delta": 11.0,
+    "bpm": -0.2,
+    "imputed": null
+   },
+   {
+    "name": "Jerami Grant",
+    "role": "Bench",
+    "cur": 28.8,
+    "opt": 36.0,
+    "delta": 7.2,
+    "bpm": 0.0,
+    "imputed": null
+   },
+   {
+    "name": "Cam Spencer",
+    "role": "Bench",
+    "cur": 23.1,
+    "opt": 36.0,
+    "delta": 12.9,
+    "bpm": 2.2,
+    "imputed": null
+   },
+   {
+    "name": "Isaiah Stewart",
+    "role": "Bench",
+    "cur": 22.0,
+    "opt": 36.0,
+    "delta": 14.0,
+    "bpm": 0.0,
+    "imputed": null
+   },
+   {
+    "name": "Zach Edey",
+    "role": "Starter",
+    "cur": 25.0,
+    "opt": 25.8,
+    "delta": 0.8,
+    "bpm": 0.5,
+    "imputed": null
+   },
+   {
+    "name": "GG Jackson",
+    "role": "Bench",
+    "cur": 20.8,
+    "opt": 23.6,
+    "delta": 2.8,
+    "bpm": -1.2,
+    "imputed": null
+   },
+   {
+    "name": "Ty Jerome",
+    "role": "Starter",
+    "cur": 21.9,
+    "opt": 22.6,
+    "delta": 0.7,
+    "bpm": 7.7,
+    "imputed": null
+   },
+   {
+    "name": "Scotty Pippen Jr.",
+    "role": "Bench",
+    "cur": 20.6,
+    "opt": 8.0,
+    "delta": -12.6,
+    "bpm": -2.8,
+    "imputed": null
+   },
+   {
+    "name": "Jaylen Wells",
+    "role": "Starter",
+    "cur": 25.6,
+    "opt": 8.0,
+    "delta": -17.6,
+    "bpm": -3.1,
+    "imputed": null
+   },
+   {
+    "name": "Cameron Boozer",
+    "role": "Starter",
+    "cur": 27.2,
+    "opt": 8.0,
+    "delta": -19.2,
+    "bpm": -1.5,
+    "imputed": "rookie_no_history"
+   }
+  ],
+  "MIA": [
+   {
+    "name": "Andrew Wiggins",
+    "role": "Starter",
+    "cur": 32.9,
+    "opt": 36.0,
+    "delta": 3.1,
+    "bpm": 1.2,
+    "imputed": null
+   },
+   {
+    "name": "Bobby Portis",
+    "role": "Bench",
+    "cur": 26.2,
+    "opt": 36.0,
+    "delta": 9.8,
+    "bpm": 0.0,
+    "imputed": null
+   },
+   {
+    "name": "Bam Adebayo",
+    "role": "Starter",
+    "cur": 35.2,
+    "opt": 36.0,
+    "delta": 0.8,
+    "bpm": 2.0,
+    "imputed": null
+   },
+   {
+    "name": "Simone Fontecchio",
+    "role": "Bench",
+    "cur": 18.2,
+    "opt": 36.0,
+    "delta": 17.8,
+    "bpm": 0.5,
+    "imputed": null
+   },
+   {
+    "name": "Dru Smith",
+    "role": "Bench",
+    "cur": 17.7,
+    "opt": 36.0,
+    "delta": 18.3,
+    "bpm": 2.2,
+    "imputed": null
+   },
+   {
+    "name": "Giannis Antetokounmpo",
+    "role": "Starter",
+    "cur": 31.3,
+    "opt": 28.9,
+    "delta": -2.5,
+    "bpm": 9.5,
+    "imputed": null
+   },
+   {
+    "name": "Davion Mitchell",
+    "role": "Starter",
+    "cur": 31.0,
+    "opt": 15.1,
+    "delta": -15.9,
+    "bpm": -0.9,
+    "imputed": null
+   },
+   {
+    "name": "Pelle Larsson",
+    "role": "Starter",
+    "cur": 28.7,
+    "opt": 8.0,
+    "delta": -20.7,
+    "bpm": -1.2,
+    "imputed": null
+   },
+   {
+    "name": "Nikola Jovic",
+    "role": "Bench",
+    "cur": 18.7,
+    "opt": 8.0,
+    "delta": -10.7,
+    "bpm": -3.5,
+    "imputed": null
+   }
+  ],
+  "MIL": [
+   {
+    "name": "Ryan Rollins",
+    "role": "Starter",
+    "cur": 31.1,
+    "opt": 36.0,
+    "delta": 4.9,
+    "bpm": 0.2,
+    "imputed": null
+   },
+   {
+    "name": "Jaime Jaquez Jr.",
+    "role": "Starter",
+    "cur": 27.4,
+    "opt": 36.0,
+    "delta": 8.6,
+    "bpm": 0.1,
+    "imputed": null
+   },
+   {
+    "name": "Kasparas Jakucionis",
+    "role": "Bench",
+    "cur": 17.3,
+    "opt": 36.0,
+    "delta": 18.7,
+    "bpm": -0.4,
+    "imputed": null
+   },
+   {
+    "name": "Kel'el Ware",
+    "role": "Starter",
+    "cur": 21.5,
+    "opt": 36.0,
+    "delta": 14.5,
+    "bpm": 2.1,
+    "imputed": null
+   },
+   {
+    "name": "Myles Turner",
+    "role": "Starter",
+    "cur": 26.1,
+    "opt": 32.7,
+    "delta": 6.6,
+    "bpm": -0.9,
+    "imputed": null
+   },
+   {
+    "name": "Tyler Herro",
+    "role": "Starter",
+    "cur": 30.4,
+    "opt": 31.3,
+    "delta": 1.0,
+    "bpm": 2.0,
+    "imputed": null
+   },
+   {
+    "name": "Brayden Burries",
+    "role": "Bench",
+    "cur": 13.6,
+    "opt": 8.0,
+    "delta": -5.6,
+    "bpm": -3.0,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "A.J. Green",
+    "role": "Bench",
+    "cur": 28.2,
+    "opt": 8.0,
+    "delta": -20.2,
+    "bpm": -3.3,
+    "imputed": null
+   },
+   {
+    "name": "Kyle Kuzma",
+    "role": "Bench",
+    "cur": 25.4,
+    "opt": 8.0,
+    "delta": -17.4,
+    "bpm": -2.3,
+    "imputed": null
+   },
+   {
+    "name": "Jericho Sims",
+    "role": "Bench",
+    "cur": 19.1,
+    "opt": 8.0,
+    "delta": -11.1,
+    "bpm": -3.1,
+    "imputed": null
+   }
+  ],
+  "MIN": [
+   {
+    "name": "LaMelo Ball",
+    "role": "Starter",
+    "cur": 29.8,
+    "opt": 36.0,
+    "delta": 6.2,
+    "bpm": 4.7,
+    "imputed": null
+   },
+   {
+    "name": "Anthony Edwards",
+    "role": "Starter",
+    "cur": 37.3,
+    "opt": 36.0,
+    "delta": -1.3,
+    "bpm": 4.5,
+    "imputed": null
+   },
+   {
+    "name": "Ayo Dosunmu",
+    "role": "Bench",
+    "cur": 29.0,
+    "opt": 36.0,
+    "delta": 7.0,
+    "bpm": 1.0,
+    "imputed": null
+   },
+   {
+    "name": "Rudy Gobert",
+    "role": "Starter",
+    "cur": 33.3,
+    "opt": 36.0,
+    "delta": 2.7,
+    "bpm": 1.0,
+    "imputed": null
+   },
+   {
+    "name": "Bones Hyland",
+    "role": "Bench",
+    "cur": 17.6,
+    "opt": 36.0,
+    "delta": 18.4,
+    "bpm": 1.7,
+    "imputed": null
+   },
+   {
+    "name": "Jaden McDaniels",
+    "role": "Starter",
+    "cur": 33.8,
+    "opt": 28.0,
+    "delta": -5.8,
+    "bpm": -0.3,
+    "imputed": null
+   },
+   {
+    "name": "Trey Lyles",
+    "role": "Starter",
+    "cur": 20.8,
+    "opt": 8.0,
+    "delta": -12.8,
+    "bpm": -0.7,
+    "imputed": "returning_from_injury"
+   },
+   {
+    "name": "Josh Green",
+    "role": "Bench",
+    "cur": 16.7,
+    "opt": 8.0,
+    "delta": -8.7,
+    "bpm": -0.7,
+    "imputed": null
+   },
+   {
+    "name": "Terrence Shannon Jr.",
+    "role": "Bench",
+    "cur": 13.3,
+    "opt": 8.0,
+    "delta": -5.3,
+    "bpm": -3.6,
+    "imputed": null
+   },
+   {
+    "name": "Joan Beringer",
+    "role": "Bench",
+    "cur": 8.4,
+    "opt": 8.0,
+    "delta": -0.4,
+    "bpm": 0.4,
+    "imputed": null
+   }
+  ],
+  "NOP": [
+   {
+    "name": "Trey Murphy III",
+    "role": "Starter",
+    "cur": 32.6,
+    "opt": 36.0,
+    "delta": 3.4,
+    "bpm": 2.4,
+    "imputed": null
+   },
+   {
+    "name": "Zion Williamson",
+    "role": "Starter",
+    "cur": 27.3,
+    "opt": 36.0,
+    "delta": 8.7,
+    "bpm": 2.9,
+    "imputed": null
+   },
+   {
+    "name": "Karlo Matkovic",
+    "role": "Bench",
+    "cur": 13.5,
+    "opt": 36.0,
+    "delta": 22.5,
+    "bpm": 0.7,
+    "imputed": null
+   },
+   {
+    "name": "Derik Queen",
+    "role": "Starter",
+    "cur": 22.9,
+    "opt": 36.0,
+    "delta": 13.1,
+    "bpm": -0.8,
+    "imputed": null
+   },
+   {
+    "name": "Saddiq Bey",
+    "role": "Bench",
+    "cur": 28.6,
+    "opt": 36.0,
+    "delta": 7.4,
+    "bpm": 0.5,
+    "imputed": null
+   },
+   {
+    "name": "Dejounte Murray",
+    "role": "Starter",
+    "cur": 25.5,
+    "opt": 27.8,
+    "delta": 2.3,
+    "bpm": 1.4,
+    "imputed": null
+   },
+   {
+    "name": "Yves Missi",
+    "role": "Bench",
+    "cur": 18.0,
+    "opt": 8.2,
+    "delta": -9.8,
+    "bpm": -1.7,
+    "imputed": null
+   },
+   {
+    "name": "Herbert Jones",
+    "role": "Starter",
+    "cur": 26.0,
+    "opt": 8.0,
+    "delta": -18.0,
+    "bpm": -3.1,
+    "imputed": null
+   },
+   {
+    "name": "Jeremiah Fears",
+    "role": "Bench",
+    "cur": 23.6,
+    "opt": 8.0,
+    "delta": -15.6,
+    "bpm": -2.7,
+    "imputed": null
+   },
+   {
+    "name": "Jordan Poole",
+    "role": "Bench",
+    "cur": 22.0,
+    "opt": 8.0,
+    "delta": -14.0,
+    "bpm": -3.5,
+    "imputed": null
+   }
+  ],
+  "NYK": [
+   {
+    "name": "Jalen Brunson",
+    "role": "Starter",
+    "cur": 32.3,
+    "opt": 36.0,
+    "delta": 3.7,
+    "bpm": 3.1,
+    "imputed": null
+   },
+   {
+    "name": "Mikal Bridges",
+    "role": "Starter",
+    "cur": 30.3,
+    "opt": 36.0,
+    "delta": 5.7,
+    "bpm": 2.7,
+    "imputed": null
+   },
+   {
+    "name": "Josh Hart",
+    "role": "Starter",
+    "cur": 27.9,
+    "opt": 36.0,
+    "delta": 8.1,
+    "bpm": 3.0,
+    "imputed": null
+   },
+   {
+    "name": "OG Anunoby",
+    "role": "Starter",
+    "cur": 30.6,
+    "opt": 36.0,
+    "delta": 5.4,
+    "bpm": 2.0,
+    "imputed": null
+   },
+   {
+    "name": "Karl-Anthony Towns",
+    "role": "Starter",
+    "cur": 28.6,
+    "opt": 36.0,
+    "delta": 7.4,
+    "bpm": 3.3,
+    "imputed": null
+   },
+   {
+    "name": "Miles McBride",
+    "role": "Bench",
+    "cur": 24.3,
+    "opt": 26.3,
+    "delta": 2.0,
+    "bpm": 1.2,
+    "imputed": null
+   },
+   {
+    "name": "Landry Shamet",
+    "role": "Bench",
+    "cur": 21.2,
+    "opt": 9.7,
+    "delta": -11.5,
+    "bpm": -0.3,
+    "imputed": null
+   },
+   {
+    "name": "Jose Alvarado",
+    "role": "Bench",
+    "cur": 18.3,
+    "opt": 8.0,
+    "delta": -10.3,
+    "bpm": -1.0,
+    "imputed": null
+   },
+   {
+    "name": "Mohamed Diawara",
+    "role": "Bench",
+    "cur": 8.5,
+    "opt": 8.0,
+    "delta": -0.5,
+    "bpm": -1.7,
+    "imputed": null
+   },
+   {
+    "name": "Andre Drummond",
+    "role": "Bench",
+    "cur": 18.0,
+    "opt": 8.0,
+    "delta": -10.0,
+    "bpm": -0.6,
+    "imputed": null
+   }
+  ],
+  "OKC": [
+   {
+    "name": "Shai Gilgeous-Alexander",
+    "role": "Starter",
+    "cur": 33.6,
+    "opt": 36.0,
+    "delta": 2.4,
+    "bpm": 11.7,
+    "imputed": null
+   },
+   {
+    "name": "Chet Holmgren",
+    "role": "Starter",
+    "cur": 29.2,
+    "opt": 36.0,
+    "delta": 6.8,
+    "bpm": 4.2,
+    "imputed": null
+   },
+   {
+    "name": "Jaylin Williams",
+    "role": "Bench",
+    "cur": 19.8,
+    "opt": 36.0,
+    "delta": 16.2,
+    "bpm": 2.7,
+    "imputed": null
+   },
+   {
+    "name": "Ajay Mitchell",
+    "role": "Bench",
+    "cur": 26.1,
+    "opt": 36.0,
+    "delta": 9.9,
+    "bpm": 1.9,
+    "imputed": null
+   },
+   {
+    "name": "Jalen Williams",
+    "role": "Starter",
+    "cur": 28.7,
+    "opt": 28.4,
+    "delta": -0.3,
+    "bpm": 2.1,
+    "imputed": null
+   },
+   {
+    "name": "Isaiah Hartenstein",
+    "role": "Starter",
+    "cur": 24.4,
+    "opt": 24.2,
+    "delta": -0.2,
+    "bpm": 4.2,
+    "imputed": null
+   },
+   {
+    "name": "Alex Caruso",
+    "role": "Bench",
+    "cur": 18.4,
+    "opt": 19.4,
+    "delta": 1.0,
+    "bpm": 1.9,
+    "imputed": null
+   },
+   {
+    "name": "Cason Wallace",
+    "role": "Starter",
+    "cur": 26.8,
+    "opt": 8.0,
+    "delta": -18.8,
+    "bpm": 1.2,
+    "imputed": null
+   },
+   {
+    "name": "Jared McCain",
+    "role": "Bench",
+    "cur": 17.5,
+    "opt": 8.0,
+    "delta": -9.5,
+    "bpm": -2.4,
+    "imputed": null
+   },
+   {
+    "name": "Kenrich Williams",
+    "role": "Bench",
+    "cur": 15.4,
+    "opt": 8.0,
+    "delta": -7.4,
+    "bpm": 0.2,
+    "imputed": null
+   }
+  ],
+  "ORL": [
+   {
+    "name": "Jalen Suggs",
+    "role": "Starter",
+    "cur": 27.0,
+    "opt": 36.0,
+    "delta": 9.0,
+    "bpm": 2.5,
+    "imputed": null
+   },
+   {
+    "name": "Desmond Bane",
+    "role": "Starter",
+    "cur": 32.8,
+    "opt": 36.0,
+    "delta": 3.2,
+    "bpm": 1.4,
+    "imputed": null
+   },
+   {
+    "name": "Paolo Banchero",
+    "role": "Starter",
+    "cur": 33.9,
+    "opt": 36.0,
+    "delta": 2.1,
+    "bpm": 1.4,
+    "imputed": null
+   },
+   {
+    "name": "Goga Bitadze",
+    "role": "Bench",
+    "cur": 14.8,
+    "opt": 36.0,
+    "delta": 21.2,
+    "bpm": 2.8,
+    "imputed": null
+   },
+   {
+    "name": "Wendell Carter Jr.",
+    "role": "Starter",
+    "cur": 28.6,
+    "opt": 34.0,
+    "delta": 5.4,
+    "bpm": -0.6,
+    "imputed": null
+   },
+   {
+    "name": "Franz Wagner",
+    "role": "Starter",
+    "cur": 29.3,
+    "opt": 30.0,
+    "delta": 0.7,
+    "bpm": 2.5,
+    "imputed": null
+   },
+   {
+    "name": "Jase Richardson",
+    "role": "Bench",
+    "cur": 10.6,
+    "opt": 8.0,
+    "delta": -2.6,
+    "bpm": -2.5,
+    "imputed": null
+   },
+   {
+    "name": "Anthony Black",
+    "role": "Bench",
+    "cur": 29.1,
+    "opt": 8.0,
+    "delta": -21.1,
+    "bpm": -0.6,
+    "imputed": null
+   },
+   {
+    "name": "Tristan Da Silva",
+    "role": "Bench",
+    "cur": 24.1,
+    "opt": 8.0,
+    "delta": -16.1,
+    "bpm": -0.6,
+    "imputed": null
+   },
+   {
+    "name": "Jonathan Isaac",
+    "role": "Bench",
+    "cur": 9.8,
+    "opt": 8.0,
+    "delta": -1.8,
+    "bpm": -1.6,
+    "imputed": null
+   }
+  ],
+  "PHI": [
+   {
+    "name": "Tyrese Maxey",
+    "role": "Starter",
+    "cur": 33.5,
+    "opt": 36.0,
+    "delta": 2.5,
+    "bpm": 5.4,
+    "imputed": null
+   },
+   {
+    "name": "Jaylen Brown",
+    "role": "Starter",
+    "cur": 30.3,
+    "opt": 36.0,
+    "delta": 5.7,
+    "bpm": 3.3,
+    "imputed": null
+   },
+   {
+    "name": "Dean Wade",
+    "role": "Bench",
+    "cur": 19.7,
+    "opt": 36.0,
+    "delta": 16.3,
+    "bpm": 0.2,
+    "imputed": null
+   },
+   {
+    "name": "LeBron James",
+    "role": "Starter",
+    "cur": 29.2,
+    "opt": 36.0,
+    "delta": 6.8,
+    "bpm": 3.5,
+    "imputed": null
+   },
+   {
+    "name": "Anfernee Simons",
+    "role": "Bench",
+    "cur": 22.0,
+    "opt": 32.4,
+    "delta": 10.4,
+    "bpm": -0.1,
+    "imputed": null
+   },
+   {
+    "name": "Joel Embiid",
+    "role": "Starter",
+    "cur": 27.9,
+    "opt": 31.6,
+    "delta": 3.7,
+    "bpm": 4.9,
+    "imputed": null
+   },
+   {
+    "name": "VJ Edgecombe",
+    "role": "Starter",
+    "cur": 30.8,
+    "opt": 8.0,
+    "delta": -22.8,
+    "bpm": -0.5,
+    "imputed": null
+   },
+   {
+    "name": "Kentavious Caldwell-Pope",
+    "role": "Bench",
+    "cur": 18.8,
+    "opt": 8.0,
+    "delta": -10.8,
+    "bpm": -2.5,
+    "imputed": null
+   },
+   {
+    "name": "Dom Barlow",
+    "role": "Bench",
+    "cur": 12.3,
+    "opt": 8.0,
+    "delta": -4.3,
+    "bpm": -3.0,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Adem Bona",
+    "role": "Bench",
+    "cur": 15.3,
+    "opt": 8.0,
+    "delta": -7.3,
+    "bpm": -2.9,
+    "imputed": null
+   }
+  ],
+  "PHX": [
+   {
+    "name": "Collin Gillespie",
+    "role": "Starter",
+    "cur": 27.4,
+    "opt": 36.0,
+    "delta": 8.6,
+    "bpm": 2.5,
+    "imputed": null
+   },
+   {
+    "name": "Devin Booker",
+    "role": "Starter",
+    "cur": 32.2,
+    "opt": 36.0,
+    "delta": 3.8,
+    "bpm": 2.2,
+    "imputed": null
+   },
+   {
+    "name": "Miles Bridges",
+    "role": "Starter",
+    "cur": 29.8,
+    "opt": 36.0,
+    "delta": 6.2,
+    "bpm": 1.1,
+    "imputed": null
+   },
+   {
+    "name": "Jordan Goodwin",
+    "role": "Bench",
+    "cur": 21.6,
+    "opt": 36.0,
+    "delta": 14.4,
+    "bpm": 1.8,
+    "imputed": null
+   },
+   {
+    "name": "Mark Williams",
+    "role": "Bench",
+    "cur": 22.7,
+    "opt": 36.0,
+    "delta": 13.3,
+    "bpm": 2.0,
+    "imputed": null
+   },
+   {
+    "name": "Oso Ighodaro",
+    "role": "Starter",
+    "cur": 21.2,
+    "opt": 23.0,
+    "delta": 1.8,
+    "bpm": 0.1,
+    "imputed": null
+   },
+   {
+    "name": "Haywood Highsmith",
+    "role": "Bench",
+    "cur": 12.5,
+    "opt": 13.0,
+    "delta": 0.5,
+    "bpm": 3.8,
+    "imputed": null
+   },
+   {
+    "name": "Dillon Brooks",
+    "role": "Starter",
+    "cur": 29.2,
+    "opt": 8.0,
+    "delta": -21.2,
+    "bpm": -2.3,
+    "imputed": null
+   },
+   {
+    "name": "Ryan Dunn",
+    "role": "Bench",
+    "cur": 18.6,
+    "opt": 8.0,
+    "delta": -10.6,
+    "bpm": -0.9,
+    "imputed": null
+   },
+   {
+    "name": "Jalen Green",
+    "role": "Bench",
+    "cur": 24.9,
+    "opt": 8.0,
+    "delta": -16.9,
+    "bpm": -1.1,
+    "imputed": null
+   }
+  ],
+  "POR": [
+   {
+    "name": "Damian Lillard",
+    "role": "Starter",
+    "cur": 31.5,
+    "opt": 36.0,
+    "delta": 4.5,
+    "bpm": 4.0,
+    "imputed": "returning_from_injury"
+   },
+   {
+    "name": "Deni Avdija",
+    "role": "Starter",
+    "cur": 29.1,
+    "opt": 36.0,
+    "delta": 6.9,
+    "bpm": 4.3,
+    "imputed": null
+   },
+   {
+    "name": "Jrue Holiday",
+    "role": "Bench",
+    "cur": 25.7,
+    "opt": 36.0,
+    "delta": 10.3,
+    "bpm": 1.9,
+    "imputed": null
+   },
+   {
+    "name": "Donovan Clingan",
+    "role": "Starter",
+    "cur": 23.7,
+    "opt": 36.0,
+    "delta": 12.3,
+    "bpm": 3.0,
+    "imputed": null
+   },
+   {
+    "name": "Robert Williams III",
+    "role": "Bench",
+    "cur": 14.9,
+    "opt": 36.0,
+    "delta": 21.1,
+    "bpm": 4.5,
+    "imputed": null
+   },
+   {
+    "name": "Toumani Camara",
+    "role": "Starter",
+    "cur": 29.1,
+    "opt": 28.0,
+    "delta": -1.1,
+    "bpm": -1.0,
+    "imputed": null
+   },
+   {
+    "name": "Ja Morant",
+    "role": "Starter",
+    "cur": 24.8,
+    "opt": 8.0,
+    "delta": -16.8,
+    "bpm": -1.5,
+    "imputed": null
+   },
+   {
+    "name": "Shaedon Sharpe",
+    "role": "Bench",
+    "cur": 25.7,
+    "opt": 8.0,
+    "delta": -17.7,
+    "bpm": -1.4,
+    "imputed": null
+   },
+   {
+    "name": "Vit Krejci",
+    "role": "Bench",
+    "cur": 18.7,
+    "opt": 8.0,
+    "delta": -10.7,
+    "bpm": -1.6,
+    "imputed": null
+   },
+   {
+    "name": "Sidy Cissoko",
+    "role": "Bench",
+    "cur": 16.7,
+    "opt": 8.0,
+    "delta": -8.7,
+    "bpm": -4.0,
+    "imputed": null
+   }
+  ],
+  "SAC": [
+   {
+    "name": "Maxime Raynaud",
+    "role": "Bench",
+    "cur": 24.4,
+    "opt": 36.0,
+    "delta": 11.6,
+    "bpm": -2.4,
+    "imputed": null
+   },
+   {
+    "name": "Malik Monk",
+    "role": "Bench",
+    "cur": 20.2,
+    "opt": 36.0,
+    "delta": 15.8,
+    "bpm": -1.3,
+    "imputed": null
+   },
+   {
+    "name": "Precious Achiuwa",
+    "role": "Bench",
+    "cur": 22.0,
+    "opt": 36.0,
+    "delta": 14.0,
+    "bpm": -1.6,
+    "imputed": null
+   },
+   {
+    "name": "Zach LaVine",
+    "role": "Starter",
+    "cur": 28.8,
+    "opt": 31.4,
+    "delta": 2.5,
+    "bpm": -1.5,
+    "imputed": null
+   },
+   {
+    "name": "Domantas Sabonis",
+    "role": "Starter",
+    "cur": 27.3,
+    "opt": 29.7,
+    "delta": 2.4,
+    "bpm": 0.6,
+    "imputed": null
+   },
+   {
+    "name": "Darius Acuff",
+    "role": "Starter",
+    "cur": 25.7,
+    "opt": 28.0,
+    "delta": 2.3,
+    "bpm": -1.5,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Emmanuel Sharp",
+    "role": "Bench",
+    "cur": 12.9,
+    "opt": 14.0,
+    "delta": 1.1,
+    "bpm": -3.0,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Keegan Murray",
+    "role": "Starter",
+    "cur": 31.7,
+    "opt": 12.9,
+    "delta": -18.7,
+    "bpm": -3.1,
+    "imputed": null
+   },
+   {
+    "name": "De'Andre Hunter",
+    "role": "Starter",
+    "cur": 24.0,
+    "opt": 8.0,
+    "delta": -16.0,
+    "bpm": -3.9,
+    "imputed": null
+   },
+   {
+    "name": "Nique Clifford",
+    "role": "Bench",
+    "cur": 23.1,
+    "opt": 8.0,
+    "delta": -15.1,
+    "bpm": -4.9,
+    "imputed": null
+   }
+  ],
+  "SAS": [
+   {
+    "name": "De'Aaron Fox",
+    "role": "Starter",
+    "cur": 29.2,
+    "opt": 36.0,
+    "delta": 6.8,
+    "bpm": 2.2,
+    "imputed": null
+   },
+   {
+    "name": "Stephon Castle",
+    "role": "Starter",
+    "cur": 28.3,
+    "opt": 36.0,
+    "delta": 7.7,
+    "bpm": 1.9,
+    "imputed": null
+   },
+   {
+    "name": "Dylan Harper",
+    "role": "Bench",
+    "cur": 21.3,
+    "opt": 36.0,
+    "delta": 14.7,
+    "bpm": 1.4,
+    "imputed": null
+   },
+   {
+    "name": "Victor Wembanyama",
+    "role": "Starter",
+    "cur": 27.5,
+    "opt": 36.0,
+    "delta": 8.5,
+    "bpm": 10.7,
+    "imputed": null
+   },
+   {
+    "name": "Luke Kornet",
+    "role": "Bench",
+    "cur": 19.8,
+    "opt": 36.0,
+    "delta": 16.2,
+    "bpm": 3.6,
+    "imputed": null
+   },
+   {
+    "name": "Julian Champagnie",
+    "role": "Starter",
+    "cur": 26.1,
+    "opt": 28.0,
+    "delta": 1.9,
+    "bpm": 1.4,
+    "imputed": null
+   },
+   {
+    "name": "Devin Vassell",
+    "role": "Starter",
+    "cur": 28.8,
+    "opt": 8.0,
+    "delta": -20.8,
+    "bpm": 0.5,
+    "imputed": null
+   },
+   {
+    "name": "Keldon Johnson",
+    "role": "Bench",
+    "cur": 22.0,
+    "opt": 8.0,
+    "delta": -14.0,
+    "bpm": 0.9,
+    "imputed": null
+   },
+   {
+    "name": "Carter Bryant",
+    "role": "Bench",
+    "cur": 10.9,
+    "opt": 8.0,
+    "delta": -2.9,
+    "bpm": -3.0,
+    "imputed": null
+   },
+   {
+    "name": "Tobias Harris",
+    "role": "Bench",
+    "cur": 26.1,
+    "opt": 8.0,
+    "delta": -18.1,
+    "bpm": 1.4,
+    "imputed": null
+   }
+  ],
+  "TOR": [
+   {
+    "name": "Immanuel Quickley",
+    "role": "Starter",
+    "cur": 31.7,
+    "opt": 36.0,
+    "delta": 4.3,
+    "bpm": 2.4,
+    "imputed": null
+   },
+   {
+    "name": "RJ Barrett",
+    "role": "Starter",
+    "cur": 30.2,
+    "opt": 36.0,
+    "delta": 5.8,
+    "bpm": 0.2,
+    "imputed": null
+   },
+   {
+    "name": "Scottie Barnes",
+    "role": "Starter",
+    "cur": 33.4,
+    "opt": 36.0,
+    "delta": 2.6,
+    "bpm": 4.2,
+    "imputed": null
+   },
+   {
+    "name": "Kawhi Leonard",
+    "role": "Starter",
+    "cur": 31.9,
+    "opt": 36.0,
+    "delta": 4.1,
+    "bpm": 8.0,
+    "imputed": null
+   },
+   {
+    "name": "Collin Murray-Boyles",
+    "role": "Bench",
+    "cur": 21.8,
+    "opt": 36.0,
+    "delta": 14.2,
+    "bpm": 1.0,
+    "imputed": null
+   },
+   {
+    "name": "Jakob Poeltl",
+    "role": "Starter",
+    "cur": 24.9,
+    "opt": 25.0,
+    "delta": 0.1,
+    "bpm": 1.6,
+    "imputed": null
+   },
+   {
+    "name": "Ja'Kobe Walter",
+    "role": "Bench",
+    "cur": 20.4,
+    "opt": 11.0,
+    "delta": -9.4,
+    "bpm": -0.3,
+    "imputed": null
+   },
+   {
+    "name": "Jamal Shead",
+    "role": "Bench",
+    "cur": 22.5,
+    "opt": 8.0,
+    "delta": -14.5,
+    "bpm": -2.3,
+    "imputed": null
+   },
+   {
+    "name": "Allen Graves",
+    "role": "Bench",
+    "cur": 13.9,
+    "opt": 8.0,
+    "delta": -5.9,
+    "bpm": -3.0,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Trayce Jackson-Davis",
+    "role": "Bench",
+    "cur": 9.3,
+    "opt": 8.0,
+    "delta": -1.3,
+    "bpm": -0.4,
+    "imputed": null
+   }
+  ],
+  "UTA": [
+   {
+    "name": "Keyonte George",
+    "role": "Starter",
+    "cur": 30.5,
+    "opt": 36.0,
+    "delta": 5.5,
+    "bpm": 0.9,
+    "imputed": null
+   },
+   {
+    "name": "Kyle Filipowski",
+    "role": "Bench",
+    "cur": 21.6,
+    "opt": 36.0,
+    "delta": 14.4,
+    "bpm": -1.1,
+    "imputed": null
+   },
+   {
+    "name": "Josh Okogie",
+    "role": "Bench",
+    "cur": 16.0,
+    "opt": 36.0,
+    "delta": 20.0,
+    "bpm": -1.2,
+    "imputed": null
+   },
+   {
+    "name": "Lauri Markkanen",
+    "role": "Starter",
+    "cur": 31.7,
+    "opt": 34.4,
+    "delta": 2.7,
+    "bpm": 2.6,
+    "imputed": null
+   },
+   {
+    "name": "Jaren Jackson Jr.",
+    "role": "Starter",
+    "cur": 27.9,
+    "opt": 30.3,
+    "delta": 2.4,
+    "bpm": -0.6,
+    "imputed": null
+   },
+   {
+    "name": "Jusuf Nurkic",
+    "role": "Bench",
+    "cur": 24.4,
+    "opt": 26.4,
+    "delta": 2.1,
+    "bpm": 1.1,
+    "imputed": null
+   },
+   {
+    "name": "Darryn Peterson",
+    "role": "Starter",
+    "cur": 25.8,
+    "opt": 16.9,
+    "delta": -8.9,
+    "bpm": -1.5,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Ace Bailey",
+    "role": "Starter",
+    "cur": 25.5,
+    "opt": 8.0,
+    "delta": -17.5,
+    "bpm": -4.4,
+    "imputed": null
+   },
+   {
+    "name": "Isaiah Collier",
+    "role": "Bench",
+    "cur": 23.7,
+    "opt": 8.0,
+    "delta": -15.7,
+    "bpm": -2.4,
+    "imputed": null
+   },
+   {
+    "name": "Bryce Sensabaugh",
+    "role": "Bench",
+    "cur": 12.9,
+    "opt": 8.0,
+    "delta": -4.9,
+    "bpm": -3.0,
+    "imputed": "rookie_no_history"
+   }
+  ],
+  "WAS": [
+   {
+    "name": "Bilal Coulibaly",
+    "role": "Bench",
+    "cur": 23.5,
+    "opt": 36.0,
+    "delta": 12.5,
+    "bpm": -2.1,
+    "imputed": null
+   },
+   {
+    "name": "Deandre Ayton",
+    "role": "Bench",
+    "cur": 24.3,
+    "opt": 36.0,
+    "delta": 11.7,
+    "bpm": -0.9,
+    "imputed": null
+   },
+   {
+    "name": "Anthony Davis",
+    "role": "Starter",
+    "cur": 28.0,
+    "opt": 31.3,
+    "delta": 3.3,
+    "bpm": 2.4,
+    "imputed": null
+   },
+   {
+    "name": "Kyshawn George",
+    "role": "Bench",
+    "cur": 25.9,
+    "opt": 29.0,
+    "delta": 3.1,
+    "bpm": -1.2,
+    "imputed": null
+   },
+   {
+    "name": "AJ Dybantsa",
+    "role": "Starter",
+    "cur": 25.0,
+    "opt": 28.0,
+    "delta": 3.0,
+    "bpm": -1.5,
+    "imputed": "rookie_no_history"
+   },
+   {
+    "name": "Alex Sarr",
+    "role": "Starter",
+    "cur": 24.3,
+    "opt": 27.2,
+    "delta": 2.9,
+    "bpm": 0.7,
+    "imputed": null
+   },
+   {
+    "name": "Trae Young",
+    "role": "Starter",
+    "cur": 22.9,
+    "opt": 25.6,
+    "delta": 2.7,
+    "bpm": 2.8,
+    "imputed": null
+   },
+   {
+    "name": "Will Riley",
+    "role": "Bench",
+    "cur": 19.7,
+    "opt": 10.9,
+    "delta": -8.8,
+    "bpm": -4.5,
+    "imputed": null
+   },
+   {
+    "name": "Tre Johnson",
+    "role": "Starter",
+    "cur": 21.5,
+    "opt": 8.0,
+    "delta": -13.5,
+    "bpm": -5.0,
+    "imputed": null
+   },
+   {
+    "name": "Bub Carrington",
+    "role": "Bench",
+    "cur": 24.8,
+    "opt": 8.0,
+    "delta": -16.8,
+    "bpm": -4.7,
+    "imputed": null
+   }
+  ]
+ }
+}
