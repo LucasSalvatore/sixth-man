@@ -17,7 +17,9 @@
    "Lineup swaps are constrained to 2-3 guards and 1-2 bigs using last-season position labels; rookies with no position history default to a neutral (wing) constraint.",
    "Minutes-plan optima are linear with a hard 36-minute ceiling and 8-minute floor, so solutions cluster at those bounds -- read the direction and size of each delta, not the literal minutes, and treat it as an upper bound on available gain, not a rotation card.",
    "Roster assignments (who is on which team for 2026-27) reflect a late-July/early-August 2026 offseason snapshot and were independently verified against ESPN/NBA.com transaction trackers for every major trade; unsigned restricted free agents' teams remain projections."
-  ]
+  ],
+  "leagueAvgBenchPayroll": 38840540,
+  "leagueAvgBenchPayrollNote": "Mean 2026-27 committed bench payroll across all 30 teams. Provided as a field so the scatter's reference line is a direct read, not computed in a component."
  },
  "teams": [
   {
