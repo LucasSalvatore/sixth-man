@@ -90,6 +90,22 @@ Open http://localhost:3000.
 npm run build
 ```
 
+### Tests
+
+```
+npm test
+```
+
+A committed Playwright suite (`tests/`) covers what used to be ad-hoc QA
+scripts: clicking through every scatter point and every rail cell without
+the table or chart ever emptying or flickering, rapid interleaved
+rail-and-scatter selection never settling on a stale value, 375px mobile
+having no horizontal overflow, and keyboard/reduced-motion operability. It
+starts its own dev server on port 3900, so a data refresh can be checked with
+`npm test` alone — no rewriting needed unless a team code or section id
+actually changes. Point `PLAYWRIGHT_CHROMIUM_PATH` at a local browser binary
+to skip Playwright's managed download.
+
 ### Deploy
 
 1. Push this repo to GitHub.
