@@ -230,11 +230,15 @@ export function LineupOptimizer({ code, lineup }: { code: string; lineup: Lineup
         <Card title="Optimal five" bpm={lineup.optLineupBPM} slots={built.right} commonCount={commonCount} animKey={code} />
       </div>
 
-      {alreadyOptimal && (
+      {alreadyOptimal ? (
         <p className="mt-5 text-[13px] leading-[1.6]" style={{ color: "var(--text-mid)" }}>
           <strong style={{ color: "var(--text-hi)", fontWeight: 600 }}>
             The model&apos;s optimal five is the five already on the floor.
           </strong>
+        </p>
+      ) : (
+        <p className="mt-5 text-[13px] leading-[1.6]" style={{ color: "var(--text-lo)" }}>
+          A higher-BPM player can sit if the five needs a different mix of guards and bigs.
         </p>
       )}
 

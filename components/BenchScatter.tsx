@@ -5,6 +5,7 @@ import type { Team } from "@/lib/types";
 import { formatMillions, formatSurplus, signed } from "@/lib/format";
 import { isAchromatic, teamIdentity } from "@/lib/teamColors";
 import { useReducedMotion, useReveal } from "@/lib/motion";
+import { useSelectedTeam } from "@/components/SelectedTeamProvider";
 import { MicroLabel, Num } from "@/components/ui";
 
 type Geometry = {
@@ -48,6 +49,11 @@ export function BenchScatter({ teams }: { teams: Team[] }) {
   const reduced = useReducedMotion();
   const [plotRef, revealed] = useReveal<HTMLDivElement>();
   const pointRefs = useRef<Map<string, SVGGElement>>(new Map());
+  // Clicking (or Enter/Space on the focused point) selects that team for the
+  // lineup optimizer and minutes plan below. This is a separate concern from
+  // `active` (hover/focus preview) — a point can be actively hovered without
+  // being the selected one, and vice versa.
+  const { selected, setSelected } = useSelectedTeam();
 
   useEffect(() => {
     const query = window.matchMedia("(min-width: 640px)");
@@ -91,6 +97,16 @@ export function BenchScatter({ teams }: { teams: Team[] }) {
   );
 
   function onKeyDown(event: React.KeyboardEvent) {
+    // Enter/Space select the currently focused point — keyboard parity with
+    // clicking, since a focusable <g> has no native activation key of its own.
+    if (event.key === "Enter" || event.key === " ") {
+      if (active) {
+        event.preventDefault();
+        setSelected(active);
+      }
+      return;
+    }
+
     const keys = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Home", "End"];
     if (!keys.includes(event.key)) return;
     event.preventDefault();
@@ -111,6 +127,47 @@ export function BenchScatter({ teams }: { teams: Team[] }) {
 
   const zeroY = Y(0);
   const pct = (value: number, total: number) => `${(value / total) * 100}%`;
+
+  /**
+   * Resolves a pointer event to the team whose plotted CENTER is nearest the
+   * actual cursor position, in SVG user-space — not whichever element the
+   * browser's native hit-test happened to pick.
+   *
+   * This matters because the invisible tap targets are large enough to clear
+   * the 32px mobile floor, and for closely-spaced teams (DET and OKC sit only
+   * ~17 viewBox units — about 20px on a typical desktop width — apart) those
+   * targets overlap. SVG paint order (ascending payroll) then decides which
+   * element wins a native hit-test, which does not track which point the
+   * click was actually closer to: it always favours whichever of the two
+   * teams costs more, regardless of where the pointer landed. Resolving by
+   * distance instead fixes clicking, and is reused for hover too, so the
+   * tooltip and the click target can never disagree with each other.
+   */
+  const nearestTeamTo = useCallback(
+    (event: { clientX: number; clientY: number; currentTarget: SVGGElement }, fallback: string): string => {
+      const svg = event.currentTarget.ownerSVGElement;
+      if (!svg) return fallback;
+      const point = svg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return fallback;
+      const local = point.matrixTransform(ctm.inverse());
+      let nearest = fallback;
+      let nearestDistance = Infinity;
+      for (const team of teams) {
+        const cx = X(team.benchPayroll / 1_000_000);
+        const cy = Y(team.benchWinsAboveAvg);
+        const distance = (cx - local.x) ** 2 + (cy - local.y) ** 2;
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearest = team.team;
+        }
+      }
+      return nearest;
+    },
+    [teams, X, Y],
+  );
 
   return (
     <div>
@@ -206,13 +263,18 @@ export function BenchScatter({ teams }: { teams: Team[] }) {
                     if (node) pointRefs.current.set(team.team, node);
                     else pointRefs.current.delete(team.team);
                   }}
+                  data-team={team.team}
                   tabIndex={isActive || (active === null && index === 0) ? 0 : -1}
                   role="img"
                   aria-label={`${identity.name}. Bench payroll ${formatMillions(
                     team.benchPayroll,
                   )}. Bench wins above average ${signed(team.benchWinsAboveAvg, 1)}. Surplus value ${formatSurplus(
                     team.benchSurplusValue,
-                  )}.`}
+                  )}.${
+                    team.team === selected
+                      ? " Selected — driving the lineup optimizer and minutes plan below."
+                      : " Press Enter to select for the lineup optimizer and minutes plan below."
+                  }`}
                   style={
                     {
                       "--team": identity.color,
@@ -225,17 +287,28 @@ export function BenchScatter({ teams }: { teams: Team[] }) {
                         : `opacity 420ms var(--ease-out) ${revealed ? index * 12 : 0}ms, transform 420ms var(--ease-out) ${revealed ? index * 12 : 0}ms`,
                     } as React.CSSProperties
                   }
-                  onPointerEnter={() => setActive(team.team)}
+                  onPointerEnter={(event) => setActive(nearestTeamTo(event, team.team))}
                   onPointerLeave={() => setActive((cur) => (cur === team.team ? null : cur))}
                   onFocus={() => setActive(team.team)}
                   onBlur={() => setActive((cur) => (cur === team.team ? null : cur))}
-                  onClick={() => setActive(team.team)}
+                  onClick={(event) => {
+                    const resolved = nearestTeamTo(event, team.team);
+                    setActive(resolved);
+                    setSelected(resolved);
+                  }}
                 >
                   {/* Invisible tap/hit target. r=18.5 viewBox units renders at
                       33.2 CSS px at a 375px viewport (compact viewBox 380 wide
                       inside a 341px container), clearing the 32px floor. r=17
                       measured 30.5px and missed it. */}
                   <circle cx={cx} cy={cy} r={18.5} fill="transparent" />
+                  {/* Persistent selection ring — distinct from the transient
+                      hover/focus ring below, and independent of it: a point can
+                      be selected without being hovered, or hovered without
+                      being the selected one. */}
+                  {team.team === selected && (
+                    <circle cx={cx} cy={cy} r={11} fill="none" stroke="var(--team)" strokeWidth={1.5} />
+                  )}
                   {isActive && (
                     <circle cx={cx} cy={cy} r={13} fill="none" stroke="var(--team)" strokeWidth={1} />
                   )}

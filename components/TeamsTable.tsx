@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useMemo, useRef, useState } from "react";
 import type { ImputeReason, Team } from "@/lib/types";
 import { fixed, formatMillions, formatSurplus, signed } from "@/lib/format";
 import { isAchromatic, teamIdentity } from "@/lib/teamColors";
@@ -68,14 +68,22 @@ export function TeamsTable({
   previousRanks.current = ranks.current;
   ranks.current = new Map(sorted.map((t, i) => [t.team, i]));
 
+  // Stable across renders: it only reads .current at call time, so it never
+  // forces useFlip's layout effect to re-run outside of an actual sort change.
+  // An inline arrow function here previously got a new identity every render
+  // (including on every row hover), making the effect re-measure and
+  // potentially re-animate all 30 rows on interactions that have nothing to
+  // do with sorting.
+  const flipDelay = useCallback((key: string) => {
+    const before = previousRanks.current.get(key);
+    const after = ranks.current.get(key);
+    if (before === undefined || after === undefined) return 0;
+    return Math.min(90, Math.abs(after - before) * 6);
+  }, []);
+
   useFlip(bodyRef, `${sortKey}:${sortDir}`, {
     duration: 420,
-    delay: (key) => {
-      const before = previousRanks.current.get(key);
-      const after = ranks.current.get(key);
-      if (before === undefined || after === undefined) return 0;
-      return Math.min(90, Math.abs(after - before) * 6);
-    },
+    delay: flipDelay,
   });
 
   function handleSort(key: SortKey) {

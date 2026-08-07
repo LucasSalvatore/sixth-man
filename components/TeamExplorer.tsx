@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import type { Lineup, MinutesRow } from "@/lib/types";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LineupOptimizer } from "@/components/LineupOptimizer";
 import { MinutesPlan } from "@/components/MinutesPlan";
+import { useSelectedTeam } from "@/components/SelectedTeamProvider";
 import { TeamRail } from "@/components/TeamRail";
 import { Reveal, SectionHead } from "@/components/ui";
 
 /**
- * One selection drives both panels. Boston is the default: three common players
- * and two exchanged, so the first thing a visitor sees is the exchange
- * animation's actual character rather than the largest number in the file.
+ * One selection drives both panels — and, via SelectedTeamProvider, the
+ * scatter above. Boston is the default: three common players and two
+ * exchanged, so the first thing a visitor sees is the exchange animation's
+ * actual character rather than the largest number in the file.
  */
 export function TeamExplorer({
   teamCodes,
@@ -21,7 +23,7 @@ export function TeamExplorer({
   lineups: Record<string, Lineup>;
   minutes: Record<string, MinutesRow[]>;
 }) {
-  const [selected, setSelected] = useState("BOS");
+  const { selected, setSelected } = useSelectedTeam();
 
   const rows = minutes[selected] ?? [];
 
@@ -38,10 +40,13 @@ export function TeamExplorer({
           deck="The five the model would start, against the five on the floor."
         />
         <Reveal>
-          {/* Keyed on the selection: a team change remounts the panel so every
-              animated figure re-runs from the new team's data rather than
-              holding a stale value from the previous team. */}
-          <LineupOptimizer key={selected} code={selected} lineup={lineups[selected]} />
+          {/* Keyed on the selection: a team change remounts the panel (and
+              its error boundary) so every animated figure re-runs from the
+              new team's data instead of holding a stale value, and a failure
+              on one team doesn't stay stuck once you've moved to another. */}
+          <ErrorBoundary key={selected} label="Lineup optimizer">
+            <LineupOptimizer code={selected} lineup={lineups[selected]} />
+          </ErrorBoundary>
         </Reveal>
       </section>
 
@@ -61,8 +66,10 @@ export function TeamExplorer({
         />
         <Reveal>
           {/* Keyed on the selection for the same reason: the bars must grow from
-              the new team's numbers on every change. */}
-          <MinutesPlan key={selected} code={selected} rows={rows} />
+              the new team's numbers on every change, and a failure resets too. */}
+          <ErrorBoundary key={selected} label="Minutes plan">
+            <MinutesPlan code={selected} rows={rows} />
+          </ErrorBoundary>
         </Reveal>
       </section>
     </div>
