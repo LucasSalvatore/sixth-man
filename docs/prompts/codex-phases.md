@@ -3,9 +3,21 @@
 Paste the block under "Kickoff" into Codex, one phase at a time. Everything
 below it is the reference Codex should read from this file.
 
+## Repository
+
+- Repo: `https://github.com/LucasSalvatore/sixth-man`
+- Start from branch `claude/deep-bench-nextjs-scaffold-rak0q5` — the rework
+  (multi-route shell, team cards, this file) lives there. `main` still holds
+  the single-page version until that branch merges.
+- One PR per phase. Target `main` once the rework branch has merged; until
+  then, target the rework branch so a phase PR carries only its own diff.
+
 ## Kickoff (paste this)
 
 ```
+Repository: https://github.com/LucasSalvatore/sixth-man
+Check out branch claude/deep-bench-nextjs-scaffold-rak0q5 and work from it.
+
 Read AGENTS.md and docs/prompts/codex-phases.md in full before touching code.
 Execute Phase <N> only. Do not start the next phase.
 
@@ -73,8 +85,9 @@ Defects found in an independent audit of the current build. Fix all of them.
    in the masthead and on every team card.
 10. **Per-route social cards.** `app/opengraph-image.tsx` is site-wide; add one
     for `/teams/[code]` in that team's colour with its surplus value.
-11. `/bench` still has the in-page team selector *and* team cards exist. Decide
-    with the owner whether the selector stays (Decision needed).
+11. **Decided (owner, 16 Nov 2026): the `/bench` team selector stays** even
+    though team cards exist. Keep both selection paths (rail and scatter) in
+    sync and covered by the existing tests; do not remove or gate the selector.
 
 Acceptance: every item above has a test or a before/after screenshot in the PR;
 Lighthouse mobile performance and accessibility ≥ 95 on `/`, `/bench`,
