@@ -19,7 +19,7 @@ export default function TeamsIndex() {
         </p>
       </header>
       <div className="mt-12">
-        <TeamGrid teams={teams} />
+        <TeamGrid teams={teams} headingLevel={2} />
       </div>
     </div>
   );

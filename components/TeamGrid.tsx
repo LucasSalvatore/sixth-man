@@ -6,16 +6,17 @@ import { isAchromatic, teamIdentity } from "@/lib/teamColors";
 
 /** All thirty teams as tiles, grouped by conference and division. Each tile
  *  carries the team colour as a solid edge and links to that team's card. */
-export function TeamGrid({ teams, current }: { teams: Team[]; current?: string }) {
+export function TeamGrid({ teams, current, headingLevel = 3 }: { teams: Team[]; current?: string; headingLevel?: 2 | 3 }) {
   const byCode = new Map(teams.map((t) => [t.team, t]));
+  const Heading = headingLevel === 2 ? "h2" : "h3";
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
       {CONFERENCES.map((conference) => (
         <div key={conference}>
-          <h3 className="text-[20px]" style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--text-hi)" }}>
+          <Heading className="text-[20px]" style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--text-hi)" }}>
             {conference}
-          </h3>
+          </Heading>
           {(Object.entries(DIVISIONS) as [Division, (typeof DIVISIONS)[Division]][])
             .filter(([, d]) => d.conference === conference)
             .map(([division, { teams: codes }]) => (

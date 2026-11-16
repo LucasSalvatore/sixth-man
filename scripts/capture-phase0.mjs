@@ -23,6 +23,9 @@ async function prepare(page, route, javascript = true) {
   if (javascript && route === "/bench") {
     await page.locator('svg[role="application"]').waitFor({ state: "visible" });
   }
+  // No-JS content is already visible; animation-frame promises cannot settle
+  // reliably in a context with page scripting disabled.
+  if (!javascript) return;
   // Visit the whole document before a full-page capture so any scroll reveals
   // have reached their settled state. Reduced motion is enabled in each context.
   await page.evaluate(async () => {
