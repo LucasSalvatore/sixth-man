@@ -11,21 +11,21 @@ API routes — every figure is read at build time from
 
 ### What's on the page
 
-The page is three acts of deliberately unequal weight:
+- **`/` — today.** The headline claim, a "bench of the day" (one team in its
+  own colour, rotating by calendar day), three ranked boards, and all thirty
+  teams by conference and division.
+- **`/bench` — the argument and the evidence.** The scatter of bench payroll
+  against bench wins above average, the sortable thirty-team table, and a team
+  selector driving the lineup optimizer and minutes plan.
+- **`/teams/[code]` — a card per team.** Bench surplus value, where the team
+  sits among the thirty on four measures, its lineup optimizer and minutes plan.
+- **`/method` — how this was built.** The source's own formula definitions,
+  quoted, plus the seven limitations in plain language.
 
-- **The argument** — the headline claim (NBA teams are bad at buying bench
-  value) and the chart that carries it: a scatter of bench payroll against
-  bench wins above average, one point per team in that team's own colour, with
-  Boston, Portland, Denver, San Antonio and Brooklyn annotated directly on the
-  chart.
-- **The evidence** — all thirty benches in a sortable table, default-sorted by
-  surplus value, with an inline diverging bar per row and a flag marker for
-  every team carrying an imputed player.
-- **The tool** — a lineup optimizer (current five against the model's optimal
-  five, with the wins gained between them) and a minutes plan, both driven by
-  one team selector.
-- **How this was built** — the source's own formula definitions, quoted, plus
-  the seven limitations in plain language.
+Standings, a lottery board, a draft-class hub and a trades tracker are planned,
+not built — see [`docs/prompts/codex-phases.md`](./docs/prompts/codex-phases.md)
+for the phases and what blocks each. [`AGENTS.md`](./AGENTS.md) holds the rules
+any contributor, human or agent, works to.
 
 Twenty-two players had no 2025-26 box score and are estimated rather than
 dropped. Two kinds of estimate are marked distinctly wherever the player

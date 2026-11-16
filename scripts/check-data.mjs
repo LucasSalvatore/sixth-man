@@ -56,6 +56,18 @@ const lineups = data.lineups && typeof data.lineups === "object" ? data.lineups 
 // --- Shape ---------------------------------------------------------------
 check("teams is a 30-entry array", teams.length === 30, `found ${teams.length}`);
 
+// --- The thirty codes must be the thirty the league structure knows --------
+// (kept in step with lib/league.ts; a renamed or missing team fails here).
+const LEAGUE = "ATL BKN BOS CHA CHI CLE DAL DEN DET GSW HOU IND LAC LAL MEM MIA MIL MIN NOP NYK OKC ORL PHI PHX POR SAC SAS TOR UTA WAS".split(" ");
+const codes = new Set(teams.map((t) => t.team));
+const unknown = [...codes].filter((c) => !LEAGUE.includes(c));
+const absent = LEAGUE.filter((c) => !codes.has(c));
+check(
+  "team codes are exactly the thirty in lib/league.ts",
+  unknown.length === 0 && absent.length === 0,
+  `unknown: ${unknown.join(", ") || "none"}; missing: ${absent.join(", ") || "none"}`,
+);
+
 // --- League identity: the projections must describe a real season --------
 const sumProjWins = teams.reduce((sum, t) => sum + (t.projWins ?? 0), 0);
 check(

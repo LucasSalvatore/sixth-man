@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import type { ImputeReason, Team } from "@/lib/types";
 import { fixed, formatMillions, formatSurplus, signed } from "@/lib/format";
 import { isAchromatic, teamIdentity } from "@/lib/teamColors";
@@ -293,12 +294,14 @@ export function TeamsTable({
                             transition: reduced ? "none" : "transform 120ms ease-out",
                           }}
                         />
+<Link href={`/teams/${team.team}`} aria-label={`${identity.name} team card`} className="underline-offset-4 hover:underline">
                         <Num
                           className={`text-[13.5px] sm:text-[14.5px] ${live ? "team-text" : ""}`}
                           style={{ fontWeight: 500, color: live ? undefined : "var(--text-hi)" }}
                         >
                           {team.team}
                         </Num>
+                        </Link>
                       </span>
                     </td>
 

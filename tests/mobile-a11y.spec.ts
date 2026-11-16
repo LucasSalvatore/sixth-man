@@ -45,7 +45,7 @@ test.describe("desktop width", () => {
     expect(tableWidth).toBeGreaterThan(1200);
 
     const proseWidth = await page.evaluate(() => {
-      const deck = document.querySelector("#methodology-head")?.parentElement;
+      const deck = document.querySelector("header h1")?.parentElement;
       return deck?.getBoundingClientRect().width ?? 0;
     });
     expect(proseWidth).toBeLessThan(1300);
@@ -89,7 +89,7 @@ test.describe("keyboard operability", () => {
 });
 
 test.describe("reduced motion", () => {
-  test.use({ reducedMotion: "reduce" });
+  test.use({ contextOptions: { reducedMotion: "reduce" } });
 
   test("hero stats render their final value with no counted-up transient", async ({ page }) => {
     await gotoHome(page);

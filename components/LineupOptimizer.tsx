@@ -107,7 +107,7 @@ function PlayerRow({
       <div className="text-right">
         {player.salary === null ? (
           <a
-            href="#note-payroll"
+            href="/method#note-payroll"
             className="text-[12.5px] italic underline decoration-dotted underline-offset-2"
             style={{ color: "var(--text-lo)" }}
           >

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
 
 /**
@@ -84,10 +85,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <noscript>
           <style>{`[data-reveal]{opacity:1 !important;transform:none !important}`}</style>
         </noscript>
-        <a className="skip-link" href="#methodology">
-          Skip to methodology
+        <a className="skip-link" href="#main">
+          Skip to content
         </a>
-        {children}
+        <SiteNav />
+        <main id="main" className="pb-24 sm:pb-0">
+          {children}
+        </main>
+        <footer className="mx-auto max-w-[1240px] px-4 pb-28 pt-12 sm:px-8 sm:pb-12">
+          <div className="border-t pt-8" style={{ borderColor: "var(--rule-2)" }}>
+            <span className="text-[16px]" style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--gold)" }}>
+              Lucan Labs
+            </span>
+          </div>
+        </footer>
       </body>
     </html>
   );

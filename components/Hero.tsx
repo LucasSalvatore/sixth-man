@@ -1,7 +1,9 @@
 "use client";
 
 import { useCountUp } from "@/lib/motion";
-import { formatSurplus, signed } from "@/lib/format";
+import { formatMillions, formatSurplus, signed } from "@/lib/format";
+import { teamIdentity } from "@/lib/teamColors";
+import type { Team } from "@/lib/types";
 import { GhostSized, MicroLabel, Num } from "@/components/ui";
 
 export type HeroStat = {
@@ -44,7 +46,16 @@ function Stat({ stat, index }: { stat: HeroStat; index: number }) {
   );
 }
 
-export function Hero({ stats }: { stats: HeroStat[] }) {
+export function Hero({
+  stats,
+  best,
+  priciest,
+}: {
+  stats: HeroStat[];
+  /** The two teams the lede names — passed in so every figure is a field read. */
+  best?: Team;
+  priciest?: Team;
+}) {
   return (
     <header className="pt-14 sm:pt-20">
       <Num
@@ -67,12 +78,18 @@ export function Hero({ stats }: { stats: HeroStat[] }) {
       </h1>
 
       <p className="mt-7 max-w-[64ch] text-[16px] leading-[1.6] sm:text-[18px]">
-        Bench payroll explains about six percent of the variance in bench quality — a correlation
-        of <Num style={{ color: "var(--text-hi)" }}>0.25</Num>. Boston built the league&apos;s best
-        bench, <Num style={{ color: "var(--text-hi)" }}>+1.9</Num> wins above average, for{" "}
-        <Num style={{ color: "var(--text-hi)" }}>$26.4m</Num>. Portland spent{" "}
-        <Num style={{ color: "var(--text-hi)" }}>$74.0m</Num> — the most in the NBA — for{" "}
-        <Num style={{ color: "var(--text-hi)" }}>+0.6</Num>.
+        Bench payroll explains about six percent of the variance in bench quality.
+        {best && priciest && (
+          <>
+            {" "}
+            {teamIdentity(best.team).name} built one of the league&apos;s best benches,{" "}
+            <Num style={{ color: "var(--text-hi)" }}>{signed(best.benchWinsAboveAvg, 1)}</Num> wins above
+            average, for <Num style={{ color: "var(--text-hi)" }}>{formatMillions(best.benchPayroll)}</Num>.{" "}
+            {teamIdentity(priciest.team).name} committed{" "}
+            <Num style={{ color: "var(--text-hi)" }}>{formatMillions(priciest.benchPayroll)}</Num> for{" "}
+            <Num style={{ color: "var(--text-hi)" }}>{signed(priciest.benchWinsAboveAvg, 1)}</Num>.
+          </>
+        )}
       </p>
 
       <div className="mt-10 grid grid-cols-1 gap-8 border-t pt-8 sm:grid-cols-3" style={{ borderColor: "var(--rule-1)" }}>

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { teamIdentity } from "@/lib/teamColors";
 import type { Lineup, MinutesRow } from "@/lib/types";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LineupOptimizer } from "@/components/LineupOptimizer";
@@ -31,6 +33,13 @@ export function TeamExplorer({
     <div>
       <div className="mb-10">
         <TeamRail codes={teamCodes} selected={selected} onSelect={setSelected} />
+        <Link
+          href={`/teams/${selected}`}
+          className="mt-4 inline-block text-[14px] underline underline-offset-4"
+          style={{ color: "var(--text-hi)" }}
+        >
+          Open the {teamIdentity(selected).name} team card →
+        </Link>
       </div>
 
       <section>

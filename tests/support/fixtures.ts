@@ -20,7 +20,7 @@ export const DATA: DeepBenchData = JSON.parse(
 export const TEAM_CODES: string[] = DATA.teams.map((t) => t.team);
 
 export async function gotoHome(page: Page) {
-  await page.goto("/", { waitUntil: "networkidle" });
+  await page.goto("/bench", { waitUntil: "networkidle" });
 }
 
 export async function clickScatterPoint(page: Page, code: string) {
