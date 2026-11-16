@@ -1,6 +1,6 @@
 # Phase 0 change and verification record
 
-Phase 0 implements the existing-data rework. **Final acceptance is not yet established:** the mobile Lighthouse performance gate has not passed locally. Use the PR's **Phase 0 verification** check and its uploaded artifacts for the final revision's complete results; do not treat this change record as a passing CI result.
+Phase 0 is verified in [PR #8](https://github.com/LucasSalvatore/sixth-man/pull/8), targeting `claude/deep-bench-nextjs-scaffold-rak0q5`. [Final CI run 43801759186](https://github.com/LucasSalvatore/sixth-man/actions/runs/43801759186) passed the data guard, lint, production build, all 164 tests, screenshot capture, and Lighthouse/axe acceptance gates. It tested source commit `6a582211f0d5d5c5fb80a7f4b417165c0f35f89f` as merge commit `fdaa05c5aef7a8ab962cc908afbc4f35585be86f`. The following evidence update changes documentation and screenshots only.
 
 ## Changes and evidence
 
@@ -22,11 +22,26 @@ All existing model values, teams, players, lineups, minutes, and disclosures are
 
 Mobile before captures are 390px; after captures are 375px unless the filename states otherwise. Source content is rendered before hydration and with JavaScript disabled: [no-JS scatter](./phase-0/after/375-nojs-scatter.png), [scatter tests](../../tests/scatter-phase0.spec.ts), and [panel tests](../../tests/panels-phase0.spec.ts).
 
-Performance work reduces client work: static UI/panels render on the server, figures show source values without count-up intermediates, the homepage renders one daily team band, and automatic link prefetching is disabled. The chart reserves its CSS height before mounting measured interactive geometry. These changes do not substitute for meeting the measured gate.
+Performance work reduces client work: static UI/panels render on the server, figures show source values without count-up intermediates, the homepage renders one daily team band, and automatic link prefetching is disabled. The chart reserves its CSS height before mounting measured interactive geometry.
 
 ## Recorded verification
 
-Baseline results are committed in [baseline.json](./phase-0/baseline.json).
+Final results and environment details are committed in [final.json](./phase-0/final.json). The CI artifact `phase0-verification-43801759186-1` contains raw JSON/HTML reports, the screenshot manifest, all 28 screenshots, and server output.
+
+| Route | Final mobile performance | Final mobile accessibility | Final desktop performance | Final desktop accessibility |
+| --- | ---: | ---: | ---: | ---: |
+| `/` | 100 | 100 | 100 | 100 |
+| `/bench` | 100 | 100 | 100 | 100 |
+| `/teams/BOS` | 100 | 100 | 100 | 100 |
+
+- `npm run check-data`: **32 invariants passed**.
+- `npm run lint` and `npm run build`: **passed**.
+- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:4100 npm test -- --workers=2`: **164 passed, 0 failed, 0 skipped**.
+- `npm run screenshots:phase0`: **28 screenshots captured**. Desktop and 375px layouts across all five routes and isolated sections were inspected, including the corrected no-JavaScript scatter. No new visual defect remained. Fixed navigation and sticky headers naturally appear at the capture's scroll position in long screenshots.
+- `node scripts/audit-phase0.mjs`: **passed**. All ten axe scans (five routes at 1440px and 390px) reported **zero violations** and zero page errors. All six Lighthouse reports passed; mobile used default throttling and desktop used the standard desktop config.
+- No required Phase 0 check was skipped. Later phases were not implemented or independently researched.
+
+Baseline results are committed in [baseline.json](./phase-0/baseline.json). The baseline was local and the final run used GitHub's Ubuntu runner, so these scores are evidence of the acceptance gates rather than a controlled measurement of improvement.
 
 | Route | Baseline mobile performance | Baseline mobile accessibility | Baseline desktop performance | Baseline desktop accessibility |
 | --- | ---: | ---: | ---: | ---: |
@@ -35,10 +50,11 @@ Baseline results are committed in [baseline.json](./phase-0/baseline.json).
 | `/teams/BOS` | 94 | 98 | 100 | 98 |
 
 - Baseline axe found serious accessible-name mismatches at both 1440px and 390px, plus moderate landmark/heading issues. The local v2 rerun reported **zero violations in all six route/width checks** for `/`, `/bench`, and `/teams/BOS`.
-- The initial complete Playwright run finished **158 passed, 2 failed**. A chip's rendered height was 31.9995px; its nominal target was increased to 34px. A long interaction loop exceeded the default 30-second timeout; long-loop coverage now has a 90-second timeout. These fixes require the final full rerun; the earlier run is not recorded as passing.
+- The initial local Playwright run finished **158 passed, 2 failed**. A chip's rendered height was 31.9995px; its nominal target was increased to 34px. A long interaction loop exceeded the default 30-second timeout; long-loop coverage now has a 90-second timeout. The subsequent CI suite passed all 164 tests, including these regressions.
 - **v3 `npm run build` (including the prebuild data guard) and `npm run lint` passed.**
 - Subsequent local mobile performance runs, on a host under load, **failed the 95 gate**: v2 scored 81/78/76 for `/`, `/bench`, `/teams/BOS`; v3 `/` scored 84, then Chrome closed before the remaining routes completed. Host load is recorded context, not a waiver or proof of cause. The incomplete v3 diagnostic set cannot pass.
-- Final full-suite and diagnostic results remain pending in the PR check/artifacts. No final Lighthouse pass is claimed. Later phases were not implemented or independently researched.
+- [CI run 43801123972](https://github.com/LucasSalvatore/sixth-man/actions/runs/43801123972) passed the guard, lint, build, **164 tests**, and all diagnostic thresholds. Mobile performance/accessibility was **96/100, 100/100, 100/100** for `/`, `/bench`, `/teams/BOS`; desktop was **100/100** for each. All ten axe scans had no serious/critical violations. Its job failed in the screenshot harness after 26 captures because an animation-frame promise could not settle in the JavaScript-disabled context. The harness now skips animation waits for that context. The moderate `/teams` heading-order finding was also corrected without a visual change.
+- [Final CI run 43801759186](https://github.com/LucasSalvatore/sixth-man/actions/runs/43801759186) then passed every step, including all 28 captures, all 164 tests, zero axe violations, and the six Lighthouse reports shown above.
 
 ## Reproduce without `.next` conflicts
 
