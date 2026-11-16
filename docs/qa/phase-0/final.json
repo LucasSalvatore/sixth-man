@@ -1,0 +1,221 @@
+{
+  "startedAt": "2026-11-16T04:06:50.742Z",
+  "revision": "fdaa05c5aef7a8ab962cc908afbc4f35585be86f",
+  "baseURL": "http://127.0.0.1:4100/",
+  "environment": {
+    "node": "v24.16.0",
+    "platform": "linux",
+    "loadAverage": [
+      2.8,
+      1.5,
+      0.61
+    ],
+    "browser": "151.0.7922.34"
+  },
+  "thresholds": {
+    "mobilePerformance": 95,
+    "mobileAccessibility": 95,
+    "seriousOrCriticalAxe": 0
+  },
+  "results": [
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/",
+      "width": 1440,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/bench",
+      "width": 1440,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/teams/BOS",
+      "width": 1440,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/teams",
+      "width": 1440,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/method",
+      "width": 1440,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/",
+      "width": 390,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/bench",
+      "width": 390,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/teams/BOS",
+      "width": 390,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/teams",
+      "width": 390,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "axe",
+      "version": "4.14.0",
+      "route": "/method",
+      "width": 390,
+      "violations": [],
+      "pageErrors": []
+    },
+    {
+      "tool": "lighthouse",
+      "version": "13.6.0",
+      "route": "/",
+      "formFactor": "mobile",
+      "performance": 100,
+      "accessibility": 100,
+      "benchmarkIndex": 3909.5,
+      "metrics": {
+        "first-contentful-paint": 917.5517,
+        "largest-contentful-paint": 917.5517,
+        "total-blocking-time": 36,
+        "cumulative-layout-shift": 0,
+        "speed-index": 917.5517
+      },
+      "warnings": []
+    },
+    {
+      "tool": "lighthouse",
+      "version": "13.6.0",
+      "route": "/bench",
+      "formFactor": "mobile",
+      "performance": 100,
+      "accessibility": 100,
+      "benchmarkIndex": 3875,
+      "metrics": {
+        "first-contentful-paint": 911.6509000000001,
+        "largest-contentful-paint": 911.6509000000001,
+        "total-blocking-time": 33,
+        "cumulative-layout-shift": 0,
+        "speed-index": 911.6509000000001
+      },
+      "warnings": []
+    },
+    {
+      "tool": "lighthouse",
+      "version": "13.6.0",
+      "route": "/teams/BOS",
+      "formFactor": "mobile",
+      "performance": 100,
+      "accessibility": 100,
+      "benchmarkIndex": 3944,
+      "metrics": {
+        "first-contentful-paint": 913.3606,
+        "largest-contentful-paint": 913.3606,
+        "total-blocking-time": 35,
+        "cumulative-layout-shift": 0,
+        "speed-index": 913.3606
+      },
+      "warnings": []
+    },
+    {
+      "tool": "lighthouse",
+      "version": "13.6.0",
+      "route": "/",
+      "formFactor": "desktop",
+      "performance": 100,
+      "accessibility": 100,
+      "benchmarkIndex": 4174,
+      "metrics": {
+        "first-contentful-paint": 251.9461,
+        "largest-contentful-paint": 251.9461,
+        "total-blocking-time": 0,
+        "cumulative-layout-shift": 0,
+        "speed-index": 251.9461
+      },
+      "warnings": []
+    },
+    {
+      "tool": "lighthouse",
+      "version": "13.6.0",
+      "route": "/bench",
+      "formFactor": "desktop",
+      "performance": 100,
+      "accessibility": 100,
+      "benchmarkIndex": 3881,
+      "metrics": {
+        "first-contentful-paint": 254.8279,
+        "largest-contentful-paint": 254.8279,
+        "total-blocking-time": 0,
+        "cumulative-layout-shift": 0,
+        "speed-index": 254.8279
+      },
+      "warnings": []
+    },
+    {
+      "tool": "lighthouse",
+      "version": "13.6.0",
+      "route": "/teams/BOS",
+      "formFactor": "desktop",
+      "performance": 100,
+      "accessibility": 100,
+      "benchmarkIndex": 4178,
+      "metrics": {
+        "first-contentful-paint": 249.73219999999998,
+        "largest-contentful-paint": 249.73219999999998,
+        "total-blocking-time": 0,
+        "cumulative-layout-shift": 0,
+        "speed-index": 249.73219999999998
+      },
+      "warnings": []
+    }
+  ],
+  "failures": [],
+  "finishedAt": "2026-11-16T04:07:41.384Z",
+  "passed": true,
+  "verification": {
+    "runURL": "https://github.com/LucasSalvatore/sixth-man/actions/runs/43801759186",
+    "pullRequest": "https://github.com/LucasSalvatore/sixth-man/pull/8",
+    "headCommit": "6a582211f0d5d5c5fb80a7f4b417165c0f35f89f",
+    "guardInvariants": 32,
+    "playwrightPassed": 164,
+    "playwrightFailed": 0,
+    "playwrightSkipped": 0,
+    "screenshots": 28,
+    "build": "passed",
+    "lint": "passed",
+    "artifactID": 14197170780,
+    "artifactSHA256": "486ae0b93fa48b54e66f79025a9b6bf5bd354dd712806bbb9075bc391dfcdee9"
+  }
+}

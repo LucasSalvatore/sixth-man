@@ -1,15 +1,13 @@
-"use client";
-
-import { useCountUp } from "@/lib/motion";
-import { formatMillions, formatSurplus, signed } from "@/lib/format";
+import { formatMillions, formatSurplus, formatPercent, signed } from "@/lib/format";
 import { teamIdentity } from "@/lib/teamColors";
-import type { Team } from "@/lib/types";
-import { GhostSized, MicroLabel, Num } from "@/components/ui";
+import type { DeepBenchMeta, Team } from "@/lib/types";
+import { Snapshot } from "@/components/Snapshot";
+import { MicroLabel, Num } from "@/components/ui";
 
 export type HeroStat = {
   /** Raw value read from the JSON on the server. */
   value: number;
-  /** How to render it once counted up. */
+  /** How to format the source value. */
   format: "wins" | "surplus";
   label: string;
   sub: string;
@@ -19,8 +17,7 @@ function render(stat: HeroStat, current: number): string {
   return stat.format === "surplus" ? formatSurplus(current) : signed(current, 1);
 }
 
-function Stat({ stat, index }: { stat: HeroStat; index: number }) {
-  const current = useCountUp(stat.value, { duration: 1100, delay: 200 + index * 110 });
+function Stat({ stat }: { stat: HeroStat }) {
   const finalText = render(stat, stat.value);
   const color =
     stat.format === "surplus"
@@ -31,15 +28,15 @@ function Stat({ stat, index }: { stat: HeroStat; index: number }) {
   return (
     <div className="flex flex-col gap-2">
       <div
-        className="text-[26px] leading-none sm:text-[32px]"
+        className="text-[34px] leading-none sm:text-[34px]"
         style={{ fontFamily: "var(--font-num)", letterSpacing: "-0.02em", color }}
       >
-        <GhostSized finalText={finalText}>{render(stat, current)}</GhostSized>
+        <Num>{finalText}</Num>
       </div>
       <div className="max-w-[22ch]">
         <MicroLabel>{stat.label}</MicroLabel>
       </div>
-      <div className="text-[12.5px]" style={{ color: "var(--text-lo)" }}>
+      <div className="text-[12px]" style={{ color: "var(--text-lo)" }}>
         {stat.sub}
       </div>
     </div>
@@ -48,10 +45,12 @@ function Stat({ stat, index }: { stat: HeroStat; index: number }) {
 
 export function Hero({
   stats,
+  meta,
   best,
   priciest,
 }: {
   stats: HeroStat[];
+  meta: DeepBenchMeta;
   /** The two teams the lede names — passed in so every figure is a field read. */
   best?: Team;
   priciest?: Team;
@@ -59,14 +58,14 @@ export function Hero({
   return (
     <header className="pt-14 sm:pt-20">
       <Num
-        className="text-[12.5px]"
+        className="text-[12px]"
         style={{ letterSpacing: "0.14em", color: "var(--text-lo)", textTransform: "none" }}
       >
-        deep-bench · bench value, 2025-26
+        deep-bench · {meta.seasonLabel}
       </Num>
 
       <h1
-        className="mt-6 max-w-[19ch] text-[40px] leading-[1.02] sm:text-[68px]"
+        className="mt-6 max-w-[19ch] text-display leading-[1.02] sm:text-display"
         style={{
           fontFamily: "var(--font-display)",
           fontWeight: 500,
@@ -77,8 +76,8 @@ export function Hero({
         NBA teams are bad at buying bench value.
       </h1>
 
-      <p className="mt-7 max-w-[64ch] text-[16px] leading-[1.6] sm:text-[18px]">
-        Bench payroll explains about six percent of the variance in bench quality.
+      <p className="mt-7 max-w-[64ch] text-[15px] leading-[1.6] sm:text-[20px]">
+        Bench payroll explains about <Num>{formatPercent(meta.r2)}</Num> of the variance in bench quality.
         {best && priciest && (
           <>
             {" "}
@@ -92,9 +91,11 @@ export function Hero({
         )}
       </p>
 
+      <Snapshot meta={meta} />
+
       <div className="mt-10 grid grid-cols-1 gap-8 border-t pt-8 sm:grid-cols-3" style={{ borderColor: "var(--rule-1)" }}>
-        {stats.map((stat, index) => (
-          <Stat key={stat.label} stat={stat} index={index} />
+        {stats.map((stat) => (
+          <Stat key={stat.label} stat={stat} />
         ))}
       </div>
     </header>

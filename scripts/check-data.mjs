@@ -52,6 +52,22 @@ try {
 
 const teams = Array.isArray(data.teams) ? data.teams : [];
 const lineups = data.lineups && typeof data.lineups === "object" ? data.lineups : {};
+const meta = data.meta ?? {};
+
+// Source-labelled periods need not pretend to be precise timestamps. An
+// editorial asOf always travels with its provenance note and named source.
+for (const field of ["seasonLabel", "asOf", "asOfNote", "source", "season_source", "winsFormula", "benchSurplusFormula", "starterBenchShareNote"]) {
+  check(`meta.${field} is present`, typeof meta[field] === "string" && meta[field].trim().length > 0, String(meta[field]));
+}
+check("meta.r is a finite correlation", Number.isFinite(meta.r) && meta.r >= -1 && meta.r <= 1, String(meta.r));
+check("meta.r2 is a finite proportion", Number.isFinite(meta.r2) && meta.r2 >= 0 && meta.r2 <= 1, String(meta.r2));
+check("meta.leagueAvgBenchPayroll is finite and positive", Number.isFinite(meta.leagueAvgBenchPayroll) && meta.leagueAvgBenchPayroll > 0, String(meta.leagueAvgBenchPayroll));
+check("meta.minutesCeiling is finite and positive", Number.isFinite(meta.minutesCeiling) && meta.minutesCeiling > 0, String(meta.minutesCeiling));
+check("all methodology disclosures are present", Array.isArray(meta.disclosures) && meta.disclosures.length === 7 && meta.disclosures.every((v) => typeof v === "string" && v.trim().length > 0), "expected the seven source disclosures");
+
+for (const field of ["projWins", "starterBPM", "benchBPM", "benchWinsAboveAvg", "benchPayroll", "fairMarketBenchPayroll", "benchSurplusValue", "nBench"]) {
+  check(`every team has finite ${field}`, teams.length === 30 && teams.every((t) => Number.isFinite(t[field])), teams.filter((t) => !Number.isFinite(t[field])).map((t) => t.team).join(", ") || "all present");
+}
 
 // --- Shape ---------------------------------------------------------------
 check("teams is a 30-entry array", teams.length === 30, `found ${teams.length}`);
@@ -80,7 +96,7 @@ check(
 const sumBenchWins = teams.reduce((sum, t) => sum + (t.benchWinsAboveAvg ?? 0), 0);
 check(
   "sum of benchWinsAboveAvg is 0 (±0.05)",
-  Math.abs(sumBenchWins) <= 0.05,
+  teams.every((t) => Number.isFinite(t.benchWinsAboveAvg)) && Math.abs(sumBenchWins) <= 0.05,
   `sum = ${sumBenchWins.toFixed(4)}`,
 );
 
@@ -130,6 +146,11 @@ check(
 );
 
 // --- Lineups -------------------------------------------------------------
+check("every team has a complete lineup", teams.length === 30 && teams.every((t) => {
+  const lineup = lineups[t.team];
+  return lineup && ["current", "optimal"].every((key) => Array.isArray(lineup[key]) && lineup[key].length === 5) &&
+    ["gainWins", "curLineupBPM", "optLineupBPM"].every((key) => Number.isFinite(lineup[key]));
+}), "requires both source fives and their finite values");
 const negativeGain = Object.entries(lineups).filter(([, v]) => (v?.gainWins ?? 0) < 0);
 check(
   "no lineup has a negative gainWins",

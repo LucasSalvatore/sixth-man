@@ -32,3 +32,6 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Local diagnostic output (CI uploads these as artifacts)
+/artifacts/

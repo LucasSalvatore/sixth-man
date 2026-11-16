@@ -18,11 +18,13 @@ export function TeamRail({
   const refs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
   function onKeyDown(event: React.KeyboardEvent, index: number) {
+    const grid = event.currentTarget.parentElement;
+    const columns = grid ? getComputedStyle(grid).gridTemplateColumns.split(/\s+/).length : 1;
     const map: Record<string, number> = {
       ArrowRight: 1,
       ArrowLeft: -1,
-      ArrowDown: 5,
-      ArrowUp: -5,
+      ArrowDown: columns,
+      ArrowUp: -columns,
     };
     const step = map[event.key];
     if (step === undefined) return;
@@ -68,7 +70,7 @@ export function TeamRail({
             }
           >
             <Num
-              className={`text-[13.5px] ${isSelected ? "team-text" : ""}`}
+              className={`text-[15px] ${isSelected ? "team-text" : ""}`}
               style={{
                 color: isSelected ? undefined : "var(--text-mid)",
               }}

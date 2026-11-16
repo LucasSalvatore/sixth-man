@@ -4,7 +4,7 @@ import {
   TEAM_CODES,
   checkedRailTeam,
   clickRailTeam,
-  clickScatterPoint,
+  selectScatterPoint,
   gotoHome,
   optimizerMatchesSource,
   readOptimizerState,
@@ -14,28 +14,30 @@ import {
 // The scatter and the rail share one selection via SelectedTeamProvider; the
 // table sits between them but never consumes that context. These tests cover
 // the path that shipped without coverage: selecting a team by clicking a
-// scatter point directly, not just via the rail.
+// scatter via touch or keyboard, not just via the rail.
 
-test.describe("scatter click selects the correct team", () => {
-  // Every team, not a sample — this is exactly the class of bug (DET/OKC's
-  // overlapping hit targets resolving to the wrong team) that a partial
-  // sweep would have missed.
-  for (const code of TEAM_CODES) {
-    test(`clicking ${code}'s point drives the rail and the lineup optimizer`, async ({ page }) => {
-      await gotoHome(page);
-      await clickScatterPoint(page, code);
-
-      await expect(async () => {
-        expect(await checkedRailTeam(page)).toBe(code);
-      }).toPass({ timeout: 2000 });
-
-      await page.locator("#lineup-optimizer").scrollIntoViewIfNeeded();
-      await expect
-        .poll(async () => optimizerMatchesSource(await readOptimizerState(page), code))
-        .toBe(true);
-    });
-  }
-});
+for (const mode of [
+  { name: "desktop keyboard", viewport: { width: 1440, height: 1000 }, hasTouch: false },
+  { name: "mobile touch", viewport: { width: 375, height: 812 }, hasTouch: true },
+]) {
+  test.describe(`${mode.name}: scatter selects the correct team`, () => {
+    test.use({ viewport: mode.viewport, hasTouch: mode.hasTouch });
+    // Every source team: includes nearby points that previously resolved wrongly.
+    for (const code of TEAM_CODES) {
+      test(`selecting ${code}'s point drives the rail and both panels`, async ({ page }) => {
+        await gotoHome(page);
+        await selectScatterPoint(page, code);
+        await expect(page).toHaveURL(/\/bench$/);
+        await expect(async () => {
+          expect(await checkedRailTeam(page)).toBe(code);
+        }).toPass({ timeout: 2000 });
+        await page.locator("#lineup-optimizer").scrollIntoViewIfNeeded();
+        await expect.poll(async () => optimizerMatchesSource(await readOptimizerState(page), code)).toBe(true);
+        await expect(page.locator(`[data-minutes-panel="${code}"]`)).toBeVisible();
+      });
+    }
+  });
+}
 
 test("rail click updates the scatter's selection ring and aria-label", async ({ page }) => {
   await gotoHome(page);
@@ -45,20 +47,20 @@ test("rail click updates the scatter's selection ring and aria-label", async ({ 
   const point = scatterPoint(page, "GSW");
   await expect(point).toHaveAttribute("aria-label", /Selected — driving the lineup optimizer/);
 
-  // Exactly one persistent selection ring (r=11) should exist on the chart.
-  const selectionRings = page.locator('svg[role="application"] circle[r="11"]');
+  // The persistent selection marker has the same semantic hook for chips and dots.
+  const selectionRings = page.locator('[data-selection-ring]');
   await expect(selectionRings).toHaveCount(1);
 });
 
 test("selection ring persists after the pointer moves away", async ({ page }) => {
   await gotoHome(page);
-  await clickScatterPoint(page, "BOS");
+  await selectScatterPoint(page, "BOS");
   await page.mouse.move(5, 5);
   await page.waitForTimeout(200);
 
   const point = scatterPoint(page, "BOS");
-  // Hit target + persistent selection ring + fill circle = 3, with no hover ring.
-  await expect(point.locator("circle")).toHaveCount(3);
+  await expect(point.locator("[data-selection-ring]")).toHaveCount(1);
+  await expect(point).toHaveAttribute("aria-pressed", "true");
 });
 
 test("the table never re-renders when selection changes via either path", async ({ page }) => {
@@ -76,7 +78,7 @@ test("the table never re-renders when selection changes via either path", async 
   });
 
   for (const code of ["PHX", "DET", "OKC", "GSW", "BKN"]) {
-    await clickScatterPoint(page, code);
+    await selectScatterPoint(page, code);
     await page.waitForTimeout(30);
   }
   for (const code of ["CLE", "DAL", "MEM"]) {
@@ -98,9 +100,9 @@ test("DET and OKC — the pair whose overlapping hit targets caused a wrong sele
   test.skip(!DATA.lineups.DET || !DATA.lineups.OKC, "source has no lineup for DET or OKC");
   await gotoHome(page);
 
-  await clickScatterPoint(page, "DET");
+  await selectScatterPoint(page, "DET");
   expect(await checkedRailTeam(page)).toBe("DET");
 
-  await clickScatterPoint(page, "OKC");
+  await selectScatterPoint(page, "OKC");
   expect(await checkedRailTeam(page)).toBe("OKC");
 });

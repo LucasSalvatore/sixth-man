@@ -1,10 +1,11 @@
+import { loadGoogleFont } from "@/lib/og";
 import { ImageResponse } from "next/og";
 import { teams, deepBenchData } from "@/lib/data";
 import { teamIdentity } from "@/lib/teamColors";
-import { formatMillions, signed } from "@/lib/format";
+import { formatMillions, formatPercent, signed } from "@/lib/format";
 
 export const alt =
-  "deep-bench — bench payroll explains about six percent of the variance in bench quality.";
+  `deep-bench — bench payroll explains about ${formatPercent(deepBenchData.meta.r2)} of the variance in bench quality.`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -15,18 +16,6 @@ const LO = "#97948b";
 const GOLD = "#c8a44d";
 const RULE = "#262520";
 
-async function loadGoogleFont(family: string, text: string): Promise<ArrayBuffer> {
-  // Built by hand rather than via URLSearchParams: Google's css2 endpoint
-  // requires a literal "+" in `family` to mean a space (e.g. "Instrument+Sans"),
-  // and URLSearchParams percent-encodes that "+" to %2B, which the endpoint
-  // rejects with "400: Invalid selector". Only `text` needs encoding.
-  const url = `https://fonts.googleapis.com/css2?family=${family}&text=${encodeURIComponent(text)}`;
-  const css = await (await fetch(url)).text();
-  const match = css.match(/src: url\(([^)]+)\) format\('(opentype|truetype)'\)/);
-  if (!match) throw new Error(`Could not find a loadable font for ${family}`);
-  const response = await fetch(match[1]);
-  return response.arrayBuffer();
-}
 
 export default async function Image() {
   // Every figure below is read straight from the source JSON — nothing here
@@ -36,11 +25,7 @@ export default async function Image() {
   const bosIdentity = teamIdentity("BOS");
   const porIdentity = teamIdentity("POR");
 
-  // r2 is quoted verbatim inside meta.benchSurplusFormula ("r=0.25, r2=0.06");
-  // parsed here rather than restated as a fresh literal.
-  const r2Match = deepBenchData.meta.benchSurplusFormula.match(/r2=([\d.]+)/);
-  const r2Pct = r2Match ? Math.round(parseFloat(r2Match[1]) * 100) : null;
-  const headline = r2Pct !== null ? `~${r2Pct}%` : "barely predicts";
+  const headline = formatPercent(deepBenchData.meta.r2);
 
   const headlineText = `Bench payroll explains ${headline} of bench quality.`;
 

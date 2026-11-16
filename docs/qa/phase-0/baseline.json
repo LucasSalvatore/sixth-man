@@ -1,0 +1,214 @@
+[
+  {
+    "tool": "axe",
+    "route": "/",
+    "width": 1440,
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "nodes": 30
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "nodes": 1
+      }
+    ]
+  },
+  {
+    "tool": "axe",
+    "route": "/bench",
+    "width": 1440,
+    "violations": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "nodes": 1
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "nodes": 30
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "nodes": 1
+      }
+    ]
+  },
+  {
+    "tool": "axe",
+    "route": "/teams/BOS",
+    "width": 1440,
+    "violations": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "nodes": 1
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "nodes": 30
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "nodes": 1
+      }
+    ]
+  },
+  {
+    "tool": "axe",
+    "route": "/",
+    "width": 390,
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "nodes": 30
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "nodes": 1
+      }
+    ]
+  },
+  {
+    "tool": "axe",
+    "route": "/bench",
+    "width": 390,
+    "violations": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "nodes": 1
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "nodes": 30
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "nodes": 1
+      }
+    ]
+  },
+  {
+    "tool": "axe",
+    "route": "/teams/BOS",
+    "width": 390,
+    "violations": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "nodes": 1
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "nodes": 30
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "nodes": 1
+      }
+    ]
+  },
+  {
+    "tool": "lighthouse",
+    "route": "/",
+    "preset": "mobile",
+    "performance": 90,
+    "accessibility": 100,
+    "metrics": {
+      "first-contentful-paint": 1066.4796000000001,
+      "largest-contentful-paint": 1066.4796000000001,
+      "total-blocking-time": 399,
+      "cumulative-layout-shift": 0,
+      "speed-index": 1524.7128039061247
+    },
+    "warnings": []
+  },
+  {
+    "tool": "lighthouse",
+    "route": "/bench",
+    "preset": "mobile",
+    "performance": 90,
+    "accessibility": 98,
+    "metrics": {
+      "first-contentful-paint": 912.557,
+      "largest-contentful-paint": 912.557,
+      "total-blocking-time": 423.00000000000034,
+      "cumulative-layout-shift": 0,
+      "speed-index": 914.8999840022561
+    },
+    "warnings": []
+  },
+  {
+    "tool": "lighthouse",
+    "route": "/teams/BOS",
+    "preset": "mobile",
+    "performance": 94,
+    "accessibility": 98,
+    "metrics": {
+      "first-contentful-paint": 940.9931999999999,
+      "largest-contentful-paint": 940.9931999999999,
+      "total-blocking-time": 281.7517,
+      "cumulative-layout-shift": 0,
+      "speed-index": 940.9931999999999
+    },
+    "warnings": []
+  },
+  {
+    "tool": "lighthouse",
+    "route": "/",
+    "preset": "desktop",
+    "performance": 100,
+    "accessibility": 100,
+    "metrics": {
+      "first-contentful-paint": 254.6175,
+      "largest-contentful-paint": 254.6175,
+      "total-blocking-time": 0,
+      "cumulative-layout-shift": 0,
+      "speed-index": 254.6175
+    },
+    "warnings": []
+  },
+  {
+    "tool": "lighthouse",
+    "route": "/bench",
+    "preset": "desktop",
+    "performance": 100,
+    "accessibility": 98,
+    "metrics": {
+      "first-contentful-paint": 251.13639999999998,
+      "largest-contentful-paint": 251.13639999999998,
+      "total-blocking-time": 0,
+      "cumulative-layout-shift": 0,
+      "speed-index": 290.73677867723086
+    },
+    "warnings": []
+  },
+  {
+    "tool": "lighthouse",
+    "route": "/teams/BOS",
+    "preset": "desktop",
+    "performance": 100,
+    "accessibility": 98,
+    "metrics": {
+      "first-contentful-paint": 282.1352,
+      "largest-contentful-paint": 282.1352,
+      "total-blocking-time": 22,
+      "cumulative-layout-shift": 0,
+      "speed-index": 353.69728999067786
+    },
+    "warnings": []
+  }
+]

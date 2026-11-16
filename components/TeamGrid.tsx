@@ -6,16 +6,17 @@ import { isAchromatic, teamIdentity } from "@/lib/teamColors";
 
 /** All thirty teams as tiles, grouped by conference and division. Each tile
  *  carries the team colour as a solid edge and links to that team's card. */
-export function TeamGrid({ teams, current }: { teams: Team[]; current?: string }) {
+export function TeamGrid({ teams, current, headingLevel = 3 }: { teams: Team[]; current?: string; headingLevel?: 2 | 3 }) {
   const byCode = new Map(teams.map((t) => [t.team, t]));
+  const Heading = headingLevel === 2 ? "h2" : "h3";
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
       {CONFERENCES.map((conference) => (
         <div key={conference}>
-          <h3 className="text-[20px]" style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--text-hi)" }}>
+          <Heading className="text-[20px]" style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--text-hi)" }}>
             {conference}
-          </h3>
+          </Heading>
           {(Object.entries(DIVISIONS) as [Division, (typeof DIVISIONS)[Division]][])
             .filter(([, d]) => d.conference === conference)
             .map(([division, { teams: codes }]) => (
@@ -31,10 +32,9 @@ export function TeamGrid({ teams, current }: { teams: Team[]; current?: string }
                     const isCurrent = code === current;
                     return (
                       <li key={code}>
-                        <Link
+                        <Link prefetch={false}
                           href={`/teams/${code}`}
                           aria-current={isCurrent ? "page" : undefined}
-                          aria-label={`${identity.name}, bench surplus value ${formatSurplus(team.benchSurplusValue)}`}
                           className="flex items-center justify-between gap-3 px-3 py-3 sm:block"
                           style={
                             {
@@ -49,11 +49,12 @@ export function TeamGrid({ teams, current }: { teams: Team[]; current?: string }
                             {code}
                           </span>
                           <span
-                            className="block text-[12.5px] sm:mt-1"
+                            className="block text-[12px] sm:mt-1"
                             style={{ fontFamily: "var(--font-num)", color: team.benchSurplusValue < 0 ? "var(--neg)" : "var(--pos)" }}
                           >
                             {formatSurplus(team.benchSurplusValue)}
                           </span>
+                          <span className="sr-only"> {identity.name}, bench surplus value</span>
                         </Link>
                       </li>
                     );

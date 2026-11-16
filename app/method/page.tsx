@@ -9,12 +9,12 @@ export default function MethodPage() {
       <header className="pt-10 sm:pt-16">
         <h1
           id="methodology"
-          className="max-w-[18ch] text-[40px] leading-[1] sm:text-[68px]"
+          className="max-w-[18ch] text-display leading-[1] sm:text-display"
           style={{ fontFamily: "var(--font-display)", fontWeight: 600, letterSpacing: "-0.03em", color: "var(--text-hi)" }}
         >
           How this was built.
         </h1>
-        <p className="mt-5 max-w-[60ch] text-[16px] leading-[1.6]">
+        <p className="mt-5 max-w-[60ch] text-[15px] leading-[1.6]">
           What the model can see, and the seven places it cannot.
         </p>
       </header>

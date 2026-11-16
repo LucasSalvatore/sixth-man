@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -33,93 +32,18 @@ export function useReducedMotion(): boolean {
 }
 
 /**
- * Counts from 0 to `target` once, after `delay` ms. Returns the target
- * immediately when motion is reduced, so the number is never withheld.
- */
-export function useCountUp(
-  target: number,
-  { duration = 1100, delay = 0, start = true }: {
-    duration?: number;
-    delay?: number;
-    start?: boolean;
-  } = {},
-): number {
-  const reduced = useReducedMotion();
-  // Initialises at the target, so the server-rendered HTML already contains the
-  // real figure. With JS off, or before hydration, the number is simply there;
-  // the animation rewinds to 0 and plays forward only after mount.
-  const [value, setValue] = useState(target);
-
-  useEffect(() => {
-    if (!start) return;
-    if (reduced) {
-      setValue(target);
-      return;
-    }
-
-    let frame = 0;
-    let startedAt = 0;
-    // easeOutExpo — fast commit, long settle. Reads as a figure landing.
-    const ease = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
-
-    const tick = (now: number) => {
-      if (!startedAt) startedAt = now;
-      const elapsed = now - startedAt;
-      const t = Math.min(1, elapsed / duration);
-      setValue(target * ease(t));
-      if (t < 1) frame = requestAnimationFrame(tick);
-    };
-
-    setValue(0);
-    const timer = window.setTimeout(() => {
-      frame = requestAnimationFrame(tick);
-    }, delay);
-
-    return () => {
-      window.clearTimeout(timer);
-      cancelAnimationFrame(frame);
-    };
-  }, [target, duration, delay, start, reduced]);
-
-  return reduced ? target : value;
-}
-
-/**
- * Scroll reveal: the element scales and lifts into place as it enters the
- * viewport, once. Returns a ref and whether it has been revealed.
+ * Shared plot ref. Source marks begin visible and never depend on a viewport
+ * observer; callers can still animate subsequent sorting and selection.
  */
 export function useReveal<T extends HTMLElement>(
   { threshold = 0.15, rootMargin = "0px 0px -10% 0px" } = {},
 ): [RefObject<T | null>, boolean] {
+  // Keep source content visible with JS off and before hydration. The caller
+  // may still animate updates, but entering the viewport never gates data.
+  void threshold;
+  void rootMargin;
   const ref = useRef<T | null>(null);
-  const reduced = useReducedMotion();
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    if (revealed) return;
-    const node = ref.current;
-    if (!node) return;
-
-    // No IntersectionObserver (or motion is reduced): show it, don't gate content.
-    if (reduced || typeof IntersectionObserver === "undefined") {
-      setRevealed(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setRevealed(true);
-          observer.disconnect();
-        }
-      },
-      { threshold, rootMargin },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [reduced, revealed, threshold, rootMargin]);
-
-  return [ref, revealed];
+  return [ref, true];
 }
 
 /**

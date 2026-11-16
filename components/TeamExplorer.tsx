@@ -20,10 +20,14 @@ export function TeamExplorer({
   teamCodes,
   lineups,
   minutes,
+  modelNote,
+  ceiling,
 }: {
   teamCodes: string[];
   lineups: Record<string, Lineup>;
   minutes: Record<string, MinutesRow[]>;
+  modelNote: string;
+  ceiling: number;
 }) {
   const { selected, setSelected } = useSelectedTeam();
 
@@ -33,9 +37,9 @@ export function TeamExplorer({
     <div>
       <div className="mb-10">
         <TeamRail codes={teamCodes} selected={selected} onSelect={setSelected} />
-        <Link
+        <Link prefetch={false}
           href={`/teams/${selected}`}
-          className="mt-4 inline-block text-[14px] underline underline-offset-4"
+          className="mt-4 inline-block text-[15px] underline underline-offset-4"
           style={{ color: "var(--text-hi)" }}
         >
           Open the {teamIdentity(selected).name} team card →
@@ -54,13 +58,13 @@ export function TeamExplorer({
               new team's data instead of holding a stale value, and a failure
               on one team doesn't stay stuck once you've moved to another. */}
           <ErrorBoundary key={selected} label="Lineup optimizer">
-            <LineupOptimizer code={selected} lineup={lineups[selected]} />
+            <LineupOptimizer code={selected} lineup={lineups[selected]} modelNote={modelNote} />
           </ErrorBoundary>
         </Reveal>
       </section>
 
       <p
-        className="mx-auto mt-16 max-w-[64ch] text-center text-[14px] leading-[1.6]"
+        className="mx-auto mt-16 max-w-[64ch] text-center text-[15px] leading-[1.6]"
         style={{ color: "var(--text-mid)" }}
       >
         The optimizer and the minutes plan answer different questions — who should start, and how
@@ -77,7 +81,7 @@ export function TeamExplorer({
           {/* Keyed on the selection for the same reason: the bars must grow from
               the new team's numbers on every change, and a failure resets too. */}
           <ErrorBoundary key={selected} label="Minutes plan">
-            <MinutesPlan code={selected} rows={rows} />
+            <MinutesPlan code={selected} rows={rows} ceiling={ceiling} />
           </ErrorBoundary>
         </Reveal>
       </section>

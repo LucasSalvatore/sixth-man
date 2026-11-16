@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { ImputeReason, Team } from "@/lib/types";
 import { fixed, formatMillions, formatSurplus, signed } from "@/lib/format";
@@ -19,6 +19,16 @@ type SortKey =
   | "benchSurplusValue";
 
 type SortDir = "asc" | "desc";
+
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: "benchSurplusValue", label: "Surplus value" },
+  { key: "benchWinsAboveAvg", label: "Bench wins vs average" },
+  { key: "benchPayroll", label: "Bench payroll" },
+  { key: "starterBPM", label: "Starter BPM" },
+  { key: "benchBPM", label: "Bench BPM" },
+  { key: "projWins", label: "Projected wins" },
+  { key: "team", label: "Team code" },
+];
 
 const BAR_DOMAIN = 3; // fixed symmetric ±3.00 (extreme is BKN −2.65), never rescales
 const BAR_HALF = 88;
@@ -43,6 +53,7 @@ export function TeamsTable({
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
+  const sortId = useId();
   const bodyRef = useRef<HTMLTableSectionElement | null>(null);
   const reduced = useReducedMotion();
   const [revealRef, revealed] = useReveal<HTMLDivElement>();
@@ -109,12 +120,12 @@ export function TeamsTable({
         colSpan={span}
         aria-sort={activeSort ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
         className="whitespace-nowrap px-3 py-2 text-right align-bottom"
-        style={{ background: "var(--bg-panel)" }}
+        style={{ background: "var(--bg-panel)", position: "sticky", top: 56, zIndex: 3, borderBottom: "1px solid var(--rule-2)" }}
       >
         <button
           type="button"
           onClick={() => handleSort(key)}
-          className="inline-flex items-center gap-1 text-[11.5px]"
+          className="inline-flex min-h-8 items-center gap-1 text-[12px]"
           style={{
             fontWeight: 500,
             letterSpacing: "0.04em",
@@ -136,11 +147,100 @@ export function TeamsTable({
 
   return (
     <div ref={revealRef}>
-      <div className="overflow-x-auto" style={{ border: "1px solid var(--rule-2)" }}>
+      <div className="mb-5 flex flex-wrap items-end gap-3">
+        <div className="min-w-0 flex-1 sm:flex-none">
+          <label htmlFor={sortId} className="mb-2 block text-[12px]" style={{ color: "var(--text-lo)" }}>
+            Sort teams by
+          </label>
+          <select
+            id={sortId}
+            value={sortKey}
+            onChange={(event) => handleSort(event.target.value as SortKey)}
+            className="min-h-10 w-full rounded-none border px-3 py-2 text-[15px] sm:w-auto"
+            style={{ background: "var(--bg-panel)", borderColor: "var(--rule-2)", color: "var(--text-hi)" }}
+          >
+            {SORT_OPTIONS.map(({ key, label }) => <option key={key} value={key}>{label}</option>)}
+          </select>
+        </div>
+        <button
+          type="button"
+          aria-label={`${sortDir === "asc" ? "Ascending ↑" : "Descending ↓"} — Reverse team sort order`}
+          onClick={() => setSortDir((direction) => direction === "asc" ? "desc" : "asc")}
+          className="min-h-10 border px-3 py-2 text-[12px]"
+          style={{ borderColor: "var(--rule-2)", color: "var(--text-hi)" }}
+        >
+          {sortDir === "asc" ? "Ascending ↑" : "Descending ↓"}
+        </button>
+      </div>
+
+      {/* Both views use the same sorted data and controls. The table stays out
+          of the accessibility tree until all columns fit without a scroller. */}
+      <ol className="grid gap-3 sm:grid-cols-2 xl:hidden" aria-label="Ranked teams" data-testid="team-cards">
+        {sorted.map((team) => {
+          const identity = teamIdentity(team.team);
+          const reasons = reasonsOf(team);
+          const isExpanded = expanded === team.team;
+          return (
+            <li
+              key={team.team}
+              data-team-card={team.team}
+              className="min-w-0 border p-4"
+              style={{ background: "var(--bg-panel)", borderColor: "var(--rule-2)", borderTop: `2px solid ${identity.color}` }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <Link prefetch={false} href={`/teams/${team.team}`} className="min-w-0 underline-offset-4 hover:underline">
+                  <Num className="block text-[20px]" style={{ color: "var(--text-hi)" }}>{team.team}</Num>
+                  <span className="mt-1 block text-[12px]" style={{ color: "var(--text-lo)" }}>{identity.name}</span>
+                </Link>
+                <dl className="shrink-0 text-right">
+                  <dt className="text-[12px]" style={{ color: "var(--text-lo)" }}>Surplus value</dt>
+                  <dd data-field="surplus" className="mt-1">
+                    <Num className="text-[20px]" style={{ color: team.benchSurplusValue < 0 ? "var(--neg)" : "var(--pos)" }}>
+                      {formatSurplus(team.benchSurplusValue)}
+                    </Num>
+                  </dd>
+                </dl>
+              </div>
+              <dl className="mt-4 grid grid-cols-2 gap-3 border-t pt-3" style={{ borderColor: "var(--rule-1)" }}>
+                <div>
+                  <dt className="text-[12px]" style={{ color: "var(--text-lo)" }}>Bench WAA</dt>
+                  <dd data-field="bench-wins" className="mt-1"><Num className="text-[15px]" style={{ color: "var(--text-hi)" }}>{signed(team.benchWinsAboveAvg)}</Num></dd>
+                </div>
+                <div className="text-right">
+                  <dt className="text-[12px]" style={{ color: "var(--text-lo)" }}>Bench payroll</dt>
+                  <dd data-field="payroll" className="mt-1"><Money className="text-[15px]" text={formatMillions(team.benchPayroll)} /></dd>
+                </div>
+              </dl>
+              {reasons.length > 0 && (
+                <div className="mt-3 border-t pt-2" style={{ borderColor: "var(--rule-1)" }}>
+                  <button
+                    type="button"
+                    data-flag-toggle=""
+                    aria-expanded={isExpanded}
+                    aria-controls={`${sortId}-card-flags-${team.team}`}
+                    aria-label={`${isExpanded ? "Hide" : "Show"} data flags for ${team.team}`}
+                    onClick={() => setExpanded((current) => current === team.team ? null : team.team)}
+                    className="inline-flex min-h-8 min-w-8 items-center gap-2 text-[12px]"
+                    style={{ color: "var(--text-hi)" }}
+                  >
+                    {reasons.map((reason) => <span key={reason} aria-hidden="true" style={{ color: REASON_META[reason].color }}>{REASON_META[reason].glyph}</span>)}
+                    {isExpanded ? "Hide data flags" : "Show data flags"}
+                  </button>
+                  <div id={`${sortId}-card-flags-${team.team}`} hidden={!isExpanded} className="pt-2">
+                    <FlagDetails flags={team.dataFlags} />
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+
+      {/* No overflow ancestor: sticky headers follow the page beneath its nav. */}
+      <div className="hidden xl:block" style={{ border: "1px solid var(--rule-2)" }}>
         <table
           className="w-full"
           style={{
-            minWidth: 780,
             borderCollapse: "separate",
             borderSpacing: 0,
             tableLayout: "fixed",
@@ -148,7 +248,7 @@ export function TeamsTable({
           }}
         >
           <colgroup>
-            <col style={{ width: 30 }} />
+            <col style={{ width: 40 }} />
             <col style={{ width: 76 }} />
             <col style={{ width: 80 }} />
             <col style={{ width: 176 }} />
@@ -159,12 +259,13 @@ export function TeamsTable({
             <col style={{ width: 120 }} />
           </colgroup>
           <thead>
-            <tr style={{ position: "sticky", top: 0, zIndex: 3 }}>
+            <tr>
               <th
+                scope="col"
                 style={{
                   background: "var(--bg-panel)",
                   position: "sticky",
-                  left: 0,
+                  top: 56,
                   zIndex: 4,
                   borderBottom: "1px solid var(--rule-2)",
                 }}
@@ -178,7 +279,7 @@ export function TeamsTable({
                 style={{
                   background: "var(--bg-panel)",
                   position: "sticky",
-                  left: 30,
+                  top: 56,
                   zIndex: 4,
                   borderBottom: "1px solid var(--rule-2)",
                   borderRight: "1px solid var(--rule-2)",
@@ -187,7 +288,7 @@ export function TeamsTable({
                 <button
                   type="button"
                   onClick={() => handleSort("team")}
-                  className="inline-flex items-center gap-1 text-[11.5px]"
+                  className="inline-flex min-h-8 items-center gap-1 text-[12px]"
                   style={{
                     fontWeight: 500,
                     letterSpacing: "0.04em",
@@ -247,17 +348,16 @@ export function TeamsTable({
                         <button
                           type="button"
                           aria-expanded={isExpanded}
-                          aria-label={`${team.dataFlags.length} imputed player${
-                            team.dataFlags.length === 1 ? "" : "s"
-                          } for ${team.team}. Activate to show details.`}
+                          aria-label={`${isExpanded ? "Hide" : "Show"} data flags for ${team.team}`}
                           onClick={() => setExpanded((cur) => (cur === team.team ? null : team.team))}
-                          className="inline-flex h-6 items-center justify-center gap-0.5 leading-none"
+                          data-flag-toggle=""
+                          className="inline-flex min-h-8 min-w-8 items-center justify-center gap-0.5 leading-none"
                         >
                           {reasons.map((reason) => (
                             <span
                               key={reason}
                               aria-hidden="true"
-                              className="text-[10px]"
+                              className="text-[12px]"
                               style={{ color: REASON_META[reason].color }}
                             >
                               {REASON_META[reason].glyph}
@@ -272,7 +372,7 @@ export function TeamsTable({
                       style={{
                         ...cell,
                         position: "sticky",
-                        left: 30,
+                        left: 40,
                         zIndex: 2,
                         borderRight: "1px solid var(--rule-2)",
                       }}
@@ -294,19 +394,19 @@ export function TeamsTable({
                             transition: reduced ? "none" : "transform 120ms ease-out",
                           }}
                         />
-<Link href={`/teams/${team.team}`} aria-label={`${identity.name} team card`} className="underline-offset-4 hover:underline">
-                        <Num
-                          className={`text-[13.5px] sm:text-[14.5px] ${live ? "team-text" : ""}`}
-                          style={{ fontWeight: 500, color: live ? undefined : "var(--text-hi)" }}
-                        >
-                          {team.team}
-                        </Num>
+                        <Link prefetch={false} href={`/teams/${team.team}`} className="underline-offset-4 hover:underline">
+                          <Num
+                            className={`text-[15px] ${live ? "team-text" : ""}`}
+                            style={{ fontWeight: 500, color: live ? undefined : "var(--text-hi)" }}
+                          >
+                            {team.team}
+                          </Num>
                         </Link>
                       </span>
                     </td>
 
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Num className="text-[13.5px] sm:text-[14.5px]" style={{ color: "var(--text-hi)" }}>
+                      <Num className="text-[15px]" style={{ color: "var(--text-hi)" }}>
                         {signed(team.benchWinsAboveAvg)}
                       </Num>
                     </td>
@@ -353,26 +453,26 @@ export function TeamsTable({
                     </td>
 
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Num className="text-[13.5px] sm:text-[14.5px]" style={{ color: "var(--text-hi)" }}>
+                      <Num className="text-[15px]" style={{ color: "var(--text-hi)" }}>
                         {signed(team.starterBPM)}
                       </Num>
                     </td>
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Num className="text-[13.5px] sm:text-[14.5px]" style={{ color: "var(--text-hi)" }}>
+                      <Num className="text-[15px]" style={{ color: "var(--text-hi)" }}>
                         {signed(team.benchBPM)}
                       </Num>
                     </td>
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Num className="text-[13.5px] sm:text-[14.5px]" style={{ color: "var(--text-hi)" }}>
+                      <Num className="text-[15px]" style={{ color: "var(--text-hi)" }}>
                         {fixed(team.projWins, 1)}
                       </Num>
                     </td>
                     <td className="px-3 text-right align-middle" style={cell}>
-                      <Money className="text-[13.5px] sm:text-[14.5px]" text={formatMillions(team.benchPayroll)} />
+                      <Money className="text-[15px]" text={formatMillions(team.benchPayroll)} />
                     </td>
                     <td className="px-3 text-right align-middle" style={cell}>
                       <Num
-                        className="text-[13.5px] sm:text-[14.5px]"
+                        className="text-[15px]"
                         style={{ color: surplusNeg ? "var(--neg)" : "var(--pos)" }}
                       >
                         {formatSurplus(team.benchSurplusValue)}

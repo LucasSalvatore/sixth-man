@@ -20,14 +20,14 @@ export function SiteNav() {
 
   return (
     <>
-      <div
+      <header
         className="sticky top-0 z-40 border-b"
         style={{ background: "color-mix(in oklab, var(--bg-base) 88%, transparent)", backdropFilter: "blur(10px)", borderColor: "var(--rule-1)" }}
       >
         <div className="mx-auto flex h-14 max-w-[1560px] items-center justify-between px-4 sm:px-8">
-          <Link
+          <Link prefetch={false}
             href="/"
-            className="text-[19px]"
+            className="text-[20px]"
             style={{ fontFamily: "var(--font-display)", fontWeight: 600, letterSpacing: "-0.01em", color: "var(--text-hi)" }}
           >
             deep<span style={{ color: "var(--gold)" }}>-</span>bench
@@ -36,11 +36,11 @@ export function SiteNav() {
             {DESTINATIONS.map(({ href, label }) => {
               const current = isCurrent(pathname, href);
               return (
-                <Link
+                <Link prefetch={false}
                   key={href}
                   href={href}
                   aria-current={current ? "page" : undefined}
-                  className="px-3 py-2 text-[14px]"
+                  className="px-3 py-2 text-[15px]"
                   style={{
                     fontWeight: 500,
                     color: current ? "var(--text-hi)" : "var(--text-lo)",
@@ -53,7 +53,7 @@ export function SiteNav() {
             })}
           </nav>
         </div>
-      </div>
+      </header>
 
       <nav
         aria-label="Primary"
@@ -63,11 +63,11 @@ export function SiteNav() {
         {DESTINATIONS.map(({ href, label }) => {
           const current = isCurrent(pathname, href);
           return (
-            <Link
+            <Link prefetch={false}
               key={href}
               href={href}
               aria-current={current ? "page" : undefined}
-              className="flex h-14 items-center justify-center text-[12.5px]"
+              className="flex h-14 items-center justify-center text-[12px]"
               style={{
                 fontWeight: 500,
                 color: current ? "var(--text-hi)" : "var(--text-lo)",

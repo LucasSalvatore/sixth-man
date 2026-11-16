@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { TEAM_CODES, clickRailTeam, clickScatterPoint, gotoHome, tableRowCount } from "./support/fixtures";
+import { TEAM_CODES, clickRailTeam, selectScatterPoint, gotoHome, tableRowCount } from "./support/fixtures";
 
 // Reproduces the reported bug: clicking through scatter points should never
 // flicker, unmount, or leave the table (or the chart) in an empty frame. The
@@ -14,7 +14,8 @@ const VIEWPORTS = [
 
 for (const { name, size } of VIEWPORTS) {
   test.describe(`${name} viewport`, () => {
-    test(`clicking all ${TEAM_CODES.length} scatter points in sequence never empties the table or the chart`, async ({
+    test.use({ viewport: size, hasTouch: size.width < 640 });
+    test(`selecting all ${TEAM_CODES.length} scatter points in sequence never empties the table or the chart`, async ({
       page,
     }) => {
       await page.setViewportSize(size);
@@ -30,10 +31,10 @@ for (const { name, size } of VIEWPORTS) {
       let minRows = Infinity;
       let minPoints = Infinity;
       for (const code of TEAM_CODES) {
-        await clickScatterPoint(page, code);
+        await selectScatterPoint(page, code);
         const [rows, points] = await Promise.all([
           tableRowCount(page),
-          page.locator('svg[role="application"] g[role="img"]').count(),
+          page.locator('[data-scatter-point][role="button"]').count(),
         ]);
         minRows = Math.min(minRows, rows);
         minPoints = Math.min(minPoints, points);
