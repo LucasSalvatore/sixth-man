@@ -8,6 +8,11 @@
 const MINUS = "−";
 const EM_DASH = "—";
 
+/** A fractional field expressed as a percentage; presentation only. */
+export function formatPercent(value: number): string {
+  return new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 2 }).format(value);
+}
+
 /** 39597408 -> "$39.6m"; null -> "—" */
 export function formatMillions(value: number | null): string {
   if (value === null) return EM_DASH;

@@ -29,7 +29,7 @@ export class ErrorBoundary extends Component<
           className="flex min-h-[160px] items-center justify-center p-6 text-center"
           style={{ background: "var(--bg-panel)", border: "1px dashed var(--rule-2)" }}
         >
-          <p className="max-w-[48ch] text-[14px] leading-[1.6]" style={{ color: "var(--text-mid)" }}>
+          <p className="max-w-[48ch] text-[15px] leading-[1.6]" style={{ color: "var(--text-mid)" }}>
             Something went wrong displaying this section.
           </p>
         </div>

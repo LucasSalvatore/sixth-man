@@ -58,6 +58,16 @@ export type MinutesRow = {
 export type DeepBenchMeta = {
   title: string;
   version: number;
+  /** Rounded coefficients as declared in the source, not recomputed. */
+  r: number;
+  r2: number;
+  seasonLabel: string;
+  /** Owner-supplied period label; asOfNote discloses source-date uncertainty. */
+  asOf: string;
+  asOfNote: string;
+  source: string;
+  minutesCeiling: number;
+  leagueAvgBenchPayroll: number;
   season_source: string;
   winsFormula: string;
   leagueAdjustment: number;

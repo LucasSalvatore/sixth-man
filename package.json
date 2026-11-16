@@ -9,7 +9,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "playwright test"
+    "test": "playwright test",
+    "audit:phase0": "node scripts/audit-phase0.mjs",
+    "screenshots:phase0": "node scripts/capture-phase0.mjs"
   },
   "dependencies": {
     "next": "^15.0.0",
@@ -22,8 +24,11 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.0",
+    "axe-core": "4.14.0",
+    "chrome-launcher": "1.2.3",
     "eslint": "^8.57.0",
     "eslint-config-next": "^15.0.0",
+    "lighthouse": "13.6.0",
     "postcss": "^8.4.0",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.6.0"

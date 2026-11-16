@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 type SelectedTeamContextValue = {
   selected: string;
@@ -23,12 +23,25 @@ const SelectedTeamContext = createContext<SelectedTeamContextValue | null>(null)
  */
 export function SelectedTeamProvider({
   defaultTeam,
+  codes,
   children,
 }: {
   defaultTeam: string;
+  codes: string[];
   children: ReactNode;
 }) {
-  const [selected, setSelected] = useState(defaultTeam);
+  const [selected, updateSelected] = useState(defaultTeam);
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem("deep-bench:selected");
+      if (saved && codes.includes(saved)) updateSelected(saved);
+    } catch { /* Selection still works when storage is unavailable. */ }
+  }, [codes]);
+  const setSelected = useCallback((code: string) => {
+    if (!codes.includes(code)) return;
+    updateSelected(code);
+    try { sessionStorage.setItem("deep-bench:selected", code); } catch { /* Optional persistence. */ }
+  }, [codes]);
   return (
     <SelectedTeamContext.Provider value={{ selected, setSelected }}>
       {children}

@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 :root {
+  --type-micro: 12px;
+  --type-body: 15px;
+  --type-title: 20px;
+  --type-section: 34px;
+  --type-display: clamp(40px, 6vw, 84px);
   /* Surfaces — warm near-black, five tiers. No navy in the system. */
   --bg-base: #0a0a09;
   --bg-panel: #0f0f0d;
@@ -42,7 +47,14 @@ html {
 body {
   background: var(--bg-base);
   color: var(--text-mid);
+  font-size: var(--type-body);
 }
+
+.text-display { font-size: var(--type-display); }
+
+/* SVG's browser pointer outline must not replace the keyboard focus ring. */
+.scatter-point:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.scatter-point:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
 /* Focus is never animated and never removed. Gold at rest; becomes the team's
    colour wherever a team is live, so focus joins the signature element. */
@@ -117,4 +129,11 @@ body {
 @keyframes db-slide-in-right {
   from { opacity: 0; transform: translateX(16px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+/* Reserve the same plot area before and after hydration. Text in the static
+   overview stays in HTML at the shared scale; no SVG labels shrink on mobile. */
+.scatter-frame { height: 480px; }
+@media (min-width: 640px) {
+  .scatter-frame { height: max(580px, 55cqw); }
 }

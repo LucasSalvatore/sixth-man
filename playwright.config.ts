@@ -1,7 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = 3900;
-const baseURL = `http://localhost:${PORT}`;
+const externalURL = process.env.PLAYWRIGHT_BASE_URL;
+const baseURL = externalURL ?? `http://localhost:${PORT}`;
 
 // PLAYWRIGHT_CHROMIUM_PATH lets a sandboxed/offline environment point at a
 // pre-installed browser binary instead of the one `npx playwright install`
@@ -28,7 +29,7 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
+  webServer: externalURL ? undefined : {
     command: `npx next dev -p ${PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,

@@ -1,10 +1,12 @@
+import { ScatterPreview } from "@/components/ScatterPreview";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Snapshot } from "@/components/Snapshot";
 import Link from "next/link";
 import { BenchOfTheDay } from "@/components/BenchOfTheDay";
-import { TeamFlood } from "@/components/TeamFlood";
 import { TeamGrid } from "@/components/TeamGrid";
 import { Num, SectionHead } from "@/components/ui";
 import { formatSurplus, signed } from "@/lib/format";
-import { lineups, teamCodes, teams } from "@/lib/data";
+import { deepBenchData, lineups, teamCodes, teams } from "@/lib/data";
 import { teamIdentity } from "@/lib/teamColors";
 
 type Row = { code: string; value: string; tone?: "pos" | "neg" };
@@ -17,14 +19,14 @@ function Board({ title, deck, rows }: { title: string; deck: string; rows: Row[]
         <h3 className="text-[20px]" style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--text-hi)" }}>
           {title}
         </h3>
-        <p className="mt-1 text-[13px] leading-[1.5]" style={{ color: "var(--text-lo)" }}>{deck}</p>
+        <p className="mt-1 text-[15px] leading-[1.5]" style={{ color: "var(--text-lo)" }}>{deck}</p>
       </div>
       <ol className="mt-4">
         {rows.map((row, i) => {
           const identity = teamIdentity(row.code);
           return (
             <li key={row.code} style={{ borderTop: "1px solid var(--rule-1)" }}>
-              <Link
+              <Link prefetch={false}
                 href={`/teams/${row.code}`}
                 className="flex min-h-[48px] items-center gap-3 px-5"
                 style={{ "--team": identity.color } as React.CSSProperties}
@@ -59,29 +61,32 @@ export default function FrontDoor() {
     .slice(0, 5)
     .map((code) => ({ code, value: signed(lineups[code].gainWins, 2) }));
 
-  const bands = teamCodes.map((code) => {
-    const team = teams.find((t) => t.team === code)!;
-    return { code, node: <TeamFlood team={team} kicker="Bench of the day" href={`/teams/${code}`} /> };
-  });
 
   return (
     <div className="mx-auto max-w-[1240px] px-4 sm:px-8">
       <header className="pt-10 sm:pt-16">
         <h1
-          className="max-w-[16ch] text-[44px] leading-[0.98] sm:text-[84px]"
+          className="max-w-[16ch] text-display leading-[0.98] sm:text-display"
           style={{ fontFamily: "var(--font-display)", fontWeight: 600, letterSpacing: "-0.03em", color: "var(--text-hi)" }}
         >
           NBA teams are bad at buying bench value.
         </h1>
-        <p className="mt-6 max-w-[60ch] text-[16px] leading-[1.6] sm:text-[18px]">
+        <p className="mt-6 max-w-[60ch] text-[15px] leading-[1.6] sm:text-[20px]">
           What every bench is worth in wins, what those wins cost, and where the lineups and minutes
           should go. One team a day, all thirty a click away.
         </p>
+        <Snapshot meta={deepBenchData.meta} />
       </header>
 
       <div className="mt-10 sm:mt-14">
-        <BenchOfTheDay bands={bands} />
+        <BenchOfTheDay teams={[...teams].sort((a, b) => a.team.localeCompare(b.team))} initialIndex={Math.floor(Date.now() / 86_400_000) % teams.length} />
       </div>
+
+      <section className="mt-16">
+        <ErrorBoundary label="Bench overview">
+          <ScatterPreview teams={teams} leagueAvgBenchPayroll={deepBenchData.meta.leagueAvgBenchPayroll} />
+        </ErrorBoundary>
+      </section>
 
       <section className="mt-20 sm:mt-28">
         <SectionHead id="boards" title="Who is getting it right" deck="Three orderings of the same thirty benches. Every row opens that team's card." />
@@ -90,7 +95,7 @@ export default function FrontDoor() {
           <Board title="Biggest overpays" deck="Paying the most above the league's going rate." rows={overpays} />
           <Board title="Wins left on the bench" deck="What the model's optimal five would add." rows={gains} />
         </div>
-        <Link href="/bench" className="mt-6 inline-block text-[15px] underline underline-offset-4" style={{ color: "var(--text-hi)" }}>
+        <Link prefetch={false} href="/bench" className="mt-6 inline-block text-[15px] underline underline-offset-4" style={{ color: "var(--text-hi)" }}>
           See all thirty on the chart and in the table →
         </Link>
       </section>

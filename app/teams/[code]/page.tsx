@@ -1,3 +1,4 @@
+import { Snapshot } from "@/components/Snapshot";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,7 +10,7 @@ import { TeamFlood } from "@/components/TeamFlood";
 import { TeamGrid } from "@/components/TeamGrid";
 import { Num, SectionHead } from "@/components/ui";
 import { fixed, signed } from "@/lib/format";
-import { lineups, minutes, teamCodes, teams } from "@/lib/data";
+import { deepBenchData, lineups, minutes, teamCodes, teams } from "@/lib/data";
 import { teamIdentity } from "@/lib/teamColors";
 import type { Team } from "@/lib/types";
 
@@ -22,10 +23,14 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
   const { code } = await params;
   const name = teamIdentity(code).name;
+  const title = `${name} bench — deep-bench`;
+  const description = `What the ${name} bench is worth in wins, what it costs, and where the model would move the lineup and the minutes.`;
   return {
-    title: `${name} bench — deep-bench`,
+    title,
     description: `What the ${name} bench is worth in wins, what it costs, and where the model would move the lineup and the minutes.`,
     alternates: { canonical: `/teams/${code}` },
+    openGraph: { title, description, url: `/teams/${code}`, type: "website", siteName: "deep-bench" },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -42,7 +47,7 @@ function LeagueStrip({ team, label, value, pick }: { team: Team; label: string; 
   return (
     <div className="py-4" style={{ borderTop: "1px solid var(--rule-1)" }}>
       <div className="flex items-baseline justify-between gap-4">
-        <span className="text-[14px]" style={{ color: "var(--text-mid)" }}>{label}</span>
+        <span className="text-[15px]" style={{ color: "var(--text-mid)" }}>{label}</span>
         <Num className="text-[20px]" style={{ color: "var(--text-hi)" }}>{value}</Num>
       </div>
       <div className="relative mt-3 h-5" aria-hidden="true">
@@ -74,16 +79,17 @@ export default async function TeamCard({ params }: { params: Promise<{ code: str
 
   return (
     <div className="mx-auto max-w-[1240px] px-4 sm:px-8" style={{ "--team": identity.color } as React.CSSProperties}>
-      <nav aria-label="Team" className="flex items-center justify-between py-4 text-[14px]">
-        <Link href={`/teams/${previous}`} className="underline-offset-4 hover:underline" style={{ color: "var(--text-mid)" }}>
+      <nav aria-label="Team" className="flex items-center justify-between py-4 text-[15px]">
+        <Link prefetch={false} href={`/teams/${previous}`} className="underline-offset-4 hover:underline" style={{ color: "var(--text-mid)" }}>
           ← {teamIdentity(previous).name}
         </Link>
-        <Link href={`/teams/${next}`} className="text-right underline-offset-4 hover:underline" style={{ color: "var(--text-mid)" }}>
+        <Link prefetch={false} href={`/teams/${next}`} className="text-right underline-offset-4 hover:underline" style={{ color: "var(--text-mid)" }}>
           {teamIdentity(next).name} →
         </Link>
       </nav>
 
       <TeamFlood team={team} kicker="Team card" as="h1" />
+      <Snapshot meta={deepBenchData.meta} />
 
       <section className="mt-16 sm:mt-20">
         <SectionHead id="league" title="Against the other twenty-nine" deck="Each strip places this team among all thirty on one measure. The marks are the other teams." />
@@ -93,7 +99,7 @@ export default async function TeamCard({ params }: { params: Promise<{ code: str
           <LeagueStrip team={team} label="Starter BPM" value={signed(team.starterBPM, 2)} pick={(t) => t.starterBPM} />
           <LeagueStrip team={team} label="Projected wins" value={fixed(team.projWins, 1)} pick={(t) => t.projWins} />
         </div>
-        <p className="mt-4 text-[13px]" style={{ color: "var(--text-lo)" }}>
+        <p className="mt-4 text-[15px]" style={{ color: "var(--text-lo)" }}>
           Bench players tracked: <Num>{team.nBench}</Num>. Projected wins are the model&apos;s preseason projection, not a record.
         </p>
         {team.dataFlags.length > 0 && (
@@ -106,14 +112,14 @@ export default async function TeamCard({ params }: { params: Promise<{ code: str
       <section className="mt-16 sm:mt-20">
         <SectionHead id="lineup-optimizer" title="Lineup optimizer" deck="The five the model would start, against the five on the floor." />
         <ErrorBoundary label="Lineup optimizer">
-          <LineupOptimizer code={code} lineup={lineups[code]} />
+          <LineupOptimizer code={code} lineup={lineups[code]} modelNote={deepBenchData.meta.starterBenchShareNote} />
         </ErrorBoundary>
       </section>
 
       <section className="mt-16 sm:mt-20">
         <SectionHead id="minutes-plan" title="Minutes plan" deck="Where the model would move each player's minutes." />
         <ErrorBoundary label="Minutes plan">
-          <MinutesPlan code={code} rows={minutes[code] ?? []} />
+          <MinutesPlan code={code} rows={minutes[code] ?? []} ceiling={deepBenchData.meta.minutesCeiling} />
         </ErrorBoundary>
       </section>
 

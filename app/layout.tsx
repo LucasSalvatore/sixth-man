@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
+import { deepBenchData } from "@/lib/data";
+import { formatPercent } from "@/lib/format";
 
 /**
  * Three faces, one job each.
@@ -44,7 +46,7 @@ const numerals = JetBrains_Mono({
 /** The one-line finding, shared verbatim between the meta description and the
  *  Open Graph / Twitter Card descriptions so the three can't drift apart. */
 const FINDING =
-  "NBA teams are bad at buying bench value: bench payroll explains about six percent of the variance in bench quality.";
+  `NBA teams are bad at buying bench value: bench payroll explains about ${formatPercent(deepBenchData.meta.r2)} of the variance in bench quality.`;
 
 /**
  * Vercel injects this automatically for every deployment, pointing at the
@@ -94,7 +96,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </main>
         <footer className="mx-auto max-w-[1240px] px-4 pb-28 pt-12 sm:px-8 sm:pb-12">
           <div className="border-t pt-8" style={{ borderColor: "var(--rule-2)" }}>
-            <span className="text-[16px]" style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--gold)" }}>
+            <span className="text-[15px]" style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: "var(--gold)" }}>
               Lucan Labs
             </span>
           </div>

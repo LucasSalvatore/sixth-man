@@ -1,25 +1,27 @@
 import { BenchScatter } from "@/components/BenchScatter";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Hero, type HeroStat } from "@/components/Hero";
+import { teamIdentity } from "@/lib/teamColors";
 import Link from "next/link";
 import { SelectedTeamProvider } from "@/components/SelectedTeamProvider";
 import { TeamExplorer } from "@/components/TeamExplorer";
 import { TeamsTable } from "@/components/TeamsTable";
 import { Reveal, SectionHead } from "@/components/ui";
-import { lineups, minutes, teamCodes, teams } from "@/lib/data";
+import { deepBenchData, lineups, minutes, teamCodes, teams } from "@/lib/data";
 
 export const metadata = { title: "Bench value — deep-bench", alternates: { canonical: "/bench" } };
 
 export default function BenchPage() {
 
   // Read on the server, straight from the JSON — no literals duplicated in the UI.
-  const bos = teams.find((t) => t.team === "BOS");
-  const den = teams.find((t) => t.team === "DEN");
-  const por = teams.find((t) => t.team === "POR");
+  const best = [...teams].sort((a, b) => b.benchWinsAboveAvg - a.benchWinsAboveAvg)[0];
+  const bargain = [...teams].sort((a, b) => b.benchSurplusValue - a.benchSurplusValue)[0];
+  const overpay = [...teams].sort((a, b) => a.benchSurplusValue - b.benchSurplusValue)[0];
+  const priciest = [...teams].sort((a, b) => b.benchPayroll - a.benchPayroll)[0];
   const heroStats: HeroStat[] = [
-    { value: bos?.benchWinsAboveAvg ?? 0, format: "wins", label: "Best bench, wins above average", sub: "Boston" },
-    { value: den?.benchSurplusValue ?? 0, format: "surplus", label: "Biggest bargain by surplus value", sub: "Denver" },
-    { value: por?.benchSurplusValue ?? 0, format: "surplus", label: "Biggest overpay by surplus value", sub: "Portland" },
+    { value: best.benchWinsAboveAvg, format: "wins", label: "Best bench, wins above average", sub: teamIdentity(best.team).name },
+    { value: bargain.benchSurplusValue, format: "surplus", label: "Biggest bargain by surplus value", sub: teamIdentity(bargain.team).name },
+    { value: overpay.benchSurplusValue, format: "surplus", label: "Biggest overpay by surplus value", sub: teamIdentity(overpay.team).name },
   ];
 
   return (
@@ -33,7 +35,7 @@ export default function BenchPage() {
     <div className="mx-auto max-w-[1560px] px-4 sm:px-8">
       {/* Act 1 — the argument: the headline claim and the chart that carries it. */}
       <div className="mx-auto max-w-[1240px]">
-        <Hero stats={heroStats} best={bos} priciest={por} />
+        <Hero stats={heroStats} best={best} priciest={priciest} meta={deepBenchData.meta} />
       </div>
 
       {/*
@@ -42,12 +44,12 @@ export default function BenchPage() {
         The table sits between them in the DOM but never reads this context,
         so it cannot re-render, let alone remount, when the selection changes.
       */}
-      <SelectedTeamProvider defaultTeam="BOS">
+      <SelectedTeamProvider defaultTeam="BOS" codes={teamCodes}>
         {/* Full wide measure: this chart is the page's headline visual. */}
         <div className="mt-16 sm:mt-20">
           <ErrorBoundary label="Bench scatter">
             <Reveal>
-              <BenchScatter teams={teams} />
+              <BenchScatter teams={teams} leagueAvgBenchPayroll={deepBenchData.meta.leagueAvgBenchPayroll} />
             </Reveal>
           </ErrorBoundary>
         </div>
@@ -59,7 +61,7 @@ export default function BenchPage() {
           <SectionHead
             id="table"
             title="All thirty benches"
-            deck="The same thirty teams, ranked by surplus value. Click a column head to reorder; hover a row for that team's colour."
+            deck="The same thirty teams, ranked by surplus value. Choose a sort order to compare teams; open a team card for its full view."
           />
           <ErrorBoundary label="Teams table">
             <TeamsTable teams={teams} />
@@ -71,29 +73,29 @@ export default function BenchPage() {
         <div className="mx-auto max-w-[1240px]">
           {/* A real break before Act 3 — the tool changes register from reading to doing. */}
           <div className="mt-28 border-t pt-6 sm:mt-36" style={{ borderColor: "var(--rule-2)" }}>
-            <div className="text-[11.5px]" style={{ fontFamily: "var(--font-num)", letterSpacing: "0.14em", color: "var(--text-lo)" }}>
+            <div className="text-[12px]" style={{ fontFamily: "var(--font-num)", letterSpacing: "0.14em", color: "var(--text-lo)" }}>
               The tool
             </div>
             <h2
-              className="mt-3 max-w-[20ch] text-[26px] leading-[1.12] sm:text-[34px]"
+              className="mt-3 max-w-[20ch] text-[34px] leading-[1.12] sm:text-[34px]"
               style={{ fontFamily: "var(--font-display)", fontWeight: 500, letterSpacing: "-0.01em", color: "var(--text-hi)" }}
             >
               Pick a team, and see where the model would move it.
             </h2>
             <p className="mt-3 max-w-[62ch] text-[15px] leading-[1.6]" style={{ color: "var(--text-mid)" }}>
-              One selection drives both panels below — click a team above in the chart, or pick one here.
+              One selection drives both panels below. Use the rail, tap a chart point, or press Space on a focused point. Desktop chart clicks open team cards.
             </p>
           </div>
 
           <div className="mt-12">
-            <TeamExplorer teamCodes={teamCodes} lineups={lineups} minutes={minutes} />
+            <TeamExplorer teamCodes={teamCodes} lineups={lineups} minutes={minutes} modelNote={deepBenchData.meta.starterBenchShareNote} ceiling={deepBenchData.meta.minutesCeiling} />
           </div>
         </div>
       </SelectedTeamProvider>
 
       <p className="mx-auto mt-24 max-w-[1240px] pb-8 text-[15px]" style={{ color: "var(--text-mid)" }}>
         What the model can see, and the seven places it cannot:{" "}
-        <Link href="/method" className="underline underline-offset-4" style={{ color: "var(--text-hi)" }}>
+        <Link prefetch={false} href="/method" className="underline underline-offset-4" style={{ color: "var(--text-hi)" }}>
           how this was built
         </Link>
         .

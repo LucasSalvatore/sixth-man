@@ -2,13 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 
-type LineupData = { gainWins: number };
-
-type DeepBenchData = {
-  teams: { team: string }[];
-  lineups: Record<string, LineupData>;
-  minutes: Record<string, unknown[]>;
-};
+import type { DeepBenchData } from "../../lib/types";
 
 // Read straight from the same JSON the app renders from, so these tests keep
 // working unchanged against a future data refresh — no team list or expected
@@ -23,9 +17,21 @@ export async function gotoHome(page: Page) {
   await page.goto("/bench", { waitUntil: "networkidle" });
 }
 
-export async function clickScatterPoint(page: Page, code: string) {
-  await page.locator('svg[role="application"]').scrollIntoViewIfNeeded();
-  await page.locator(`svg[role="application"] g[data-team="${code}"]`).first().click({ force: true });
+/** Selects in-place: real touch taps on touch devices, Space on desktop.
+ * Physical desktop clicks deliberately navigate and have their own tests. */
+export async function selectScatterPoint(page: Page, code: string) {
+  const point = scatterPoint(page, code);
+  const hit = point.locator("[data-hit]");
+  await hit.scrollIntoViewIfNeeded();
+  const touch = await page.evaluate(() => navigator.maxTouchPoints > 0);
+  if (touch) {
+    const box = await hit.boundingBox();
+    if (!box) throw new Error(`No scatter hit target for ${code}`);
+    await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  } else {
+    await point.focus();
+    await page.keyboard.press("Space");
+  }
 }
 
 export async function clickRailTeam(page: Page, code: string) {
@@ -34,7 +40,7 @@ export async function clickRailTeam(page: Page, code: string) {
 }
 
 export function scatterPoint(page: Page, code: string) {
-  return page.locator(`svg[role="application"] g[data-team="${code}"]`).first();
+  return page.locator(`[data-scatter-point][data-team="${code}"]`).first();
 }
 
 /** Reads the lineup optimizer's "Wins gained" readout as rendered. */
@@ -42,10 +48,7 @@ export async function readOptimizerState(page: Page): Promise<{ gain: string | n
   return page.evaluate(() => {
     const section = document.querySelector("#lineup-optimizer")?.closest("section");
     if (!section) return { gain: null, optimal: false };
-    const blocks = [...section.querySelectorAll("div")];
-    const gainBlock = blocks.find(
-      (d) => d.textContent?.startsWith("Wins gained") && (d.textContent?.length ?? 0) < 80,
-    );
+    const gainBlock = section.querySelector("[data-lineup-gain]");
     if (!gainBlock) return { gain: null, optimal: false };
     const text = gainBlock.textContent ?? "";
     const optimal = text.includes("Already optimal");
@@ -68,7 +71,9 @@ export function optimizerMatchesSource(
 }
 
 export async function tableRowCount(page: Page): Promise<number> {
-  return page.locator("tbody tr[data-flip-key]").count();
+  const cards = page.locator("[data-team-card]:visible");
+  if (await cards.count()) return cards.count();
+  return page.locator("tbody tr[data-flip-key]:visible").count();
 }
 
 export async function checkedRailTeam(page: Page): Promise<string | null> {

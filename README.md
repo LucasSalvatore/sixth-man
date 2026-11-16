@@ -106,6 +106,8 @@ starts its own dev server on port 3900, so a data refresh can be checked with
 actually changes. Point `PLAYWRIGHT_CHROMIUM_PATH` at a local browser binary
 to skip Playwright's managed download.
 
+See the [Phase 0 change and verification record](./docs/qa/phase-0.md) for requirement coverage, before/after screenshots, recorded failures, and production-build audit commands.
+
 ### Deploy
 
 1. Push this repo to GitHub.

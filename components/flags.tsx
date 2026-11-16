@@ -50,7 +50,7 @@ export function FlagMark({
       role="img"
       aria-label={title ?? `${meta.kind}: ${meta.describe}`}
       title={title ?? `${meta.kind} — ${meta.describe}`}
-      style={{ color: meta.color, fontSize: "0.85em", lineHeight: 1 }}
+      style={{ color: meta.color, fontSize: "var(--type-micro)", lineHeight: 1 }}
     >
       {meta.glyph}
     </span>
@@ -63,7 +63,7 @@ export function FlagChip({ reason, style }: { reason: ImputeReason; style?: CSSP
   const meta = REASON_META[reason];
   return (
     <span
-      className="inline-flex items-center gap-1.5 whitespace-nowrap text-[11px]"
+      className="inline-flex items-center gap-1.5 whitespace-nowrap text-[12px]"
       style={{
         padding: "2px 7px",
         border: `1px solid ${meta.color}`,
@@ -88,10 +88,10 @@ export function FlagDetails({ flags }: { flags: DataFlag[] }) {
       {flags.map((flag) => (
         <li key={`${flag.player}-${flag.reason}`} className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <FlagChip reason={flag.reason} />
-          <span className="text-[13px]" style={{ fontWeight: 500, color: "var(--text-hi)" }}>
+          <span className="text-[15px]" style={{ fontWeight: 500, color: "var(--text-hi)" }}>
             {flag.player}
           </span>
-          <span className="text-[12.5px]" style={{ color: "var(--text-lo)" }}>
+          <span className="text-[12px]" style={{ color: "var(--text-lo)" }}>
             {flag.note}
           </span>
         </li>
@@ -107,7 +107,7 @@ export function FlagLegend() {
       {(Object.keys(REASON_META) as ImputeReason[]).map((reason) => (
         <div key={reason} className="flex items-baseline gap-3">
           <FlagChip reason={reason} />
-          <span className="text-[13.5px]" style={{ color: "var(--text-mid)" }}>
+          <span className="text-[15px]" style={{ color: "var(--text-mid)" }}>
             {REASON_META[reason].kind} — {REASON_META[reason].describe}.
           </span>
         </div>

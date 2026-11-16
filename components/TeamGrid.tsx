@@ -31,10 +31,9 @@ export function TeamGrid({ teams, current }: { teams: Team[]; current?: string }
                     const isCurrent = code === current;
                     return (
                       <li key={code}>
-                        <Link
+                        <Link prefetch={false}
                           href={`/teams/${code}`}
                           aria-current={isCurrent ? "page" : undefined}
-                          aria-label={`${identity.name}, bench surplus value ${formatSurplus(team.benchSurplusValue)}`}
                           className="flex items-center justify-between gap-3 px-3 py-3 sm:block"
                           style={
                             {
@@ -49,11 +48,12 @@ export function TeamGrid({ teams, current }: { teams: Team[]; current?: string }
                             {code}
                           </span>
                           <span
-                            className="block text-[12.5px] sm:mt-1"
+                            className="block text-[12px] sm:mt-1"
                             style={{ fontFamily: "var(--font-num)", color: team.benchSurplusValue < 0 ? "var(--neg)" : "var(--pos)" }}
                           >
                             {formatSurplus(team.benchSurplusValue)}
                           </span>
+                          <span className="sr-only"> {identity.name}, bench surplus value</span>
                         </Link>
                       </li>
                     );
